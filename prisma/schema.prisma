@@ -23,10 +23,10 @@ model User {
   email         String   @unique
   password      String
   type          UserType
-  point         Int      @default(0)
+  points        Int      @default(0)
   totalPurchase Int      @default(0) //누적 금액( 등급 산정 기준)
 
-  image String @default("http://추후에 기본이미지 링크로 수정")
+  image String @default("https://sprint-be-project.s3.ap-northeast-2.amazonaws.com/codiit/1749477485230-user_default.png")
 
   gradeId String @default("grade_green")
   grade   Grade  @relation(fields: [gradeId], references: [id])
@@ -37,7 +37,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("users") // 실제 DB 테이블 이름은 소문자 users로 생성
+  @@map("user") //DB 테이블 이름은 소문자 users로 생성
 }
 
 model Store {
@@ -57,18 +57,18 @@ model Store {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("stores")
+  @@map("store")
 }
 
 model Grade {
-  id        String @id
-  name      String @unique
-  rate      Int
-  minAmount Int
+  id        String @id //등급id 예: "grade_green"
+  name      String @unique //등급 이름 예: "Green" 
+  rate      Int //할인 율
+  minAmount Int //달성 최소 금액
 
   users User[]
 
-  @@map("grades")
+  @@map("grade")
 }
 
 // 관심 스토어 중간 테이블
@@ -76,11 +76,12 @@ model Favorite {
   id      Int    @id @default(autoincrement())
   userId  String
   storeId String
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 
-  @@unique([userId, storeId]) // 한 유저가 같은 스토어를 중복 찜 방지
-  @@map("favorites")
+  @@unique([userId, storeId]) // 한 유저가 관심스토어 중복 방지
+  @@map("favorite")
 }

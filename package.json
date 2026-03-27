@@ -10,6 +10,9 @@
     "test": "dotenv -e .env.test -- prisma migrate dev && dotenv -e .env.test -- jest -i --coverage",
     "typecheck": "tsc --noEmit"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/NB07-team2/nb07-codi-it-team2.git"
