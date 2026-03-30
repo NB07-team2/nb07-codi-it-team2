@@ -12,6 +12,76 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Temp {
-  id Int @id @default(autoincrement())
+enum UserType {
+  BUYER
+  SELLER
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  password      String
+  type          UserType
+  points        Int      @default(0)
+  totalPurchase Int      @default(0) //누적 금액( 등급 산정 기준)
+
+  image String @default("https://sprint-be-project.s3.ap-northeast-2.amazonaws.com/codiit/1749477485230-user_default.png")
+
+  gradeId String @default("grade_green")
+  grade   Grade  @relation(fields: [gradeId], references: [id])
+
+  myStore        Store?     @relation("UserStore") //판매자의 경우 1:1
+  favoriteStores Favorite[] //구맺자의 경우 내가 추가한 관심 스토어들 (N:N)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user") //DB 테이블 이름은 소문자 users로 생성
+}
+
+model Store {
+  id            String  @id @default(cuid())
+  name          String
+  address       String
+  detailAddress String
+  phoneNumber   String
+  content       String  @db.Text
+  image         String?
+
+  userId String @unique //1:1 관계
+  user   User   @relation("UserStore", fields: [userId], references: [id], onDelete: Cascade)
+
+  favoritedBy Favorite[] // 이 스토어를 관심 등록한 유저들
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("store")
+}
+
+model Grade {
+  id        String @id //등급id 예: "grade_green"
+  name      String @unique //등급 이름 예: "Green" 
+  rate      Int //할인 율
+  minAmount Int //달성 최소 금액
+
+  users User[]
+
+  @@map("grade")
+}
+
+// 관심 스토어 중간 테이블
+model Favorite {
+  id      Int    @id @default(autoincrement())
+  userId  String
+  storeId String
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, storeId]) // 한 유저가 관심스토어 중복 방지
+  @@map("favorite")
 }
