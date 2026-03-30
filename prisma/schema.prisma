@@ -34,6 +34,8 @@ model User {
   myStore        Store?     @relation("UserStore") //판매자의 경우 1:1
   favoriteStores Favorite[] //구맺자의 경우 내가 추가한 관심 스토어들 (N:N)
 
+  reviews Review[] //유저가 작성한 리뷰
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -53,7 +55,7 @@ model Store {
   user   User   @relation("UserStore", fields: [userId], references: [id], onDelete: Cascade)
 
   favoritedBy Favorite[] // 이 스토어를 관심 등록한 유저들
-
+  products Product[] // 스토어의 상품들
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -84,4 +86,43 @@ model Favorite {
 
   @@unique([userId, storeId]) // 한 유저가 관심스토어 중복 방지
   @@map("favorite")
+}
+
+model Product {
+  id          String  @id @default(cuid())
+  name        String
+  description String? @db.Text
+  price       Int     // 가격은 원단위로 저장
+  image       String?
+  isActive    Boolean @default(true)
+
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  reviews Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([storeId])
+  @@map("product")
+}
+
+model Review {
+  id        String @id @default(cuid())
+  rating    Int    
+  content   String @db.Text
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([productId])
+  @@map("review")
 }
