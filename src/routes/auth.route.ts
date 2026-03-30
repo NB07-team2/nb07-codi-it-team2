@@ -2,6 +2,7 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import * as authController from '../controllers/auth.controller.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import { authenticate } from '../middlewares/auth.middlewares.js';
 
 const authRouter = Router();
 
@@ -26,6 +27,8 @@ const refreshLimiter = rateLimit({
 
 // 로그인
 authRouter.post('/login', authLimiter, asyncHandler(authController.login));
+// 토큰 재발급
 authRouter.post('/refresh', refreshLimiter, asyncHandler(authController.refresh));
+authRouter.post('/logout', authenticate, asyncHandler(authController.logout));
 
 export default authRouter;
