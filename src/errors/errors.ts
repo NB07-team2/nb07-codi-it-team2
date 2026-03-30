@@ -29,3 +29,29 @@ export class ConflictError extends CustomError {
     super(message, 409);
   }
 }
+
+// 401 Unauthorized
+export class TokenExpiredError extends UnauthorizedError {
+  constructor() {
+    super('토큰 만료');
+  }
+}
+
+export class LoginRequiredError extends UnauthorizedError {
+  constructor() {
+    super('로그인이 필요합니다');
+  }
+}
+
+// 400 Bad Request
+export class InvalidRequestError extends BadRequestError {
+  constructor() {
+    super('잘못된 요청입니다');
+  }
+}
+
+export class InvalidCredentialsError extends NotFoundError {
+  constructor() {
+    super('존재하지 않거나 비밀번호가 일치하지 않습니다');
+  }
+}
