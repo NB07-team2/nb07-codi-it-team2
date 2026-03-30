@@ -34,8 +34,11 @@ model User {
   myStore        Store?     @relation("UserStore") //판매자의 경우 1:1
   favoriteStores Favorite[] //구맺자의 경우 내가 추가한 관심 스토어들 (N:N)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  cart          Cart?
+  notifications Notification[]
+  orders        Order[]
 
   @@map("user") //DB 테이블 이름은 소문자 users로 생성
 }
@@ -84,4 +87,79 @@ model Favorite {
 
   @@unique([userId, storeId]) // 한 유저가 관심스토어 중복 방지
   @@map("favorite")
+}
+
+model Cart {
+  id      String     @id @default(cuid())
+  buyerId String     @unique // 한 구매자는 하나의 장바구니만 가짐
+  user    User       @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  items   CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cart")
+}
+
+model CartItem {
+  id     String @id @default(cuid())
+  cartId String
+  cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  productId String
+  //product   Product @relation(fields: [productId], references: [id]) // 상품 담당자와 연결 필요
+
+  sizeId   Int // 명세서에 number(int)로 되어 있음
+  quantity Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cart_item")
+}
+
+model Notification {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  content   String
+  isChecked Boolean          @default(false) // 명세서의 isChecked 반영
+  type      NotificationType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notification")
+}
+
+enum NotificationType {
+  SOLDOUT //품절 알림
+  NEW_INQUIRY // 새문의
+  INQUIRY_ANSWER // 답변 등록
+}
+
+model Order {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  totalSales Int // 해당 주문의 총 매출액
+  createdAt  DateTime @default(now())
+
+  orderItems OrderItem[]
+
+  @@map("order")
+}
+
+model OrderItem {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  productId String
+  price     Int // 판매가
+  quantity  Int // 판매 수량
+
+  @@map("order_item")
 }
