@@ -58,7 +58,7 @@ model Store {
   user   User   @relation("UserStore", fields: [userId], references: [id], onDelete: Cascade)
 
   favoritedBy Favorite[] // 이 스토어를 관심 등록한 유저들
-
+  products Product[] // 스토어의 상품들
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -205,4 +205,122 @@ model Reply {
   updatedAt DateTime @updatedAt
 
     @@map("reply")
+}
+model Cart {
+  id      String     @id @default(cuid())
+  buyerId String     @unique // 한 구매자는 하나의 장바구니만 가짐
+  user    User       @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  items   CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cart")
+}
+
+model CartItem {
+  id     String @id @default(cuid())
+  cartId String
+  cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  productId String
+  // product   Product @relation(fields: [productId], references: [id]) // 동우님 작업 완료 후 연결
+
+  sizeId Int
+  //size      Size    @relation(fields: [sizeId], references: [id]) 
+
+  // stockId   String
+  // stock     Stock   @relation(fields: [stockId], references: [id])
+
+  quantity Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cart_item")
+}
+
+model Notification {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  content   String
+  isChecked Boolean          @default(false) // 명세서의 isChecked 반영
+  type      NotificationType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notification")
+}
+
+enum NotificationType {
+  SOLDOUT //품절 알림
+  NEW_INQUIRY // 새문의
+  INQUIRY_ANSWER // 답변 등록
+}
+
+model Order {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  totalSales Int // 해당 주문의 총 매출액
+  createdAt  DateTime @default(now())
+
+  orderItems OrderItem[]
+
+  @@map("order")
+}
+
+model OrderItem {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  productId String
+  price     Int // 판매가
+  quantity  Int // 판매 수량
+
+  @@map("order_item")
+}
+
+model Product {
+  id          String  @id @default(cuid())
+  name        String
+  description String? @db.Text
+  price       Int     // 가격은 원단위로 저장
+  image       String?
+  isActive    Boolean @default(true)
+
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  reviews Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([storeId])
+  @@map("product")
+}
+
+model Review {
+  id        String @id @default(cuid())
+  rating    Int    
+  content   String @db.Text
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([productId])
+  @@map("review")
 }
