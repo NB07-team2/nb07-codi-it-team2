@@ -1,9 +1,9 @@
-import express from "express";
-import cors from "cors";
-import path from "path";
-import cookieParser from "cookie-parser";
-import { PUBLIC_PATH, STATIC_PATH } from "./utils/constants";
-import { errorHandler } from "./errors/errorHandler";
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import cookieParser from 'cookie-parser';
+import { PUBLIC_PATH, STATIC_PATH } from './utils/constants.util';
+import { errorHandler } from './errors/errorHandler';
 
 const app = express();
 
