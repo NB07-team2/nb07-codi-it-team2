@@ -26,13 +26,13 @@ model User {
   points        Int      @default(0)
   totalPurchase Int      @default(0) //누적 금액( 등급 산정 기준)
 
-  image String @default("https://sprint-be-project.s3.ap-northeast-2.amazonaws.com/codiit/1749477485230-user_default.png")
+  image String @default("https://sprint-be-project.s3.ap-northeast-2.amazonaws.com/codiit/1749477485230-user_default.png") // aws 설정 후 변경 필요
 
   gradeId String @default("grade_green")
   grade   Grade  @relation(fields: [gradeId], references: [id])
 
   myStore        Store?     @relation("UserStore") //판매자의 경우 1:1
-  favoriteStores Favorite[] //구맺자의 경우 내가 추가한 관심 스토어들 (N:N)
+  favoriteStores Favorite[] //구매자의 경우 내가 추가한 관심 스토어들 (N:N)
 
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -48,7 +48,7 @@ model Store {
   name          String
   address       String
   detailAddress String
-  phoneNumber   String
+  phoneNumber   String  @unique
   content       String  @db.Text
   image         String?
 
@@ -64,8 +64,8 @@ model Store {
 }
 
 model Grade {
-  id        String @id //등급id 예: "grade_green"
-  name      String @unique //등급 이름 예: "Green" 
+  id        String @id
+  name      String @unique
   rate      Int //할인 율
   minAmount Int //달성 최소 금액
 
