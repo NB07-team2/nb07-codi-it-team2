@@ -27,8 +27,10 @@ const refreshLimiter = rateLimit({
 });
 
 // 로그인
-authRouter.post('/login', authLimiter, asyncHandler(authController.login));// 토큰 재발급
+authRouter.post('/login', authLimiter, asyncHandler(authController.login));
+// 토큰 재발급
 authRouter.post('/refresh', refreshLimiter, asyncHandler(authController.refresh));
+// 로그아웃
 authRouter.post('/logout', authenticate, asyncHandler(authController.logout));
 
 
