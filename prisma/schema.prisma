@@ -35,7 +35,8 @@ model User {
   favoriteStores Favorite[] //구맺자의 경우 내가 추가한 관심 스토어들 (N:N)
 
   reviews Review[] //유저가 작성한 리뷰
-
+  inquiries Inquiry[] //유저가 작성한 문의
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -89,29 +90,89 @@ model Favorite {
 }
 
 model Product {
-  id          String  @id @default(cuid())
-  name        String
-  description String? @db.Text
-  price       Int     // 가격은 원단위로 저장
-  image       String?
-  isActive    Boolean @default(true)
+  id        String @id @default(cuid())
+  name      String
+  image     String?
+  content   String? @db.Text
+
+  price     Int
+  isSoldOut  Boolean @default(false)
+
+  // 할인
+  discountRate      Int?     
+  discountStartTime DateTime?
+  discountEndTime   DateTime?
 
   storeId String
   store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
-  reviews Review[]
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  reviews    Review[]
+  stocks     Stock[]
+  inquiries  Inquiry[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([storeId])
+  @@index([categoryId])
   @@map("product")
 }
 
-model Review {
+model Category {
+  id       String @id @default(cuid())
+  name     String @unique
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("category")
+}
+
+// 사이즈별 재고
+model Stock {
   id        String @id @default(cuid())
-  rating    Int    
+  size      String // 예: "S", "M", "L", "XL" 또는 "260" 등
+  quantity  Int    @default(0)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, size]) 
+  @@index([productId])
+  @@map("stock")
+}
+
+// 상품 문의
+model Inquiry {
+  id        String @id @default(cuid())
   content   String @db.Text
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  userId String?
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+  @@index([userId])
+  @@map("inquiry")
+}
+
+model Review {
+  id      String @id @default(cuid())
+  rating  Int
+  content String @db.Text
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -122,7 +183,9 @@ model Review {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([userId, productId]) // 유저-상품당 리뷰 1개 제한
   @@index([userId])
   @@index([productId])
+
   @@map("review")
 }
