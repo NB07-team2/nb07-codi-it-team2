@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { LoginRequiredError, TokenExpiredError } from '../errors/errors.js';
-import { verifyAccessToken } from '../utils/jwt.js';
+import { verifyAccessToken } from '../utils/jwt.util.js';
 
 export const authenticate = (req: Request, _res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;

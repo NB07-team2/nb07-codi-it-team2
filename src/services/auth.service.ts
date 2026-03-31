@@ -3,8 +3,8 @@ import {
   InvalidRequestError,
   TokenExpiredError,
 } from '../errors/errors.js';
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt.js';
-import { comparePassword } from '../utils/password.js';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt.util.js';
+import { comparePassword } from '../utils/password.util.js';
 // 유저 기능 구현 때 사용 예정
 import * as userRepository from '../repositories/user.repository.js'
 import { LoginInput } from '../models/auth.schema.js';
