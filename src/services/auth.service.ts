@@ -2,23 +2,29 @@ import {
   InvalidCredentialsError,
   InvalidRequestError,
   TokenExpiredError,
-} from '../errors/errors.js';
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt.util.js';
-import { comparePassword } from '../utils/password.util.js';
+} from '../errors/errors';
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from '../utils/jwt.util';
+import { comparePassword } from '../utils/password.util';
 // 유저 기능 구현 때 사용 예정
-import * as userRepository from '../repositories/user.repository.js'
-import { LoginInput } from '../structs/auth.schema.struct.js';
+import * as userRepository from '../repositories/user.repository';
+import { LoginInput } from '../structs/auth.schema.struct';
 import {
   LoginRequestDto,
   RefreshTokenRequestDto,
-} from '../models/auth.request.model.js';
+} from '../models/auth.request.model';
 import {
   AuthTokensResponseDto,
   AuthUserResponseDto,
   LoginResponseDto,
-} from '../models/auth.response.model.js';
+} from '../models/auth.response.model';
 
-export const login = async (data: LoginInput): Promise<{response: LoginResponseDto; refreshToken: string}> => {
+export const login = async (
+  data: LoginInput,
+): Promise<{ response: LoginResponseDto; refreshToken: string }> => {
   // DTO로 변환
   const dto = new LoginRequestDto(data);
 
@@ -44,18 +50,18 @@ export const login = async (data: LoginInput): Promise<{response: LoginResponseD
   // 명세서에 맞춘 User 정보 포함 (points를 string 변환 DTO 사용)
   const authUser = new AuthUserResponseDto(user);
 
-  return{ response: new LoginResponseDto(
-    authUser,
-    accessToken,
-  ),
-  refreshToken: refreshToken
-};
+  return {
+    response: new LoginResponseDto(authUser, accessToken),
+    refreshToken: refreshToken,
+  };
 };
 export const logout = async (userId: string): Promise<void> => {
   return;
 };
 
-export const refreshTokens = async (refreshToken: string): Promise<AuthTokensResponseDto> => {
+export const refreshTokens = async (
+  refreshToken: string,
+): Promise<AuthTokensResponseDto> => {
   // DTO로 변환
   const dto = new RefreshTokenRequestDto(refreshToken);
 

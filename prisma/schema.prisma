@@ -45,7 +45,7 @@ model Store {
   name          String
   address       String
   detailAddress String
-  phoneNumber   String
+  phoneNumber   String  @unique
   content       String  @db.Text
   image         String?
 
@@ -61,8 +61,8 @@ model Store {
 }
 
 model Grade {
-  id        String @id //등급id 예: "grade_green"
-  name      String @unique //등급 이름 예: "Green" 
+  id        String @id
+  name      String @unique
   rate      Int //할인 율
   minAmount Int //달성 최소 금액
 

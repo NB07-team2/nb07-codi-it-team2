@@ -1,10 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
-import { LoginRequiredError, TokenExpiredError } from '../errors/errors.js';
-import { verifyAccessToken } from '../utils/jwt.util.js';
+import { LoginRequiredError, TokenExpiredError } from '../errors/errors';
+import { verifyAccessToken } from '../utils/jwt.util';
 
-export const authenticate = (req: Request, _res: Response, next: NextFunction) => {
+export const authenticate = (
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+) => {
   const authHeader = req.headers.authorization;
-  let token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
+  let token = authHeader?.startsWith('Bearer ')
+    ? authHeader.substring(7)
+    : null;
 
   // 헤더에 없다면 쿠키에서 추출 시도
   if (!token && req.cookies) {
@@ -18,7 +24,7 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction) =
 
   // 토큰 검증
   const result = verifyAccessToken(token);
-  
+
   if (!result.valid) {
     if (result.expired) {
       return next(new TokenExpiredError());
