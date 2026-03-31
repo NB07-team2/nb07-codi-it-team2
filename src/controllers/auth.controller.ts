@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 //import { env } from '../utils/env.js';
 import { InvalidRequestError } from '../errors/errors.js';
-import { loginSchema } from '../models/auth.schema.js'
+import { loginSchema } from '../models/auth.schema.model.js'
 import * as authService from '../services/auth.service.js';
 
 // 로그인

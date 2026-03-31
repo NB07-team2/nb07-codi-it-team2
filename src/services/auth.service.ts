@@ -7,16 +7,16 @@ import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '.
 import { comparePassword } from '../utils/password.util.js';
 // 유저 기능 구현 때 사용 예정
 import * as userRepository from '../repositories/user.repository.js'
-import { LoginInput } from '../models/auth.schema.js';
+import { LoginInput } from '../models/auth.schema.model.js';
 import {
   LoginRequestDto,
   RefreshTokenRequestDto,
-} from '../models/auth.request.dto.js';
+} from '../models/auth.request.model.js';
 import {
   AuthTokensResponseDto,
   AuthUserResponseDto,
   LoginResponseDto,
-} from '../models/auth.response.dto.js';
+} from '../models/auth.response.model.js';
 
 export const login = async (data: LoginInput): Promise<{response: LoginResponseDto; refreshToken: string}> => {
   // DTO로 변환
