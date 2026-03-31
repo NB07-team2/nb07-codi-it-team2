@@ -1,9 +1,9 @@
 import { PrismaClient, UserType } from "@prisma/client";
 
 const prisma = new PrismaClient();
-// 상품, 리뷰 생성 확인 시드 파일입니다.
+
 async function main() {
-  // 1) Grade (User.gradeId의 default가 grade_green 이라서, 없으면 User 생성이 깨질 수 있음)
+  // 1) Grade
   await prisma.grade.upsert({
     where: { id: "grade_green" },
     update: {},
@@ -15,44 +15,22 @@ async function main() {
     },
   });
 
-  // 2) Seller + Store (Store.userId가 unique라서 1:1로 생성)
+  // 2) Users (seller, buyer)
   const seller = await prisma.user.upsert({
     where: { email: "seller1@test.com" },
-    update: {
-      type: UserType.SELLER,
-      gradeId: "grade_green",
-    },
+    update: {},
     create: {
       name: "Seller One",
       email: "seller1@test.com",
       password: "password1234",
       type: UserType.SELLER,
       gradeId: "grade_green",
-      // image는 default가 있으니 생략 가능
     },
   });
 
-  const store = await prisma.store.upsert({
-    where: { userId: seller.id },
-    update: {},
-    create: {
-      name: "Seed Store",
-      address: "Seoul",
-      detailAddress: "Gangnam",
-      phoneNumber: "010-0000-0000",
-      content: "Seed store for product/review test",
-      userId: seller.id,
-      image: null,
-    },
-  });
-
-  // 3) Buyer (리뷰 작성자)
   const buyer = await prisma.user.upsert({
     where: { email: "buyer1@test.com" },
-    update: {
-      type: UserType.BUYER,
-      gradeId: "grade_green",
-    },
+    update: {},
     create: {
       name: "Buyer One",
       email: "buyer1@test.com",
@@ -62,64 +40,119 @@ async function main() {
     },
   });
 
-  // 4) Products (storeId 필요)
-  const products = await prisma.product.createMany({
+  // 3) Store (seller 1:1)
+  const store = await prisma.store.upsert({
+    where: { userId: seller.id },
+    update: {},
+    create: {
+      name: "Seed Store",
+      address: "Seoul",
+      detailAddress: "Gangnam",
+      phoneNumber: "010-0000-0000",
+      content: "Store for seeding products",
+      userId: seller.id,
+      image: null,
+    },
+  });
+
+  // 4) Categories
+  const [catPants, catShirt] = await prisma.$transaction([
+    prisma.category.upsert({
+      where: { name: "Pants" },
+      update: {},
+      create: { name: "Pants" },
+    }),
+    prisma.category.upsert({
+      where: { name: "Shirt" },
+      update: {},
+      create: { name: "Shirt" },
+    }),
+  ]);
+
+  // 5) Products
+  const products = await prisma.$transaction([
+    prisma.product.create({
+      data: {
+        name: "Basic Jeans",
+        image: null,
+        content: "Comfort fit jeans",
+        price: 39900,
+        isSoldOut: false,
+        discountRate: 10,
+        discountStartTime: new Date("2026-04-01T00:00:00Z"),
+        discountEndTime: new Date("2026-04-10T00:00:00Z"),
+        storeId: store.id,
+        categoryId: catPants.id,
+      },
+    }),
+    prisma.product.create({
+      data: {
+        name: "White Shirt",
+        image: null,
+        content: "Oxford cotton shirt",
+        price: 29900,
+        isSoldOut: false,
+        discountRate: null,
+        discountStartTime: null,
+        discountEndTime: null,
+        storeId: store.id,
+        categoryId: catShirt.id,
+      },
+    }),
+  ]);
+
+  // 6) Stocks (size별)
+  await prisma.stock.createMany({
+    data: [
+      { productId: products[0].id, size: "S", quantity: 5 },
+      { productId: products[0].id, size: "M", quantity: 3 },
+      { productId: products[1].id, size: "M", quantity: 10 },
+      { productId: products[1].id, size: "L", quantity: 8 },
+    ],
+  });
+
+  // 7) Inquiries
+  await prisma.inquiry.createMany({
     data: [
       {
-        name: "T-Shirt",
-        description: "Seed T-Shirt",
-        price: 12900,
-        image: null,
-        isActive: true,
-        storeId: store.id,
+        content: "M 사이즈 재입고 언제 되나요?",
+        productId: products[0].id,
+        userId: buyer.id,
       },
       {
-        name: "Jeans",
-        description: "Seed Jeans",
-        price: 39900,
-        image: null,
-        isActive: true,
-        storeId: store.id,
+        content: "세탁은 어떻게 하나요?",
+        productId: products[1].id,
+        userId: buyer.id,
       },
     ],
   });
 
-  // createMany는 생성된 레코드 반환을 안 해줘서, 다시 조회
-  const createdProducts = await prisma.product.findMany({
-    where: { storeId: store.id },
-    orderBy: { createdAt: "asc" },
-  });
-
-  // 5) Reviews (userId, productId 필요)
-  // 같은 상품에 여러 리뷰 허용(현재 스키마는 @@unique([userId, productId]) 없음)
+  // 8) Reviews (유저-상품당 1개 제한이 이미 스키마에 있음)
   await prisma.review.createMany({
     data: [
       {
         rating: 5,
-        content: "Good quality!",
+        content: "핏 좋아요!",
         userId: buyer.id,
-        productId: createdProducts[0].id,
+        productId: products[0].id,
       },
       {
         rating: 4,
-        content: "Nice fit.",
+        content: "셔츠 재질 괜찮습니다.",
         userId: buyer.id,
-        productId: createdProducts[1].id,
+        productId: products[1].id,
       },
     ],
   });
 
-  // 6) 확인 출력 (상품 + 리뷰 포함)
+  // 9) 확인용 출력
   const result = await prisma.product.findMany({
-    where: { storeId: store.id },
     include: {
+      category: true,
       store: true,
-      reviews: {
-        include: {
-          user: true,
-        },
-        orderBy: { createdAt: "asc" },
-      },
+      stocks: true,
+      reviews: { include: { user: true } },
+      inquiries: true,
     },
     orderBy: { createdAt: "asc" },
   });
@@ -127,17 +160,19 @@ async function main() {
   console.dir(
     {
       store: { id: store.id, name: store.name },
-      productsCreated: products.count,
       products: result.map((p) => ({
         id: p.id,
         name: p.name,
-        price: p.price,
+        category: p.category.name,
+        discountRate: p.discountRate,
+        isSoldOut: p.isSoldOut,
+        stocks: p.stocks.map((s) => ({ size: s.size, qty: s.quantity })),
         reviews: p.reviews.map((r) => ({
-          id: r.id,
           rating: r.rating,
           content: r.content,
-          userEmail: r.user.email,
+          user: r.user.email,
         })),
+        inquiries: p.inquiries.map((i) => i.content),
       })),
     },
     { depth: null }
@@ -149,6 +184,4 @@ main()
     console.error(e);
     process.exit(1);
   })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .finally(async () => prisma.$disconnect());
