@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { LoginRequiredError, TokenExpiredError } from '../errors/errors';
 import { verifyAccessToken } from '../utils/jwt.util';
+import { TokenPayload } from '../utils/jwt.util';
 
 export const authenticate = (
   req: Request,
@@ -19,7 +20,7 @@ export const authenticate = (
 
   // 토큰이 아예 없는 경우
   if (!token) {
-    return next(new LoginRequiredError()); // Express 에러 핸들러로 전달
+    return next(new LoginRequiredError()); 
   }
 
   // 토큰 검증
@@ -32,10 +33,11 @@ export const authenticate = (
     return next(new LoginRequiredError());
   }
 
+  const payload = result.payload as TokenPayload;
   // req.user에 페이로드 정보 저장
   req.user = {
-    id: result.payload!.userId,
+    id: payload.userId,
+    type: payload.type,
   };
-
   next();
 };
