@@ -107,9 +107,14 @@ model CartItem {
   cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
 
   productId String
-  //product   Product @relation(fields: [productId], references: [id]) // 상품 담당자와 연결 필요
+  // product   Product @relation(fields: [productId], references: [id]) // 동우님 작업 완료 후 연결
 
-  sizeId   Int // 명세서에 number(int)로 되어 있음
+  sizeId Int
+  //size      Size    @relation(fields: [sizeId], references: [id]) 
+
+  // stockId   String
+  // stock     Stock   @relation(fields: [stockId], references: [id])
+
   quantity Int
 
   createdAt DateTime @default(now())
