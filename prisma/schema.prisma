@@ -33,8 +33,8 @@ model User {
 
   myStore        Store?     @relation("UserStore") //판매자의 경우 1:1
   favoriteStores Favorite[] //구매자의 경우 내가 추가한 관심 스토어들 (N:N)
-  inquiries   Inquiry[]  // 이 스토어의 상품에 대한 문의들
-  replies     Reply[]    // 이 스토어의 상품에 대한 문의에 달린 답변들
+  inquiries   Inquiry[]  // 이 유저가 작성한 문의들
+  replies     Reply[]    // 이 유저가 작성한 답변들
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -87,7 +87,7 @@ model Favorite {
 }
 
 enum StatusType {
-  PendingAnswer
+  WaitingAnswer
   CompletedAnswer
 }
 
@@ -97,10 +97,10 @@ model Inquiry {
   productId String
   title     String
   content   String     @db.Text
-  status    StatusType @default(PendingAnswer)
+  status    StatusType @default(WaitingAnswer)
   isSecret  Boolean       @default(false)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  //product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
