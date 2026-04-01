@@ -33,6 +33,8 @@ model User {
 
   myStore        Store?     @relation("UserStore") //판매자의 경우 1:1
   favoriteStores Favorite[] //구매자의 경우 내가 추가한 관심 스토어들 (N:N)
+  inquiries      Inquiry[] // 내가 작성한 상품 문의들 
+  reviews        Review[] // 내가 작성한 리뷰들
 
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -91,84 +93,40 @@ model Favorite {
   @@map("favorite")
 }
 
-model Cart {
-  id      String     @id @default(cuid())
-  buyerId String     @unique // 한 구매자는 하나의 장바구니만 가짐
-  user    User       @relation(fields: [buyerId], references: [id], onDelete: Cascade)
-  items   CartItem[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("cart")
+enum StatusType {
+  WaitingAnswer
+  CompletedAnswer
 }
 
-model CartItem {
-  id     String @id @default(cuid())
-  cartId String
-  cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
-
+model Inquiry {
+  id        String     @id @default(cuid())
+  userId    String
   productId String
-  // product   Product @relation(fields: [productId], references: [id]) // 동우님 작업 완료 후 연결
+  title     String
+  content   String     @db.Text
+  status    StatusType @default(WaitingAnswer)
+  isSecret  Boolean       @default(false)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  //product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  reply Reply? // 1:1 관계, 답변이 없는 경우 null 허용
 
-  sizeId Int
-  //size      Size    @relation(fields: [sizeId], references: [id]) 
+  @@map("inquiry")
+}
 
-  // stockId   String
-  // stock     Stock   @relation(fields: [stockId], references: [id])
-
-  quantity Int
-
+model Reply {
+  id        String @id @default(cuid())
+  userId    String
+  inquiryId String @unique 
+  content   String @db.Text
+  inquiry Inquiry  @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("cart_item")
-}
-
-model Notification {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  content   String
-  isChecked Boolean          @default(false) // 명세서의 isChecked 반영
-  type      NotificationType
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("notification")
-}
-
-enum NotificationType {
-  SOLDOUT //품절 알림
-  NEW_INQUIRY // 새문의
-  INQUIRY_ANSWER // 답변 등록
-}
-
-model Order {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  totalSales Int // 해당 주문의 총 매출액
-  createdAt  DateTime @default(now())
-
-  orderItems OrderItem[]
-
-  @@map("order")
-}
-
-model OrderItem {
-  id      String @id @default(cuid())
-  orderId String
-  order   Order  @relation(fields: [orderId], references: [id])
-
-  productId String
-  price     Int // 판매가
-  quantity  Int // 판매 수량
-
-  @@map("order_item")
+    @@map("reply")
 }
 
 
