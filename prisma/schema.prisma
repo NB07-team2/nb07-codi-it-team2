@@ -39,6 +39,8 @@ model User {
   cart          Cart?
   notifications Notification[]
   orders        Order[]
+  inquiries   Inquiry[]  // 이 유저가 작성한 문의들
+  replies     Reply[]    // 이 유저가 작성한 답변들
 
   @@map("user") //DB 테이블 이름은 소문자 users로 생성
 }
@@ -167,4 +169,40 @@ model OrderItem {
   quantity  Int // 판매 수량
 
   @@map("order_item")
+}
+
+
+enum StatusType {
+  WaitingAnswer
+  CompletedAnswer
+}
+
+model Inquiry {
+  id        String     @id @default(cuid())
+  userId    String
+  productId String
+  title     String
+  content   String     @db.Text
+  status    StatusType @default(WaitingAnswer)
+  isSecret  Boolean       @default(false)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  //product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  reply Reply? // 1:1 관계, 답변이 없는 경우 null 허용
+
+  @@map("inquiry")
+}
+
+model Reply {
+  id        String @id @default(cuid())
+  userId    String
+  inquiryId String @unique 
+  content   String @db.Text
+  inquiry Inquiry  @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+    @@map("reply")
 }
