@@ -7,6 +7,11 @@ import * as authService from '../services/auth.service';
 // 로그인
 export const login = async (req: Request, res: Response): Promise<void> => {
   const validatedData = loginSchema.parse(req.body);
+  const result = await authService.login(validatedData);
+
+  if (!result) {
+    throw new Error('Service returned undefined or null');
+  }
   const { response, refreshToken } = await authService.login(validatedData);
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,

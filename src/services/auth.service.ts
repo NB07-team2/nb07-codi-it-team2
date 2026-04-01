@@ -21,39 +21,40 @@ import {
   AuthUserResponseDto,
   LoginResponseDto,
 } from '../models/auth.response.model';
+import { TokenPayload } from '../utils/jwt.util';
 
 export const login = async (
   data: LoginInput,
 ): Promise<{ response: LoginResponseDto; refreshToken: string }> => {
-  // DTO로 변환
+  // 1. DTO 변환 및 준비
   const dto = new LoginRequestDto(data);
+  const email = dto.normalizeEmail();
 
-  // 유저 조회
-  const user = await userRepository.findByEmail(dto.normalizeEmail());
+  // 2. 유저 조회
+  const user = await userRepository.findByEmail(email);
   if (!user) {
     throw new InvalidCredentialsError();
   }
 
-  // 비밀번호 검증
+  // 3. 비밀번호 검증
   if (!user.password) {
     throw new InvalidCredentialsError();
   }
-
   const isPasswordValid = await comparePassword(dto.password, user.password);
   if (!isPasswordValid) {
     throw new InvalidCredentialsError();
   }
 
-  // 토큰 발급
-  const accessToken = generateAccessToken(user.id);
-  const refreshToken = generateRefreshToken(user.id);
-  // 명세서에 맞춘 User 정보 포함 (points를 string 변환 DTO 사용)
+  const accessToken = generateAccessToken(user.id, user.type);
+  const refreshToken = generateRefreshToken(user.id, user.type);
   const authUser = new AuthUserResponseDto(user);
 
-  return {
+  const result = {
     response: new LoginResponseDto(authUser, accessToken),
-    refreshToken: refreshToken,
+    refreshToken
   };
+  
+  return result; 
 };
 export const logout = async (userId: string): Promise<void> => {
   return;
@@ -64,7 +65,6 @@ export const refreshTokens = async (
 ): Promise<AuthTokensResponseDto> => {
   // DTO로 변환
   const dto = new RefreshTokenRequestDto(refreshToken);
-
   // 토큰 검증
   const result = verifyRefreshToken(dto.refreshToken);
 
@@ -74,11 +74,13 @@ export const refreshTokens = async (
     }
     throw new InvalidRequestError();
   }
-
+  const payload = result.payload as TokenPayload;
   // 새 토큰 발급
-  const userId = result.payload!.userId;
-  const newAccessToken = generateAccessToken(userId);
-  const newRefreshToken = generateRefreshToken(userId);
+  const userId = payload.userId;
+  const type = payload.type;
+
+  const newAccessToken = generateAccessToken(userId, type);
+  const newRefreshToken = generateRefreshToken(userId, type);
 
   // Response DTO로 변환하여 반환
   return new AuthTokensResponseDto({
