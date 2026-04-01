@@ -58,16 +58,17 @@ async function main() {
   // 4) Categories
   const [catPants, catShirt] = await prisma.$transaction([
     prisma.category.upsert({
-      where: { name: "Pants" },
+      where: { name: "bottom" },
       update: {},
-      create: { name: "Pants" },
+      create: { name: "bottom" },
     }),
     prisma.category.upsert({
-      where: { name: "Shirt" },
+      where: { name: "skirt" },
       update: {},
-      create: { name: "Shirt" },
-    }),
-  ]);
+      create: { name: "skirt" },
+    }
+    ),]);
+
   // ... 기존 코드 위쪽 ...
 
 // 4.5) Sizes (추가)
