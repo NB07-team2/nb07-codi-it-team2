@@ -41,8 +41,7 @@ model User {
   cart          Cart?
   notifications Notification[]
   orders        Order[]
-  inquiries   Inquiry[]  // 이 유저가 작성한 문의들
-  replies     Reply[]    // 이 유저가 작성한 답변들
+  replies       Reply[] // 이 유저가 작성한 답변들
 
   @@map("user") //DB 테이블 이름은 소문자 users로 생성
 }
@@ -60,9 +59,9 @@ model Store {
   user   User   @relation("UserStore", fields: [userId], references: [id], onDelete: Cascade)
 
   favoritedBy Favorite[] // 이 스토어를 관심 등록한 유저들
-  products Product[] // 스토어의 상품들
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  products    Product[] // 스토어의 상품들
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   @@map("store")
 }
@@ -93,7 +92,6 @@ model Favorite {
   @@map("favorite")
 }
 
-
 enum StatusType {
   WaitingAnswer
   CompletedAnswer
@@ -106,64 +104,32 @@ model Inquiry {
   title     String
   content   String     @db.Text
   status    StatusType @default(WaitingAnswer)
-  isSecret  Boolean       @default(false)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isSecret  Boolean    @default(false)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   //product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  reply Reply? // 1:1 관계, 답변이 없는 경우 null 허용
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  reply     Reply? // 1:1 관계, 답변이 없는 경우 null 허용
+  Product   Product    @relation(fields: [productId], references: [id])
 
+  @@index([productId])
+  @@index([userId])
   @@map("inquiry")
 }
 
 model Reply {
-  id        String @id @default(cuid())
+  id        String   @id @default(cuid())
   userId    String
-  inquiryId String @unique 
-  content   String @db.Text
-  inquiry Inquiry  @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inquiryId String   @unique
+  content   String   @db.Text
+  inquiry   Inquiry  @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-    @@map("reply")
+  @@map("reply")
 }
 
-
-enum StatusType {
-  WaitingAnswer
-  CompletedAnswer
-}
-
-model Inquiry {
-  id        String     @id @default(cuid())
-  userId    String
-  productId String
-  title     String
-  content   String     @db.Text
-  status    StatusType @default(WaitingAnswer)
-  isSecret  Boolean       @default(false)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  //product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  reply Reply? // 1:1 관계, 답변이 없는 경우 null 허용
-
-  @@map("inquiry")
-}
-
-model Reply {
-  id        String @id @default(cuid())
-  userId    String
-  inquiryId String @unique 
-  content   String @db.Text
-  inquiry Inquiry  @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-    @@map("reply")
-}
 model Cart {
   id      String     @id @default(cuid())
   buyerId String     @unique // 한 구매자는 하나의 장바구니만 가짐
@@ -245,17 +211,17 @@ model OrderItem {
 }
 
 model Product {
-  id        String @id @default(cuid())
-  name      String
-  image     String?
-  content   String? @db.Text
+  id      String  @id @default(cuid())
+  name    String
+  image   String?
+  content String? @db.Text
 
   price     Int
-  isSoldOut  Boolean @default(false)
-  sales Int    @default(0)
+  isSoldOut Boolean @default(false)
+  sales     Int     @default(0)
 
   // 할인
-  discountRate      Int?     
+  discountRate      Int?
   discountStartTime DateTime?
   discountEndTime   DateTime?
 
@@ -265,9 +231,9 @@ model Product {
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
 
-  reviews    Review[]
-  stocks     Stock[]
-  inquiries  Inquiry[]
+  reviews   Review[]
+  stocks    Stock[]
+  inquiries Inquiry[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -276,6 +242,7 @@ model Product {
   @@index([categoryId])
   @@map("product")
 }
+
 enum CategoryName {
   all
   top
@@ -288,8 +255,8 @@ enum CategoryName {
 }
 
 model Category {
-  id       String @id @default(cuid())
-  name     CategoryName @unique
+  id   String       @id @default(cuid())
+  name CategoryName @unique
 
   products Product[]
 
@@ -300,25 +267,25 @@ model Category {
 }
 
 model Size {
-  id        Int     @id @default(autoincrement())
-  name      String  // 예: "S", "M", "L" 등
-  enName    String? // LARGE, MEDIUM, SMALL 등 영문 사이즈명
-  koName    String? // 라지, 미디엄, 스몰 등 한글 사이즈명
-  stocks    Stock[]
+  id     Int     @id @default(autoincrement())
+  name   String // 예: "S", "M", "L" 등
+  enName String? // LARGE, MEDIUM, SMALL 등 영문 사이즈명
+  koName String? // 라지, 미디엄, 스몰 등 한글 사이즈명
+  stocks Stock[]
 
   @@unique([name]) // 같은 사이즈명 중복 방지(선택)
 }
 
 // 사이즈별 재고
 model Stock {
-  id        String @id @default(cuid())
-  size      Size    @relation(fields: [sizeId], references: [id])
-  quantity  Int    @default(0)
-  sizeId    Int
+  id       String @id @default(cuid())
+  size     Size   @relation(fields: [sizeId], references: [id])
+  quantity Int    @default(0)
+  sizeId   Int
 
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -326,25 +293,6 @@ model Stock {
   @@index([productId])
   @@index([sizeId])
   @@map("stock")
-}
-
-// 상품 문의
-model Inquiry {
-  id        String @id @default(cuid())
-  content   String @db.Text
-
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  userId String?
-  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([productId])
-  @@index([userId])
-  @@map("inquiry")
 }
 
 model Review {
@@ -364,6 +312,5 @@ model Review {
   @@unique([userId, productId]) // 유저-상품당 리뷰 1개 제한
   @@index([userId])
   @@index([productId])
-
   @@map("review")
 }
