@@ -12,7 +12,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   if (!result) {
     throw new Error('Service returned undefined or null');
   }
-  const { response, refreshToken } = await authService.login(validatedData);
+  const { response, refreshToken } = result;
+  
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
