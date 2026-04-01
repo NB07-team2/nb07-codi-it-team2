@@ -1,3 +1,5 @@
+import { UserType } from "@prisma/client";
+
 export {};
 
 declare global {
@@ -5,7 +7,7 @@ declare global {
     interface Request {
       user?: {
         id: string;
-        
+        type: UserType;
       };
     }
   }
