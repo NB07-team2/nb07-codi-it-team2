@@ -294,6 +294,7 @@ model Product {
 
   price     Int
   isSoldOut  Boolean @default(false)
+  sales Int    @default(0)
 
   // 할인
   discountRate      Int?     
@@ -317,10 +318,20 @@ model Product {
   @@index([categoryId])
   @@map("product")
 }
+enum CategoryName {
+  all
+  top
+  bottom
+  dress
+  outer
+  skirt
+  shoes
+  acc
+}
 
 model Category {
   id       String @id @default(cuid())
-  name     String @unique
+  name     CategoryName @unique
 
   products Product[]
 
@@ -330,20 +341,32 @@ model Category {
   @@map("category")
 }
 
+model Size {
+  id        Int     @id @default(autoincrement())
+  name      String  // 예: "S", "M", "L" 등
+  enName    String? // LARGE, MEDIUM, SMALL 등 영문 사이즈명
+  koName    String? // 라지, 미디엄, 스몰 등 한글 사이즈명
+  stocks    Stock[]
+
+  @@unique([name]) // 같은 사이즈명 중복 방지(선택)
+}
+
 // 사이즈별 재고
 model Stock {
   id        String @id @default(cuid())
-  size      String // 예: "S", "M", "L", "XL" 또는 "260" 등
+  size      Size    @relation(fields: [sizeId], references: [id])
   quantity  Int    @default(0)
+  sizeId    Int
 
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([productId, size]) 
+  @@unique([productId, sizeId]) // 상품 사이즈 중복 방지
   @@index([productId])
+  @@index([sizeId])
   @@map("stock")
 }
 

@@ -68,7 +68,33 @@ async function main() {
       create: { name: "Shirt" },
     }),
   ]);
+  // ... 기존 코드 위쪽 ...
 
+// 4.5) Sizes (추가)
+const sizes = await Promise.all([
+  prisma.size.upsert({
+    where: { name: "S" },
+    update: {},
+    create: { name: "S", enName: "SMALL", koName: "스몰" },
+  }),
+  prisma.size.upsert({
+    where: { name: "M" },
+    update: {},
+    create: { name: "M", enName: "MEDIUM", koName: "미디엄" },
+  }),
+  prisma.size.upsert({
+    where: { name: "L" },
+    update: {},
+    create: { name: "L", enName: "LARGE", koName: "라지" },
+  }),
+]);
+
+// 편하게 쓰기 위해 객체로 맵핑 (선택 사항)
+const sizeMap = {
+  S: sizes.find(s => s.name === "S")!.id,
+  M: sizes.find(s => s.name === "M")!.id,
+  L: sizes.find(s => s.name === "L")!.id,
+};
   // 5) Products
   const products = await prisma.$transaction([
     prisma.product.create({
@@ -104,10 +130,10 @@ async function main() {
   // 6) Stocks (size별)
   await prisma.stock.createMany({
     data: [
-      { productId: products[0].id, size: "S", quantity: 5 },
-      { productId: products[0].id, size: "M", quantity: 3 },
-      { productId: products[1].id, size: "M", quantity: 10 },
-      { productId: products[1].id, size: "L", quantity: 8 },
+      { productId: products[0].id, sizeId: sizeMap.S, quantity: 5 },
+      { productId: products[0].id, sizeId: sizeMap.M, quantity: 3 },
+      { productId: products[1].id, sizeId: sizeMap.M, quantity: 10 },
+      { productId: products[1].id, sizeId: sizeMap.L, quantity: 8 },
     ],
   });
 
@@ -150,7 +176,7 @@ async function main() {
     include: {
       category: true,
       store: true,
-      stocks: true,
+      stocks: { include: { size: true } },
       reviews: { include: { user: true } },
       inquiries: true,
     },
@@ -166,7 +192,7 @@ async function main() {
         category: p.category.name,
         discountRate: p.discountRate,
         isSoldOut: p.isSoldOut,
-        stocks: p.stocks.map((s) => ({ size: s.size, qty: s.quantity })),
+        stocks: p.stocks.map((s) => ({ size: s.size.name, qty: s.quantity })),
         reviews: p.reviews.map((r) => ({
           rating: r.rating,
           content: r.content,
