@@ -21,7 +21,7 @@ app.use(STATIC_PATH, express.static(path.resolve(process.cwd(), PUBLIC_PATH)));
 //라우터 등록
 app.use('/api/auth', authRouter);
 app.use('/api/s3', imageRouter);
-//app.use('/api/cart', cartRouter)
+app.use('/api/cart', cartRouter)
 
 //에러 핸들러
 app.use(errorHandler);
