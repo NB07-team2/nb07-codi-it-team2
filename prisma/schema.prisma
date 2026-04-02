@@ -150,10 +150,10 @@ model CartItem {
   product   Product @relation(fields: [productId], references: [id]) // 동우님 작업 완료 후 연결
 
   sizeId Int
-  size      Size    @relation(fields: [sizeId], references: [id]) 
+  size   Size @relation(fields: [sizeId], references: [id])
 
-  stockId   String
-  stock     Stock   @relation(fields: [stockId], references: [id])
+  stockId String
+  stock   Stock  @relation(fields: [stockId], references: [id])
 
   quantity Int
 
@@ -187,7 +187,7 @@ enum NotificationType {
 model Order {
   id     String @id @default(cuid())
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   totalSales Int // 해당 주문의 총 매출액
   createdAt  DateTime @default(now())
@@ -200,12 +200,13 @@ model Order {
 model OrderItem {
   id      String @id @default(cuid())
   orderId String
-  order   Order  @relation(fields: [orderId], references: [id])
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   productId String
   price     Int // 판매가
   quantity  Int // 판매 수량
-  review Review? // 1:1 관계, 리뷰가 없는 경우 null 허용
+  review    Review? // 1:1 관계, 리뷰가 없는 경우 null 허용
+
   @@map("order_item")
 }
 
@@ -267,11 +268,11 @@ model Category {
 }
 
 model Size {
-  id     Int     @id @default(autoincrement())
-  name   String // 예: "S", "M", "L" 등
-  enName String? // LARGE, MEDIUM, SMALL 등 영문 사이즈명
-  koName String? // 라지, 미디엄, 스몰 등 한글 사이즈명
-  stocks Stock[]
+  id        Int        @id @default(autoincrement())
+  name      String // 예: "S", "M", "L" 등
+  enName    String? // LARGE, MEDIUM, SMALL 등 영문 사이즈명
+  koName    String? // 라지, 미디엄, 스몰 등 한글 사이즈명
+  stocks    Stock[]
   cartItems CartItem[]
 
   @@unique([name]) // 같은 사이즈명 중복 방지(선택)
@@ -289,9 +290,9 @@ model Stock {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   cartItems CartItem[]
-  
+
   @@unique([productId, sizeId]) // 상품 사이즈 중복 방지
   @@index([productId])
   @@index([sizeId])
@@ -309,7 +310,7 @@ model Review {
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  orderItemId String    @unique 
+  orderItemId String    @unique
   orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
