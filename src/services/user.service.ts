@@ -84,7 +84,7 @@ export const updateMe = async (
 // 관심 스토어 조회
 export const getFavorites = async (userId: string) => {
   const userExists = await userRepository.findById(userId);
-  if (!userExists) throw new NotFoundError('존재하지 않는 유저입니다.');
+  if (!userExists) throw new NotFoundError('유저를 찾을 수 없습니다.');
 
   return await userRepository.findFavoritesByUserId(userId);
 };
