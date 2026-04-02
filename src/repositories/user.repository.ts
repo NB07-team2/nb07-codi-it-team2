@@ -23,3 +23,34 @@ export const findById = async (id: string) => {
   });
 };
 
+// 회원가입
+export const create = async (data: any) => {
+  return await prisma.user.create({
+    data,
+    include: { grade: true },
+  });
+};
+
+// 정보 수정
+export const update = async (id: string, data: any) => {
+  return await prisma.user.update({
+    where: { id },
+    data,
+    include: { grade: true },
+  });
+};
+
+// 관심 스토어 조회
+export const findFavoritesByUserId = async (userId: string) => {
+  return await prisma.favorite.findMany({
+    where: { userId },
+    include: { store: true },
+  });
+};
+
+// 회원 탈퇴
+export const deleteUser = async (id: string) => {
+  return await prisma.user.delete({
+    where: { id },
+  });
+};

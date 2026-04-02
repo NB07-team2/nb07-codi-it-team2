@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { LoginRequiredError, TokenExpiredError } from '../errors/errors';
+import { LoginRequiredError, TokenExpiredError, UnauthorizedError } from '../errors/errors';
 import { verifyAccessToken } from '../utils/jwt.util';
 import { TokenPayload } from '../utils/jwt.util';
 
@@ -20,7 +20,7 @@ export const authenticate = (
 
   // 토큰이 아예 없는 경우
   if (!token) {
-    return next(new LoginRequiredError()); 
+    return next(new UnauthorizedError()); 
   }
 
   // 토큰 검증
