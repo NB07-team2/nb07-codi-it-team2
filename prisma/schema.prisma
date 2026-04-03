@@ -92,7 +92,7 @@ model Favorite {
   @@map("favorite")
 }
 
-enum StatusType {
+enum InquiryStatus {
   WaitingAnswer
   CompletedAnswer
 }
@@ -103,9 +103,9 @@ model Inquiry {
   productId String
   title     String
   content   String     @db.Text
-  status    StatusType @default(WaitingAnswer)
+  status    InquiryStatus @default(WaitingAnswer)
   isSecret  Boolean    @default(false)
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id])
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   reply     Reply? // 1:1 관계, 답변이 없는 경우 null 허용
@@ -186,13 +186,19 @@ enum NotificationType {
 
 model Order {
   id     String @id @default(cuid())
+  name   String // 주문자 이름
+  phone  String // 주문자 연락처
+  address String // 주문자 주소
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  subtotal   Int // 상품 가격 * 수량의 합계
+  totalQuantity Int // 주문한 총 수량
+  usePoint   Int // 사용한 포인트
   totalSales Int // 해당 주문의 총 매출액
   createdAt  DateTime @default(now())
 
   orderItems OrderItem[]
+  payments   Payment?
 
   @@map("order")
 }
@@ -203,10 +209,15 @@ model OrderItem {
   order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   productId String
+  product   Product @relation(fields: [productId], references: [id])
+
   price     Int // 판매가
   quantity  Int // 판매 수량
+  name     String // 주문 당시 상품명(할인 적용 여부 등 변동 가능성 고려)
   review    Review? // 1:1 관계, 리뷰가 없는 경우 null 허용
-
+  isReviewed Boolean @default(false) // 리뷰 작성 여부
+  sizeId Int
+  size      Size    @relation(fields: [sizeId], references: [id])
   @@map("order_item")
 }
 
@@ -236,6 +247,7 @@ model Product {
   inquiries Inquiry[]
   cartItems CartItem[]
 
+  orderItems OrderItem[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -274,6 +286,8 @@ model Size {
   koName    String? // 라지, 미디엄, 스몰 등 한글 사이즈명
   stocks    Stock[]
   cartItems CartItem[]
+  orderItems OrderItem[]
+
 
   @@unique([name]) // 같은 사이즈명 중복 방지(선택)
 }
@@ -321,4 +335,21 @@ model Review {
   @@index([productId])
   @@index([orderItemId])
   @@map("review")
+}
+
+enum PaymentStatus {
+  WaitingPayment
+  CompletedPayment
+}
+
+model Payment {
+  id String @id @default(cuid())
+  orderId String @unique
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  price Int
+  status PaymentStatus @default(WaitingPayment)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("payment")
 }
