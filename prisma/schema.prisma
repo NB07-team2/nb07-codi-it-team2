@@ -92,7 +92,7 @@ model Favorite {
   @@map("favorite")
 }
 
-enum InquiryStatusType {
+enum InquiryStatus {
   WaitingAnswer
   CompletedAnswer
 }
@@ -103,7 +103,7 @@ model Inquiry {
   productId String
   title     String
   content   String     @db.Text
-  status    InquiryStatusType @default(WaitingAnswer)
+  status    InquiryStatus @default(WaitingAnswer)
   isSecret  Boolean    @default(false)
   user      User       @relation(fields: [userId], references: [id])
   createdAt DateTime   @default(now())
@@ -341,6 +341,7 @@ enum PaymentStatus {
   WaitingPayment
   CompletedPayment
 }
+
 model Payment {
   id String @id @default(cuid())
   orderId String @unique
