@@ -52,6 +52,17 @@ async function main() {
       create: user,
     });
   }
+  // 장바구니 생성 (구매자용)
+
+  await prisma.cart.upsert({
+    where: { buyerId: 'buyer-test-id' },
+
+    update: {},
+
+    create: { buyerId: 'buyer-test-id' },
+  });
+
+  console.log('✅ 구매자 장바구니 생성 완료');
 
   // 3. 판매자 스토어 생성
   let store = await prisma.store.findUnique({
