@@ -4,7 +4,7 @@ import { authenticate } from '../middlewares/auth.middlewares';
 
 const router = Router();
 router.post(
-  '/products/:productId/inquiries',
+  '/:productId/inquiries',
   authenticate,
   inquiryController.createInquiry,
 );

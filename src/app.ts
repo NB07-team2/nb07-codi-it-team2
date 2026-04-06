@@ -26,7 +26,7 @@ app.use('/api/s3', imageRouter);
 app.use('/api/stores', storRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/users', userRouter);
-app.use('/api', inquiryRouter);
+app.use('/api/products', inquiryRouter);
 //에러 핸들러
 app.use(errorHandler);
 

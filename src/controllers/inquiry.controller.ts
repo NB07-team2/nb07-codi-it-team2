@@ -4,7 +4,7 @@ import { inquiryCreateSchema } from '../structs/inquiry.schema.struct';
 
 export async function createInquiry(req:Request, res: Response) {
    const productId = req.params.productId; // URL에서 productId를 가져옵니다.
-   const userId = req.user?.id; // 실제로는 인증된 사용자 ID를 가져와야 합니다.
+   const userId = req.user!.id; // 실제로는 인증된 사용자 ID를 가져와야 합니다.
    const dateToValidate = {
     ...req.body,
     productId: productId, // URL에서 가져온 productId를 포함
