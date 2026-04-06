@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-//import { env } from '../utils/env.js';
 import { InvalidRequestError } from '../errors/errors';
 import { loginSchema } from '../structs/auth.schema.struct';
 import * as authService from '../services/auth.service';
@@ -13,7 +12,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     throw new Error('Service returned undefined or null');
   }
   const { response, refreshToken } = result;
-  
+
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
