@@ -240,7 +240,7 @@ model Product {
   store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   categoryId String
-  category   ProductcCategory @relation(fields: [categoryId], references: [id])
+  category   ProductCategory @relation(fields: [categoryId], references: [id])
 
   reviews   Review[]
   stocks    Stock[]
@@ -256,7 +256,7 @@ model Product {
   @@map("product")
 }
 
-enum ProductcCategoryName {
+enum ProductCategoryName {
   all
   top
   bottom
@@ -267,9 +267,9 @@ enum ProductcCategoryName {
   acc
 }
 
-model ProductcCategory {
-  id   String               @id @default(cuid())
-  name ProductcCategoryName @unique
+model ProductCategory {
+  id   String              @id @default(cuid())
+  name ProductCategoryName @unique
 
   products Product[]
 

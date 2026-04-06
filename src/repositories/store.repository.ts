@@ -3,7 +3,7 @@ import {
   MyStoreBasePayload,
   MyStoreData,
   StoreWithCount,
-} from '../models/store.model';
+} from '../types/store.type';
 import prisma from '../utils/prismaClient.util';
 
 export const StoreRepository = {
@@ -16,7 +16,7 @@ export const StoreRepository = {
 
   //특정 전화번호를 사용하는 스토어가 있는지 확인 (내가 쓰던 번호 제외)
   findByPhoneNumber: async (phoneNumber: string, excludeStoreId?: string) => {
-    return await prisma.store.findUnique({
+    return await prisma.store.findFirst({
       where: {
         phoneNumber,
         NOT: excludeStoreId ? { id: excludeStoreId } : undefined,

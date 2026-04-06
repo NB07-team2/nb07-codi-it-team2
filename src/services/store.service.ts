@@ -35,17 +35,18 @@ export async function createStoreService(
   const userStore = await StoreRepository.findByUserId(userId);
   if (userStore) throw new ConflictError('스토어가 이미 존재합니다.');
   //전화번호 중복 확인
-  const normalizedPhone = data.phoneNumber.replace(/-/g, ''); //중복 확인시에는 하이픈 제거
+  const normalizedPhone = data.phoneNumber.replace(/-/g, ''); //중복 확인시과 db 저장시에는 하이픈 제거
   await validatePhoneNumber(normalizedPhone);
 
   //이미지 업로드 처리
-  let imageUrlString = null;
+  let imageUrlString = '';
   if (file) {
     const uploadResult = await imageService.uploadImage(file);
     imageUrlString = uploadResult.url;
   }
   const newStore = await StoreRepository.createStore(userId, {
     ...data,
+    phoneNumber: normalizedPhone,
     image: imageUrlString,
   });
 

@@ -1,33 +1,10 @@
-import { Prisma, Store } from '@prisma/client';
+import { Store } from '@prisma/client';
+import { MyStoreData, StoreWithCount } from '../types/store.type';
 
-export interface CreateStoreRepoDto {
-  name: string;
-  address: string;
-  detailAddress: string;
-  phoneNumber: string;
-  content: string;
-  image: string | null;
-}
-//스토어 상세 응답 타입
-export type StoreWithCount = Prisma.StoreGetPayload<{
-  include: { _count: { select: { favoritedBy: true } } };
-}>;
-
-export type MyStoreBasePayload = Prisma.StoreGetPayload<{
-  include: {
-    _count: {
-      select: { products: true; favoritedBy: true };
-    };
-  };
-}>;
-
-//통계 데이터 타입 정의
-interface StoreStats {
-  monthFavoriteCount: number;
-  totalSoldCount: number;
-}
-//내 스토어 상세 응답 타입
-export type MyStoreData = MyStoreBasePayload & StoreStats;
+//하이픈 붙여주는 헬퍼 함수
+const formatPhoneNumber = (phone: string): string => {
+  return phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+};
 
 //스토어 생성 후 응답 DTO
 export class StoreResponseDto {
@@ -38,7 +15,7 @@ export class StoreResponseDto {
   detailAddress: string;
   phoneNumber: string;
   content: string;
-  image: string | null;
+  image: string;
   createdAt: Date;
   updatedAt: Date;
 
@@ -48,9 +25,9 @@ export class StoreResponseDto {
     this.name = data.name;
     this.address = data.address;
     this.detailAddress = data.detailAddress;
-    this.phoneNumber = data.phoneNumber;
+    this.phoneNumber = formatPhoneNumber(data.phoneNumber);
     this.content = data.content;
-    this.image = data.image || null;
+    this.image = data.image || '';
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
   }
@@ -76,7 +53,7 @@ export class StoreDetailResponseDto {
     this.name = data.name;
     this.address = data.address;
     this.detailAddress = data.detailAddress;
-    this.phoneNumber = data.phoneNumber;
+    this.phoneNumber = formatPhoneNumber(data.phoneNumber);
     this.content = data.content;
     this.image = data.image || '';
     this.favoriteCount = data._count?.favoritedBy ?? 0;
@@ -108,7 +85,7 @@ export class MyStoreDetailResponseDto {
     this.name = data.name;
     this.address = data.address;
     this.detailAddress = data.detailAddress;
-    this.phoneNumber = data.phoneNumber;
+    this.phoneNumber = formatPhoneNumber(data.phoneNumber);
     this.image = data.image || '';
     this.content = data.content;
     this.productCount = data._count?.products ?? 0;
