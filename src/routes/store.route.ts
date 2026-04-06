@@ -1,8 +1,5 @@
 import { Router } from 'express';
-import {
-  createStoreController,
-  getMyStoreController,
-} from '../controllers/store.controller';
+import { createStoreController } from '../controllers/store.controller';
 import { upload } from '../services/image.service';
 import { authenticate } from '../middlewares/auth.middlewares';
 
