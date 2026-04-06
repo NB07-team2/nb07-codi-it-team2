@@ -1,9 +1,12 @@
+// 등급 응답
 export type GradeResponse = {
-     id: string;
-     name: string;
-     rate: number;
-     minAmount: number;
-}
+  id: string;
+  name: string;
+  rate: number;
+  minAmount: number;
+};
+
+// 유저 응답
 export type UserResponse = {
   id: string;
   name: string;

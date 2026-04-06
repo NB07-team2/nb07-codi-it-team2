@@ -8,7 +8,7 @@ export const findByEmail = async (email: string) => {
   return await prisma.user.findUnique({
     where: { email },
     include: {
-      grade: true, // AuthUserResponseDto에서 등급 정보 - 필수
+      grade: true,
     },
   });
 };

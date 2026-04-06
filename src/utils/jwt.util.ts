@@ -17,18 +17,24 @@ export interface JwtVerifyResult {
   expired?: boolean;
 }
 
+// 액세스 토큰 생성
 export const generateAccessToken = (userId: string, type: UserType): string => {
   return jwt.sign({ userId, type } as JwtPayload, env.JWT_SECRET, {
     expiresIn: env.JWT_EXPIRES_IN,
   } as SignOptions);
 };
 
-export const generateRefreshToken = (userId: string, type: UserType): string => {
+// 리프레시 토큰 생성
+export const generateRefreshToken = (
+  userId: string,
+  type: UserType,
+): string => {
   return jwt.sign({ userId, type } as JwtPayload, env.JWT_REFRESH_SECRET, {
     expiresIn: env.JWT_REFRESH_EXPIRES_IN,
   } as SignOptions);
 };
 
+// 액세스 토큰 검증
 export const verifyAccessToken = (token: string): JwtVerifyResult => {
   try {
     const payload = jwt.verify(token, env.JWT_SECRET, {
@@ -52,6 +58,7 @@ export const verifyAccessToken = (token: string): JwtVerifyResult => {
   }
 };
 
+// 리프레시 토큰 검증
 export const verifyRefreshToken = (token: string): JwtVerifyResult => {
   try {
     const payload = jwt.verify(token, env.JWT_REFRESH_SECRET, {

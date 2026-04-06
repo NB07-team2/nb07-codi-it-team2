@@ -4,13 +4,13 @@ import * as imageService from '../services/image.service';
 import { asyncHandler } from '../utils/asyncHandler.util';
 import { AuthenticatedRequest } from '../types/user.type';
 
-// 1. 회원가입 (POST /api/users)
+// 회원가입
 export const register = asyncHandler(async (req: Request, res: Response) => {
   const user = await userService.register(req.body);
   res.status(201).json(user);
 });
 
-// 2. 내 정보 조회 (GET /api/users/me)
+// 내 정보 조회
 export const getMe = asyncHandler(async (req: Request, res: Response) => {
   const authReq = req as unknown as AuthenticatedRequest;
   const { id: userId } = authReq.user;
@@ -19,7 +19,7 @@ export const getMe = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json(user);
 });
 
-// 3. 내 정보 수정 (PATCH /api/users/me)
+// 내 정보 수정
 export const updateMe = asyncHandler(async (req: Request, res: Response) => {
   const authReq = req as unknown as AuthenticatedRequest;
   const { id: userId } = authReq.user;
@@ -29,7 +29,7 @@ export const updateMe = asyncHandler(async (req: Request, res: Response) => {
     const { url } = await imageService.uploadImage(req.file);
     imageUrl = url;
   }
-  
+
   const updateData = {
     ...req.body,
     image: imageUrl,
@@ -39,16 +39,18 @@ export const updateMe = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json(updatedUser);
 });
 
-// 4. 관심 스토어 조회 (GET /api/users/me/likes)
-export const getFavorites = asyncHandler(async (req: Request, res: Response) => {
-  const authReq = req as unknown as AuthenticatedRequest;
-  const { id: userId } = authReq.user;
+// 관심 스토어 조회
+export const getFavorites = asyncHandler(
+  async (req: Request, res: Response) => {
+    const authReq = req as unknown as AuthenticatedRequest;
+    const { id: userId } = authReq.user;
 
-  const favorites = await userService.getFavorites(userId);
-  res.status(200).json(favorites);
-});
+    const favorites = await userService.getFavorites(userId);
+    res.status(200).json(favorites);
+  },
+);
 
-// 5. 회원 탈퇴 (DELETE /api/users/delete)
+// 회원 탈퇴
 export const deleteMe = asyncHandler(async (req: Request, res: Response) => {
   const authReq = req as unknown as AuthenticatedRequest;
   const { id: userId } = authReq.user;

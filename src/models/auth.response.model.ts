@@ -1,5 +1,6 @@
-import { GradeResponse, UserResponse } from "../types/auth.type";
+import { GradeResponse, UserResponse } from '../types/auth.type';
 
+// 회원 정보 응답 DTO
 export class UserResponseDto {
   id: string;
   name: string;
@@ -20,20 +21,22 @@ export class UserResponseDto {
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
     this.grade = {
-     id: user.grade.id,
-     name: user.grade.name,
-     rate: user.grade.rate,
-     minAmount: user.grade.minAmount
+      id: user.grade.id,
+      name: user.grade.name,
+      rate: user.grade.rate,
+      minAmount: user.grade.minAmount,
     };
     this.image = user.image;
   }
 }
+
+// 인증 관련 응답 DTO
 export class AuthUserResponseDto implements Omit<UserResponse, 'points'> {
   id: string;
   name: string;
   email: string;
   type: string;
-  points: string; // 문자열로 명시적 선언
+  points: string;
   createdAt: Date;
   updatedAt: Date;
   grade: GradeResponse;
@@ -44,13 +47,15 @@ export class AuthUserResponseDto implements Omit<UserResponse, 'points'> {
     this.name = user.name;
     this.email = user.email;
     this.type = user.type;
-    this.points = user.points.toString(); // 여기서 변환
+    this.points = user.points.toString();
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
     this.grade = user.grade;
     this.image = user.image;
   }
 }
+
+// 로그인 응답 DTO
 export class LoginResponseDto {
   user: AuthUserResponseDto;
   accessToken: string;
@@ -60,6 +65,8 @@ export class LoginResponseDto {
     this.accessToken = accessToken;
   }
 }
+
+// 토큰 갱신 응답 DTO
 export class RefreshTokenResponseDto {
   accessToken: string;
 
@@ -68,6 +75,7 @@ export class RefreshTokenResponseDto {
   }
 }
 
+// 인증 토큰 응답 DTO
 export class AuthTokensResponseDto {
   accessToken: string;
   refreshToken: string;

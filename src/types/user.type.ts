@@ -1,7 +1,7 @@
 import { User, Grade, UserType } from '@prisma/client';
 import { Request } from 'express';
 
-// 서비스 반환용 응답 인터페이스
+// 유저 응답 인터페이스
 export interface UserResponse {
   id: string;
   name: string;
@@ -19,7 +19,6 @@ export interface UserResponse {
   image: string;
 }
 
-// Prisma 유저 모델에 Grade가 포함된 타입
 export interface UserWithGrade extends User {
   grade: Grade;
 }
@@ -32,15 +31,15 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
-// update
+// 유저 정보 수정
 export interface UpdateMeDto {
   name?: string;
-  password?: string; 
-  currentPassword: string; 
+  password?: string;
+  currentPassword: string;
   image?: string;
 }
 
-// User 회원가입 추가 모델
+// 회원가입 모델
 export interface RegisterUserDto {
   email: string;
   password: string;
