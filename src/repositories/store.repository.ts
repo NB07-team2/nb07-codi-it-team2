@@ -3,6 +3,7 @@ import {
   MyStoreBasePayload,
   MyStoreData,
   StoreWithCount,
+  UpdateStoreRepoDto,
 } from '../types/store.type';
 import prisma from '../utils/prismaClient.util';
 
@@ -89,5 +90,17 @@ export const StoreRepository = {
       },
     });
     return store;
+  },
+  findById: async (storeId: string) => {
+    return await prisma.store.findUnique({
+      where: { id: storeId },
+    });
+  },
+  //스토어 수정
+  updateStore: async (id: string, data: UpdateStoreRepoDto) => {
+    return await prisma.store.update({
+      where: { id },
+      data,
+    });
   },
 };

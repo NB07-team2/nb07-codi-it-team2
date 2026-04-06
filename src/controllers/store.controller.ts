@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
 import { create } from 'superstruct';
-import { CreateStoreStruct } from '../structs/store.struct';
+import { StoreStruct } from '../structs/store.struct';
 import {
   createStoreService,
+  editStore,
   getMyStore,
   getStoreDetail,
 } from '../services/store.service';
@@ -12,10 +13,7 @@ export const createStoreController = async (req: Request, res: Response) => {
   // 유저 아이디와 권한 타입
   const { id: userId, type: userType } = req.user!;
 
-  const validatedData = create(
-    { ...req.body, image: req.file },
-    CreateStoreStruct,
-  );
+  const validatedData = create({ ...req.body, image: req.file }, StoreStruct);
 
   const result = await createStoreService(
     userId,
@@ -43,6 +41,27 @@ export const storeDetail = async (
 ) => {
   const { storeId } = req.params;
   const result = await getStoreDetail(storeId);
+
+  res.status(200).json(result);
+};
+
+//스토어 수정
+export const updateStore = async (
+  req: Request<{ storeId: string }>,
+  res: Response,
+) => {
+  const { id: userId, type: userType } = req.user!;
+  const { storeId } = req.params;
+
+  const validatedData = create({ ...req.body, image: req.file }, StoreStruct);
+
+  const result = await editStore(
+    userId,
+    userType,
+    storeId,
+    validatedData,
+    req.file,
+  );
 
   res.status(200).json(result);
 };

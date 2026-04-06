@@ -28,3 +28,22 @@ interface StoreStats {
 }
 //내 스토어 상세 응답 타입
 export type MyStoreData = MyStoreBasePayload & StoreStats;
+
+// 스토어 수정 요청을 위한 리포지토리 DTO (rep)
+export interface UpdateStoreRepoDto {
+  name?: string;
+  address?: string;
+  detailAddress?: string;
+  phoneNumber?: string;
+  content?: string;
+  image?: string;
+}
+//스토어 수정 req
+export type UpdateStoreRequest = {
+  name: string;
+  address: string;
+  detailAddress: string;
+  phoneNumber: string;
+  content: string;
+  image?: any;
+};
