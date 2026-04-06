@@ -2,6 +2,11 @@ import { Request, Response } from 'express';
 import { InvalidRequestError } from '../errors/errors';
 import { loginSchema } from '../structs/auth.schema.struct';
 import * as authService from '../services/auth.service';
+import {
+  NODE_ENV,
+  REFRESH_TOKEN_COOKIE_NAME,
+  ACCESS_TOKEN_COOKIE_NAME,
+} from '../utils/constants.util';
 
 // 로그인
 export const login = async (req: Request, res: Response): Promise<void> => {
@@ -13,9 +18,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
   const { response, refreshToken } = result;
 
-  res.cookie('refreshToken', refreshToken, {
+  res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: NODE_ENV === 'production',
     sameSite: 'strict',
   });
 
@@ -43,7 +48,7 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
     await authService.logout(userId);
   }
 
-  res.clearCookie('refreshToken');
-  res.clearCookie('accessToken');
+  res.clearCookie(REFRESH_TOKEN_COOKIE_NAME);
+  res.clearCookie(ACCESS_TOKEN_COOKIE_NAME);
   res.status(200).json({ message: '성공적으로 로그아웃되었습니다.' });
 };
