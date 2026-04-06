@@ -25,8 +25,7 @@ model User {
   type          UserType
   points        Int      @default(0)
   totalPurchase Int      @default(0) //누적 금액( 등급 산정 기준)
-
-  image String @default("https://sprint-be-project.s3.ap-northeast-2.amazonaws.com/codiit/1749477485230-user_default.png") // aws 설정 후 변경 필요
+  image         String   @default("https://codi-it-s3.s3.amazonaws.com/others/b7220551-54e3-414f-bed1-801a44e71d45.png")
 
   gradeId String @default("grade_green")
   grade   Grade  @relation(fields: [gradeId], references: [id])
@@ -43,7 +42,7 @@ model User {
   orders        Order[]
   replies       Reply[] // 이 유저가 작성한 답변들
 
-  @@map("user") //DB 테이블 이름은 소문자 users로 생성
+  @@map("user")
 }
 
 model Store {
@@ -98,18 +97,18 @@ enum InquiryStatus {
 }
 
 model Inquiry {
-  id        String     @id @default(cuid())
+  id        String        @id @default(cuid())
   userId    String
   productId String
   title     String
-  content   String     @db.Text
+  content   String        @db.Text
   status    InquiryStatus @default(WaitingAnswer)
-  isSecret  Boolean    @default(false)
-  user      User       @relation(fields: [userId], references: [id])
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  isSecret  Boolean       @default(false)
+  user      User          @relation(fields: [userId], references: [id])
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
   reply     Reply? // 1:1 관계, 답변이 없는 경우 null 허용
-  product   Product    @relation(fields: [productId], references: [id])
+  product   Product       @relation(fields: [productId], references: [id])
 
   @@index([productId])
   @@index([userId])
@@ -147,7 +146,7 @@ model CartItem {
   cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
 
   productId String
-  product   Product @relation(fields: [productId], references: [id]) // 동우님 작업 완료 후 연결
+  product   Product @relation(fields: [productId], references: [id])
 
   sizeId Int
   size   Size @relation(fields: [sizeId], references: [id])
@@ -185,17 +184,17 @@ enum NotificationType {
 }
 
 model Order {
-  id     String @id @default(cuid())
-  name   String // 주문자 이름
-  phone  String // 주문자 연락처
-  address String // 주문자 주소
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subtotal   Int // 상품 가격 * 수량의 합계
+  id            String   @id @default(cuid())
+  name          String // 주문자 이름
+  phone         String // 주문자 연락처
+  address       String // 주문자 주소
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subtotal      Int // 상품 가격 * 수량의 합계
   totalQuantity Int // 주문한 총 수량
-  usePoint   Int // 사용한 포인트
-  totalSales Int // 해당 주문의 총 매출액
-  createdAt  DateTime @default(now())
+  usePoint      Int // 사용한 포인트
+  totalSales    Int // 해당 주문의 총 매출액
+  createdAt     DateTime @default(now())
 
   orderItems OrderItem[]
   payments   Payment?
@@ -211,13 +210,14 @@ model OrderItem {
   productId String
   product   Product @relation(fields: [productId], references: [id])
 
-  price     Int // 판매가
-  quantity  Int // 판매 수량
-  name     String // 주문 당시 상품명(할인 적용 여부 등 변동 가능성 고려)
-  review    Review? // 1:1 관계, 리뷰가 없는 경우 null 허용
+  price      Int // 판매가
+  quantity   Int // 판매 수량
+  name       String // 주문 당시 상품명(할인 적용 여부 등 변동 가능성 고려)
+  review     Review? // 1:1 관계, 리뷰가 없는 경우 null 허용
   isReviewed Boolean @default(false) // 리뷰 작성 여부
-  sizeId Int
-  size      Size    @relation(fields: [sizeId], references: [id])
+  sizeId     Int
+  size       Size    @relation(fields: [sizeId], references: [id])
+
   @@map("order_item")
 }
 
@@ -240,7 +240,7 @@ model Product {
   store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   categoryId String
-  category   Category @relation(fields: [categoryId], references: [id])
+  category   ProductCategory @relation(fields: [categoryId], references: [id])
 
   reviews   Review[]
   stocks    Stock[]
@@ -248,15 +248,15 @@ model Product {
   cartItems CartItem[]
 
   orderItems OrderItem[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
 
   @@index([storeId])
   @@index([categoryId])
   @@map("product")
 }
 
-enum CategoryName {
+enum ProductCategoryName {
   all
   top
   bottom
@@ -267,9 +267,9 @@ enum CategoryName {
   acc
 }
 
-model Category {
-  id   String       @id @default(cuid())
-  name CategoryName @unique
+model ProductCategory {
+  id   String              @id @default(cuid())
+  name ProductCategoryName @unique
 
   products Product[]
 
@@ -280,14 +280,13 @@ model Category {
 }
 
 model Size {
-  id        Int        @id @default(autoincrement())
-  name      String // 예: "S", "M", "L" 등
-  enName    String? // LARGE, MEDIUM, SMALL 등 영문 사이즈명
-  koName    String? // 라지, 미디엄, 스몰 등 한글 사이즈명
-  stocks    Stock[]
-  cartItems CartItem[]
+  id         Int         @id @default(autoincrement())
+  name       String // 예: "S", "M", "L" 등
+  enName     String? // LARGE, MEDIUM, SMALL 등 영문 사이즈명
+  koName     String? // 라지, 미디엄, 스몰 등 한글 사이즈명
+  stocks     Stock[]
+  cartItems  CartItem[]
   orderItems OrderItem[]
-
 
   @@unique([name]) // 같은 사이즈명 중복 방지(선택)
 }
@@ -330,7 +329,6 @@ model Review {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, productId]) // 유저-상품당 리뷰 1개 제한
   @@index([userId])
   @@index([productId])
   @@index([orderItemId])
@@ -343,13 +341,13 @@ enum PaymentStatus {
 }
 
 model Payment {
-  id String @id @default(cuid())
-  orderId String @unique
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  price Int
-  status PaymentStatus @default(WaitingPayment)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
+  id        String        @id @default(cuid())
+  orderId   String        @unique
+  order     Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  price     Int
+  status    PaymentStatus @default(WaitingPayment)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
   @@map("payment")
 }
