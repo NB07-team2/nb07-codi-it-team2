@@ -7,3 +7,5 @@ const router = Router();
 
 
 router.post('/', authenticate, upload.single('image'), createProductController);
+
+export default router;
