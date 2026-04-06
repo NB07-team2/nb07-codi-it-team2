@@ -6,7 +6,6 @@ import { authenticate } from '../middlewares/auth.middlewares';
 
 const authRouter = Router();
 
-// Rate Limiters
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15분
   max: 5, // 15분에 5번까지
@@ -26,11 +25,7 @@ const refreshLimiter = rateLimit({
 });
 
 // 로그인
-authRouter.post(
-  '/login', 
-  authLimiter, 
-  asyncHandler(authController.login)
-);
+authRouter.post('/login', authLimiter, asyncHandler(authController.login));
 // 토큰 재발급
 authRouter.post(
   '/refresh',
@@ -38,10 +33,6 @@ authRouter.post(
   asyncHandler(authController.refresh),
 );
 // 로그아웃
-authRouter.post(
-  '/logout', 
-  authenticate, 
-  asyncHandler(authController.logout)
-);
+authRouter.post('/logout', authenticate, asyncHandler(authController.logout));
 
 export default authRouter;
