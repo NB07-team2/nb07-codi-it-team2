@@ -1,8 +1,9 @@
-import { Router } from 'express';
-import * as productsController from '../controllers/products.controller';
-import { authenticate } from '../middlewares/auth.middlewares';
+import { Router } from "express";
+import { createProductController } from '../controllers/products.controller';
+import { authenticate } from "../middlewares/auth.middlewares";
+import { upload } from "../services/image.service";
 
 const router = Router();
-router.post('/:productId/inquiries',authenticate,productsController.createInquiry);
 
-export default router;
+
+router.post('/', authenticate, upload.single('image'), createProductController);

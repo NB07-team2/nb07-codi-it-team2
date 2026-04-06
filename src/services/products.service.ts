@@ -1,22 +1,41 @@
-import { InquiryCreateInput } from '../structs/inquiry.schema.struct';
-import {CreateInquiryDto,InquiryResponseDto} from '../models/inquiry.model';
-import * as productsRepository from '../repositories/products.repository';
-import { NotFoundError } from '../errors/errors';
+import * as arror from '../errors/errors';
+import { ProductRepository } from '../repositories/products.repository';
+import { CategoryName, PrismaClient } from '@prisma/client';
+import { CreateProductDTO } from '../structs/products.schema.structs';
 
-export async function createInquiry(data: InquiryCreateInput) {
-    const dto = new CreateInquiryDto(data);
-    const existingProduct = await productsRepository.getProductById(dto.productId); 
-    if(!existingProduct) {
-        throw new NotFoundError('상품을 찾을 수 없습니다');
-    }    
-    const createdInquiry = await productsRepository.createInquiry(
-        {
-            title: dto.title,
-            content: dto.content,
-            isSecret: dto.isSecret,
-            userId: dto.userId, 
-            productId: existingProduct.id
-        },
-    );
-    return new InquiryResponseDto(createdInquiry);
-}   
+// 상품등록서비스
+
+export const createProductService = async (prisma: PrismaClient, userId: string, input: CreateProductDTO) => {
+    const repository = new ProductRepository(prisma);
+
+    const store = await prisma.store.findUnique({
+        where: { userId: userId },
+        select: { id: true },
+    });
+
+    if (!store) {
+        throw new arror.NotFoundError('해당 사용자의 store을 찾을 수 없습니다.');
+    }
+    const category = await prisma.category.findUnique({
+        where: { name: input.categoryName as CategoryName },
+        select: { id: true },
+    });
+
+    if (!category) {
+        throw new arror.NotFoundError('해당 카테고리를 찾을 수 없습니다.');
+    }
+
+    const createInput = {
+        name: input.name,
+        image: input.image,
+        content: input.content,
+        price: input.price,
+        categoryId: category.id,
+        storeId: store.id,
+        stocks: input.stocks,
+        discountRate: input.discountRate,
+        discountStartTime: input.discountStartTime ? new Date(input.discountStartTime) : null,
+        discountEndTime: input.discountEndTime ? new Date(input.discountEndTime) : null,
+    }
+    return repository.createProduct(createInput);
+}
