@@ -1,6 +1,6 @@
 import * as arror from '../errors/errors';
 import { ProductRepository } from '../repositories/products.repository';
-import { CategoryName, PrismaClient } from '@prisma/client';
+import { PrismaClient, ProductCategoryName } from '@prisma/client';
 import { CreateProductDTO } from '../structs/products.schema.structs';
 
 // 상품등록서비스
@@ -16,8 +16,8 @@ export const createProductService = async (prisma: PrismaClient, userId: string,
     if (!store) {
         throw new arror.NotFoundError('해당 사용자의 store을 찾을 수 없습니다.');
     }
-    const category = await prisma.category.findUnique({
-        where: { name: input.categoryName as CategoryName },
+    const category = await prisma.productCategory.findUnique({
+        where: { name: input.categoryName as ProductCategoryName },
         select: { id: true },
     });
 

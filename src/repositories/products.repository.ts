@@ -13,7 +13,7 @@ export class ProductRepository {
 // }
     async createProduct(input: createProductInput) {
         const {
-            stock = [], 
+        stocks = [], 
             discountEndTime,
             discountStartTime,
             ...productData
@@ -38,9 +38,9 @@ export class ProductRepository {
                 },
             });
             
-            if (stock.length > 0) {
+            if (stocks.length > 0) {
                 await tx.stock.createMany({
-                    data: stock.map((x) => ({
+                data: stocks.map((x) => ({
                         productId: created.id,
                         sizeId: x.sizeId,
                         quantity: x.quantity,
@@ -48,7 +48,7 @@ export class ProductRepository {
                 });
             }
             
-            const totalStock = stock.reduce((sum, s) => sum + s.quantity, 0);
+            const totalStock = stocks.reduce((sum, s) => sum + s.quantity, 0);
             await tx.product.update({
                 where: { id: created.id },
                 data: { isSoldOut: totalStock <= 0 },
