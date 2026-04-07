@@ -5,7 +5,7 @@ import { NotFoundError } from '../errors/errors';
 
 export async function createInquiry(data: InquiryCreateInput) {
     const dto = new CreateInquiryDto(data as unknown as CreateInquiryDto);
-    const existingProduct = await productsRepository.getProductById(dto.productId); // 실제로는 문의 대상 상품 ID를 가져와야 합니다.
+    const existingProduct = await productsRepository.getProductById(dto.productId); 
     if(!existingProduct) {
         throw new NotFoundError('상품을 찾을 수 없습니다');
     }    
@@ -14,7 +14,7 @@ export async function createInquiry(data: InquiryCreateInput) {
             title: dto.title,
             content: dto.content,
             isSecret: dto.isSecret,
-            userId: dto.userId, // 실제로는 인증된 사용자 ID를 가져와야 합니다.
+            userId: dto.userId, 
             productId: existingProduct.id
         },
     );

@@ -13,7 +13,7 @@ export async function createInquiry(inquiryData : CreateInquiryRepoDto) {
         },   
     }); 
   
-  return newInquiry; // 생성된 문의 반환
+  return newInquiry; 
 }
 
 export async function getProductById(productId: string) {
