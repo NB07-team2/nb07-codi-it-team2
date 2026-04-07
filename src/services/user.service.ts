@@ -17,6 +17,7 @@ import { deleteFromS3 } from '../services/image.service';
 // 회원가입
 export const register = async (data: RegisterUserDto) => {
   const existingUser = await userRepository.findByEmail(data.email);
+
   if (existingUser) throw new ConflictError('이미 존재하는 유저입니다.');
 
   const hashedPassword = await hashPassword(data.password);
@@ -27,7 +28,7 @@ export const register = async (data: RegisterUserDto) => {
     type: data.type,
     image: data.image || undefined,
     points: 0,
-    gradeId: 'grade_green',
+    grade: { connect: { id: 'grade_green' } },
   });
 
   return {
@@ -51,9 +52,9 @@ export const register = async (data: RegisterUserDto) => {
 // 내 정보 조회
 export const getMe = async (userId: string) => {
   const newUser = await userRepository.findById(userId);
+
   if (!newUser) throw new NotFoundError('유저를 찾을 수 없습니다.');
 
-  // 명세서 규격 일치화
   return {
     id: newUser.id,
     name: newUser.name,
@@ -78,15 +79,18 @@ export const updateMe = async (
   updateData: UpdateMeDto,
 ): Promise<UserResponse> => {
   const user = await userRepository.findById(userId);
+
   if (!user) throw new NotFoundError('유저를 찾을 수 없습니다.');
 
   const isPasswordValid = await comparePassword(
     updateData.currentPassword,
     user.password,
   );
+
   if (!isPasswordValid) throw new InvalidCredentialsError();
 
   const data: Prisma.UserUpdateInput = {};
+
   if (updateData.name) data.name = updateData.name;
   if (updateData.image) {
     const DEFAULT_IMAGE =
@@ -130,6 +134,7 @@ export const updateMe = async (
 // 관심 스토어 조회
 export const getFavorites = async (userId: string) => {
   const userExists = await userRepository.findById(userId);
+
   if (!userExists) throw new NotFoundError('유저를 찾을 수 없습니다.');
 
   const favorites = await userRepository.findFavoritesByUserId(userId);
@@ -155,6 +160,7 @@ export const getFavorites = async (userId: string) => {
 // 회원 탈퇴
 export const deleteMe = async (userId: string) => {
   const user = await userRepository.findById(userId);
+
   if (!user) throw new NotFoundError('유저를 찾을 수 없습니다.');
 
   const DEFAULT_IMAGE =
@@ -177,29 +183,29 @@ export const deleteMe = async (userId: string) => {
  * @param userId 업데이트할 유저 ID
  * @param paymentAmount 이번에 결제한 금액
  */
-export const updateUserStatusAfterOrder = async (
-  userId: string,
-  paymentAmount: number,
-) => {
-  // 유저 및 등급 정보 조회
-  const user = await userRepository.findById(userId);
-  if (!user) throw new NotFoundError('유저를 찾을 수 없습니다.');
+// export const updateUserStatusAfterOrder = async (
+//   userId: string,
+//   paymentAmount: number,
+// ) => {
+//   // 유저 및 등급 정보 조회
+//   const user = await userRepository.findById(userId);
+//   if (!user) throw new NotFoundError('유저를 찾을 수 없습니다.');
 
-  // 누적 금액 계산
-  const newTotalPurchase = user.totalPurchase + paymentAmount;
+//   // 누적 금액 계산
+//   const newTotalPurchase = user.totalPurchase + paymentAmount;
 
-  // 승급 되는지 체크 (Grade 테이블 조회 로직 필요)
-  // TODO: Grade 테이블의 minAmount와 비교하여 등급 상향 로직 추가 예정
-  let newGradeId = user.gradeId;
+//   // 승급 되는지 체크 (Grade 테이블 조회 로직 필요)
+//   // TODO: Grade 테이블의 minAmount와 비교하여 등급 상향 로직 추가 예정
+//   let newGradeId = user.gradeId;
 
-  // 포인트 계산
-  // 현재 등급의 rate를 가져와서 포인트 적립액 계산 (창민님과 논의 예정)
-  const earnedPoints = Math.floor(paymentAmount * (user.grade.rate / 100));
-  const newPoints = user.points + earnedPoints;
+//   // 포인트 계산
+//   // 현재 등급의 rate를 가져와서 포인트 적립액 계산 (창민님과 논의 예정)
+//   const earnedPoints = Math.floor(paymentAmount * (user.grade.rate / 100));
+//   const newPoints = user.points + earnedPoints;
 
-  return await userRepository.update(userId, {
-    totalPurchase: newTotalPurchase,
-    points: newPoints,
-    gradeId: newGradeId,
-  });
-};
+//   return await userRepository.update(userId, {
+//     totalPurchase: newTotalPurchase,
+//     points: newPoints,
+//     gradeId: newGradeId,
+//   });
+// };
