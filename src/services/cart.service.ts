@@ -1,7 +1,8 @@
 import * as cartRepository from "../repositories/cart.repository";
 import { ForbiddenError } from "../errors/errors";
+import { User } from "@prisma/client";
 
-export const createCart = async (user: any) => {
+export const createCart = async (user: User) => {
   // 1. 권한 체크
   if (user.type !== "BUYER") {
     throw new ForbiddenError("접근 권한이 없습니다.");
