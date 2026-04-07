@@ -53,38 +53,38 @@ export const ProductRepository = {
     });
   },
 
-  findDetailById: async (productId: string) => {
-    return prisma.product.findUnique({
-      where: { id: productId },
-      include: {
-        store: { select: { id: true, name: true } },
-        category: { select: { id: true, name: true } },
-        stocks: {
-          include: {
-            size: { select: { id: true, name: true } },
-          },
-          orderBy: [{ sizeId: 'asc' }],
-        },
-        inquiries: {
-          include: {
-            reply: {
-              include: {
-                user: { select: { id: true, name: true } },
-              },
-            },
-          },
-          orderBy: [{ createdAt: 'desc' }],
-        },
-      },
-    });
-  },
+  // findDetailById: async (productId: string) => {
+  //   return prisma.product.findUnique({
+  //     where: { id: productId },
+  //     include: {
+  //       store: { select: { id: true, name: true } },
+  //       category: { select: { id: true, name: true } },
+  //       stocks: {
+  //         include: {
+  //           size: { select: { id: true, name: true } },
+  //         },
+  //         orderBy: [{ sizeId: 'asc' }],
+  //       },
+  //       inquiries: {
+  //         include: {
+  //           reply: {
+  //             include: {
+  //               user: { select: { id: true, name: true } },
+  //             },
+  //           },
+  //         },
+  //         orderBy: [{ createdAt: 'desc' }],
+  //       },
+  //     },
+  //   });
+  // },
 
-  findReviewSummaryByProductId: async (productId: string) => {
-    return prisma.review.groupBy({
-      by: ['rating'],
-      where: { productId },
-      _count: { rating: true },
-      _sum: { rating: true },
-    });
-  },
+  // findReviewSummaryByProductId: async (productId: string) => {
+  //   return prisma.review.groupBy({
+  //     by: ['rating'],
+  //     where: { productId },
+  //     _count: { rating: true },
+  //     _sum: { rating: true },
+  //   });
+  // },
 };

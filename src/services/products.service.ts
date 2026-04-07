@@ -1,4 +1,4 @@
-import * as arror from '../errors/errors';
+import * as error from '../errors/errors';
 import { ProductRepository } from '../repositories/products.repository';
 import { ProductCategoryName } from '@prisma/client';
 import { CreateProductDTO } from '../structs/products.schema.structs';
@@ -19,7 +19,7 @@ export const createProductService = async (
   });
 
   if (!store) {
-    throw new arror.NotFoundError('해당 사용자의 store을 찾을 수 없습니다.');
+    throw new error.NotFoundError('해당 사용자의 store을 찾을 수 없습니다.');
   }
 
   const category = await prisma.productCategory.findUnique({
@@ -31,16 +31,12 @@ export const createProductService = async (
     throw new arror.NotFoundError('해당 카테고리를 찾을 수 없습니다.');
   }
 
-  const existingProduct = await prisma.product.findFirst({
-    where: { name: input.name },
-  });
-
-  if (existingProduct) {
-    throw new arror.ConflictError('이미 존재하는 상품명입니다.');
-  }
-
-  let discountStartTime = input.discountStartTime ? new Date(input.discountStartTime) : null;
-  let discountEndTime = input.discountEndTime ? new Date(input.discountEndTime) : null;
+  let discountStartTime = input.discountStartTime
+    ? new Date(input.discountStartTime)
+    : null;
+  let discountEndTime = input.discountEndTime
+    ? new Date(input.discountEndTime)
+    : null;
 
   if (input.discountRate) {
     if (input.discountRate < 0 || input.discountRate > 100) {
@@ -49,8 +45,10 @@ export const createProductService = async (
 
     if (discountStartTime && discountEndTime) {
       if (discountStartTime >= discountEndTime) {
-        throw new arror.BadRequestError('할인 종료 시간은 시작 시간보다 빨라야 합니다.');
-        }
+        throw new arror.BadRequestError(
+          '할인 종료 시간은 시작 시간보다 빨라야 합니다.',
+        );
+      }
     }
   }
 
@@ -60,6 +58,7 @@ export const createProductService = async (
     imageUrlString = uploadResult.url;
   }
 
+
   const createdProduct = await ProductRepository.createProduct({
     name: input.name,
     image: imageUrlString,
@@ -67,7 +66,6 @@ export const createProductService = async (
     price: input.price,
     categoryId: category.id,
     storeId: store.id,
-    stocks: input.stocks,
     discountRate: input.discountRate,
     discountStartTime: discountStartTime,
     discountEndTime: discountEndTime,
@@ -77,6 +75,44 @@ export const createProductService = async (
     throw new arror.BadRequestError('상품 등록에 실패했습니다.');
   }
 
-  return new CreateProductResponseDto(createdProduct);
-};
+  // Parse stocks if it is a string
+  if (typeof input.stocks === 'string') {
+    try {
+      input.stocks = JSON.parse(input.stocks);
+    } catch (error) {
+      throw new arror.BadRequestError(
+        'Invalid stocks format. Expected a JSON array.',
+      );
+    }
+  }
 
+  const savedStocks = [];
+  for (const stock of input.stocks) {
+    const size = await prisma.size.findUnique({
+      where: { id: stock.sizeId },
+      select: { id: true, name: true },
+    });
+
+    if (!size) {
+      throw new arror.NotFoundError(`Size with id ${stock.sizeId} not found.`);
+    }
+
+    const savedStock = await prisma.stock.create({
+      data: {
+        productId: createdProduct.id,
+        sizeId: stock.sizeId,
+        quantity: stock.quantity,
+      },
+    });
+
+    savedStocks.push({
+      ...savedStock,
+      size,
+    });
+  }
+
+  return new CreateProductResponseDto({
+    ...createdProduct,
+    stocks: savedStocks,
+  });
+};
