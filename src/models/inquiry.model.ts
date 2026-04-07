@@ -11,7 +11,7 @@ export class CreateInquiryDto {
     constructor(data:InquiryCreateReqDto) {
       this.title = data.title;
       this.content = data.content;
-      this.isSecret = data.isSecret || false; // isSecret이 제공되지 않으면 기본값으로 false 설정
+      this.isSecret = data.isSecret || false; 
       this.userId = data.userId;
       this.productId = data.productId;
     }
