@@ -2,11 +2,10 @@ import * as userRepository from '../repositories/user.repository';
 import { hashPassword, comparePassword } from '../utils/password.util';
 import {
   UpdateMeDto,
-  UserResponse,
   UserWithGrade,
   RegisterUserDto,
-  toUserResponse,
 } from '../types/user.type';
+import { UserResponseDto } from '../models/user.model';
 import {
   ConflictError,
   NotFoundError,
@@ -30,7 +29,7 @@ export const register = async (data: RegisterUserDto) => {
     ...(data.image && { image: data.image }),
   });
 
-  return toUserResponse(newUser);
+  return new UserResponseDto(newUser);
 };
 
 // 내 정보 조회
@@ -39,14 +38,14 @@ export const getMe = async (userId: string) => {
 
   if (!newUser) throw new NotFoundError('유저를 찾을 수 없습니다.');
 
-  return toUserResponse(newUser);
+  return new UserResponseDto(newUser);
 };
 
 // 내 정보 수정
 export const updateMe = async (
   userId: string,
   updateData: UpdateMeDto,
-): Promise<UserResponse> => {
+): Promise<UserResponseDto> => {
   const user = await userRepository.findById(userId);
 
   if (!user) throw new NotFoundError('유저를 찾을 수 없습니다.');
@@ -82,7 +81,7 @@ export const updateMe = async (
 
   const updatedUser: UserWithGrade = await userRepository.update(userId, data);
 
-  return toUserResponse(updatedUser);
+  return new UserResponseDto(updatedUser);
 };
 
 // 관심 스토어 조회
