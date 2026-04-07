@@ -11,7 +11,10 @@ export const createCart = async (user: any) => {
   const existingCart = await cartRepository.findByBuyerId(user.id);
   
   if (existingCart) {
-    return existingCart;
+    return {
+      message: "이미 존재하는 장바구니 입니다.",
+      ...existingCart
+    };
   }
 
   // 3. 새 장바구니 생성
