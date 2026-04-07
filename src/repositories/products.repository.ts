@@ -52,7 +52,7 @@ export const ProductRepository = {
       });
     });
   },
-
+//사용할시 주석해제 사용 안할지 주석삭제 
   // findDetailById: async (productId: string) => {
   //   return prisma.product.findUnique({
   //     where: { id: productId },

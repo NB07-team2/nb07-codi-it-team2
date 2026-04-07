@@ -28,29 +28,10 @@ export const createProductService = async (
   });
 
   if (!category) {
-    throw new arror.NotFoundError('해당 카테고리를 찾을 수 없습니다.');
+    throw new error.NotFoundError('해당 카테고리를 찾을 수 없습니다.');
   }
 
-  let discountStartTime = input.discountStartTime
-    ? new Date(input.discountStartTime)
-    : null;
-  let discountEndTime = input.discountEndTime
-    ? new Date(input.discountEndTime)
-    : null;
 
-  if (input.discountRate) {
-    if (input.discountRate < 0 || input.discountRate > 100) {
-      throw new arror.BadRequestError('할인율은 0에서 100 사이여야 합니다.');
-    }
-
-    if (discountStartTime && discountEndTime) {
-      if (discountStartTime >= discountEndTime) {
-        throw new arror.BadRequestError(
-          '할인 종료 시간은 시작 시간보다 빨라야 합니다.',
-        );
-      }
-    }
-  }
 
   let imageUrlString = '';
   if (file) {
@@ -67,22 +48,19 @@ export const createProductService = async (
     categoryId: category.id,
     storeId: store.id,
     discountRate: input.discountRate,
-    discountStartTime: discountStartTime,
-    discountEndTime: discountEndTime,
+    discountStartTime: input.discountStartTime ? new Date(input.discountStartTime) : null,
+    discountEndTime: input.discountEndTime ? new Date(input.discountEndTime) : null,
   });
 
   if (!createdProduct) {
-    throw new arror.BadRequestError('상품 등록에 실패했습니다.');
+    throw new error.BadRequestError('상품 등록에 실패했습니다.');
   }
 
-  // Parse stocks if it is a string
   if (typeof input.stocks === 'string') {
     try {
       input.stocks = JSON.parse(input.stocks);
-    } catch (error) {
-      throw new arror.BadRequestError(
-        'Invalid stocks format. Expected a JSON array.',
-      );
+    } catch (err) {
+      throw new error.BadRequestError('stocks 파싱 오류.');
     }
   }
 
@@ -94,7 +72,7 @@ export const createProductService = async (
     });
 
     if (!size) {
-      throw new arror.NotFoundError(`Size with id ${stock.sizeId} not found.`);
+      throw new error.NotFoundError(`Size with id ${stock.sizeId} not found.`);
     }
 
     const savedStock = await prisma.stock.create({
