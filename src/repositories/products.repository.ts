@@ -1,75 +1,69 @@
-import { PrismaClient } from "@prisma/client";  
-import { createProductInput } from "../types/products";
+import { createProductRepoInput } from '../types/products';
+import prisma from '../utils/prismaClient.util';
 
+export const ProductRepository = {
+  createProduct: async (input: createProductRepoInput) => {
+    const { stocks = [], ...productData } = input;
 
-export class ProductRepository {
-    constructor(private prisma: PrismaClient) {}
-//     class ProductService {
-//   private readonly prisma: PrismaClient; // 1. 변수 선언
+    return prisma.$transaction(async (tx) => {
+      const created = await tx.product.create({
+        data: productData,
+      });
 
-//   constructor(prisma: PrismaClient) {
-//     this.prisma = prisma; // 2. 생성자에서 값 할당
-//   }
-// }
-    async createProduct(input: createProductInput) {
-        const {
-        stocks = [], 
-            discountEndTime,
-            discountStartTime,
-            ...productData
-        } = input;
+      if (stocks.length > 0) {
+        await tx.stock.createMany({
+          data: stocks.map((stock) => ({
+            productId: created.id,
+            sizeId: stock.sizeId,
+            quantity: stock.quantity,
+          })),
+        });
+      }
 
-        const discountStart =
-            typeof discountStartTime === 'string' 
-            ? new Date(discountStartTime) 
-            : discountStartTime ?? null;
+      const totalStock = stocks.reduce((sum, stock) => sum + stock.quantity, 0);
 
-        const discountEnd =
-            typeof discountEndTime === 'string' 
-            ? new Date(discountEndTime) 
-            : discountEndTime ?? null;
-        
-        return this.prisma.$transaction(async (tx) => {
-            const created = await tx.product.create({
-                data: {
-                    ...productData,
-                    discountStartTime: discountStart,
-                    discountEndTime: discountEnd,
+      await tx.product.update({
+        where: { id: created.id },
+        data: { isSoldOut: totalStock === 0 },
+      });
+
+      return tx.product.findUnique({
+        where: { id: created.id },
+        include: {
+          store: { select: { id: true, name: true } },
+          category: { select: { id: true, name: true } },
+          stocks: {
+            include: {
+              size: { select: { id: true, name: true } },
+            },
+            orderBy: [{ sizeId: 'asc' }],
+          },
+          inquiries: {
+            include: {
+              reply: {
+                include: {
+                  user: { select: { id: true, name: true } },
                 },
-            });
-            
-            if (stocks.length > 0) {
-                await tx.stock.createMany({
-                data: stocks.map((x) => ({
-                        productId: created.id,
-                        sizeId: x.sizeId,
-                        quantity: x.quantity,
-                    })),
-                });
-            }
-            
-            const totalStock = stocks.reduce((sum, s) => sum + s.quantity, 0);
-            await tx.product.update({
-                where: { id: created.id },
-                data: { isSoldOut: totalStock <= 0 },
-            });
-            return created;
-        });    
-    }
-    async findDetailById(productId: string) {
-    return this.prisma.product.findUnique({
+              },
+            },
+            orderBy: [{ createdAt: 'desc' }],
+          },
+        },
+      });
+    });
+  },
+
+  findDetailById: async (productId: string) => {
+    return prisma.product.findUnique({
       where: { id: productId },
       include: {
         store: { select: { id: true, name: true } },
-        category: true,
+        category: { select: { id: true, name: true } },
         stocks: {
           include: {
             size: { select: { id: true, name: true } },
           },
-          orderBy: [{ sizeId: "asc" }],
-        },
-        reviews: {
-          select: { rating: true },
+          orderBy: [{ sizeId: 'asc' }],
         },
         inquiries: {
           include: {
@@ -79,9 +73,18 @@ export class ProductRepository {
               },
             },
           },
-          orderBy: [{ createdAt: "desc" }],
+          orderBy: [{ createdAt: 'desc' }],
         },
       },
     });
-  }
-}
+  },
+
+  findReviewSummaryByProductId: async (productId: string) => {
+    return prisma.review.groupBy({
+      by: ['rating'],
+      where: { productId },
+      _count: { rating: true },
+      _sum: { rating: true },
+    });
+  },
+};
