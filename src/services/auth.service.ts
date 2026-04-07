@@ -11,15 +11,12 @@ import {
 import { comparePassword } from '../utils/password.util';
 import * as userRepository from '../repositories/user.repository';
 import { LoginInput } from '../structs/auth.schema.struct';
-import {
-  LoginRequestDto,
-  RefreshTokenRequestDto,
-} from '../models/auth.request.model';
+import { LoginRequestDto, RefreshTokenRequestDto } from '../models/auth.model';
 import {
   AuthTokensResponseDto,
   AuthUserResponseDto,
   LoginResponseDto,
-} from '../models/auth.response.model';
+} from '../models/auth.model';
 import { TokenPayload } from '../utils/jwt.util';
 
 export const login = async (
