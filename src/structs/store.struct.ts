@@ -8,7 +8,6 @@ import {
   defaulted,
   coerce,
   integer,
-  define,
   min,
 } from 'superstruct';
 
