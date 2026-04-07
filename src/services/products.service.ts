@@ -7,7 +7,7 @@ export async function createInquiry(data: InquiryCreateInput) {
     const dto = new CreateInquiryDto(data as unknown as CreateInquiryDto);
     const existingProduct = await productsRepository.getProductById(dto.productId); // 실제로는 문의 대상 상품 ID를 가져와야 합니다.
     if(!existingProduct) {
-        throw new NotFoundError('Product not found');
+        throw new NotFoundError('상품을 찾을 수 없습니다');
     }    
     const createdInquiry = await productsRepository.createInquiry(
         {
