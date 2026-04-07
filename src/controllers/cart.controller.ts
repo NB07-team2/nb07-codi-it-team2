@@ -1,24 +1,14 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler.util";
 import * as cartService from "../services/cart.service";
-import { BadRequestError, ForbiddenError } from "../errors/errors";
 
-export const createCart = asyncHandler(async(req:Request, res:Response) => {
-    const user = req.user;
+export const createCart = asyncHandler(async (req: Request, res: Response) => {
+  // 미들웨어에서 검증된 user 객체 사용 (Non-null assertion 사용)
+  const user = req.user!;
 
-    if(!user || !user.id) {
-        throw new BadRequestError("잘못된 요청 입니다.");
-    }
+  // 서비스에 user 전체를 넘겨서 서비스가 권한 및 로직을 처리하게 함
+  const cart = await cartService.createCart(user);
 
-    if(user.type !== 'BUYER') {
-        throw new ForbiddenError("접근 권한이 없습니다.");
-    }
-
-    const cart = await cartService.createCart({buyerId: user.id});
-    res.status(201).json({
-        id: cart.id,
-        buyerId: cart.buyerId,
-        createdAt: cart.createdAt,
-        updatedAt: cart.updatedAt
-    })
-})
+  // 서비스에서 가공된 DTO를 그대로 응답
+  res.status(201).json(cart);
+});
