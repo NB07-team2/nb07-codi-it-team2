@@ -1,6 +1,7 @@
+import {CreateInquiryRepoDto } from '../types/inquiry.type';
 import prisma from '../utils/prismaClient.util';
 
-export async function createInquiry(inquiryData : { title: string; content: string; isSecret?: boolean; userId: string; productId: string }) {
+export async function createInquiry(inquiryData : CreateInquiryRepoDto) {
     // 문의 생성
     const newInquiry = await prisma.inquiry.create({
         data: {
@@ -22,12 +23,4 @@ export async function getProductById(poductId: string) {
         },   
     });
     return product;
-}
-export async function getUserById(userId: string) {
-    const user = await prisma.user.findUnique({
-        where: {
-            id: userId,
-        },   
-    });
-    return user;
-}   
+} 

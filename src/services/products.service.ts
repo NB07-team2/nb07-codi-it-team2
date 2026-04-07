@@ -1,11 +1,10 @@
 import { InquiryCreateInput } from '../structs/inquiry.schema.struct';
-import { CreateInquiryDto } from '../models/inquiry.request.model';
-import {InquiryResponseDto} from '../models/inquiry.response.model';
-import * as inquiryRepository from '../repositories/inquiry.repository';
+import {CreateInquiryDto,InquiryResponseDto} from '../models/inquiry.model';
+import * as inquiryRepository from '../repositories/products.repository';
 import { NotFoundError } from '../errors/errors';
 
 export async function createInquiry(data: InquiryCreateInput) {
-    const dto = new CreateInquiryDto(data);
+    const dto = new CreateInquiryDto(data as any); // DTO로 변환
     const existingProduct = await inquiryRepository.getProductById(dto.productId); // 실제로는 문의 대상 상품 ID를 가져와야 합니다.
     
     if(!existingProduct) {

@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import * as inquiryController from '../controllers/inquiry.controller';
+import * as productsController from '../controllers/products.controller';
 import { authenticate } from '../middlewares/auth.middlewares';
 
 const router = Router();
 router.post(
   '/:productId/inquiries',
   authenticate,
-  inquiryController.createInquiry,
+  productsController.createInquiry,
 );
 
 export default router;
