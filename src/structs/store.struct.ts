@@ -9,6 +9,7 @@ import {
   coerce,
   integer,
   define,
+  min,
 } from 'superstruct';
 
 //문자열을 숫자로 바꾸고 정수인지 확인하는 로직
@@ -26,9 +27,6 @@ export const StoreStruct = object({
 
 //페이지네이션 파라미터 타입
 export const GetStoreProductListStruct = object({
-  page: defaulted(
-    define('min1', (value: any) => parseInt(value) >= 1),
-    '1',
-  ),
-  pageSize: defaulted(integerString, 10),
+  page: defaulted(min(integerString, 1), 1),
+  pageSize: defaulted(min(integerString, 1), 10),
 });
