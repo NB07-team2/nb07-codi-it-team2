@@ -121,9 +121,7 @@ export class MyStoreProductItemDto {
     this.isSoldOut = data.isSoldOut;
 
     // 재고 합산 계산
-    this.stock =
-      data.stocks?.reduce((acc: number, s: any) => acc + s.quantity, 0) || 0;
-
+    this.stock = data.stocks?.reduce((acc, s) => acc + s.quantity, 0) || 0;
     // 할인율이 존재하면 true 반환
     this.isDiscount = !!data.discountRate && data.discountRate > 0;
   }
