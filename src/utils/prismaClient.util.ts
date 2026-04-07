@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { NODE_ENV } from './constants.util';
 
 // 전역 변수로 선언하여 개발 환경에서의 중복 생성을 방지
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
@@ -16,7 +17,7 @@ export const prisma =
   });
 
 // 쿼리 실행 시간 로깅 미들웨어 (통계 최적화용)
-if (process.env.NODE_ENV !== 'production') {
+if (NODE_ENV !== 'production') {
   // Prisma 내부 이벤트를 구독하여 실행 시간을 출력
   (prisma as any).$on(
     'query',
@@ -28,6 +29,6 @@ if (process.env.NODE_ENV !== 'production') {
   );
 }
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+if (NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export default prisma;

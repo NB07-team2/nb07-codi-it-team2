@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   createStoreController,
   getMyStoreController,
+  getMyStoreProducts,
   storeDetail,
   updateStore,
 } from '../controllers/store.controller';
@@ -14,7 +15,7 @@ router.post('/', authenticate, upload.single('image'), createStoreController);
 router.patch('/:storeId', authenticate, upload.single('image'), updateStore);
 router.get('/:storeId', storeDetail);
 router.get('/detail/my', authenticate, getMyStoreController);
-//router.get('/detail/my/product,', authenticate);
+router.get('/detail/my/product', authenticate, getMyStoreProducts);
 //router.post(':/storeId/favorite', authenticate);
 //outer.delete(':/storeId/favorite', authenticate);
 

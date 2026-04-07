@@ -4,9 +4,15 @@ import {
   optional,
   size,
   pattern,
-  Infer,
   any,
+  defaulted,
+  coerce,
+  integer,
+  define,
 } from 'superstruct';
+
+//문자열을 숫자로 바꾸고 정수인지 확인하는 로직
+const integerString = coerce(integer(), string(), (value) => parseInt(value));
 
 //스토어 생성용
 export const StoreStruct = object({
@@ -17,4 +23,12 @@ export const StoreStruct = object({
   content: size(string(), 10, 500),
   image: optional(any()),
 });
-export type CreateStoreRequest = Infer<typeof StoreStruct>;
+
+//페이지네이션 파라미터 타입
+export const GetStoreProductListStruct = object({
+  page: defaulted(
+    define('min1', (value: any) => parseInt(value) >= 1),
+    '1',
+  ),
+  pageSize: defaulted(integerString, 10),
+});
