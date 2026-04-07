@@ -16,10 +16,10 @@ export async function createInquiry(inquiryData : CreateInquiryRepoDto) {
   return newInquiry; // 생성된 문의 반환
 }
 
-export async function getProductById(poductId: string) {
+export async function getProductById(productId: string) {
     const product = await prisma.product.findUnique({
         where: {
-            id: poductId,
+            id: productId,
         },   
     });
     return product;

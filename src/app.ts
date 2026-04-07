@@ -10,6 +10,7 @@ import cartRouter from './routes/cart.route';
 import storRouter from './routes/store.route';
 import userRouter from './routes/user.route';
 import productsRouter from './routes/products.route';
+
 const app = express();
 
 app.use(cors());
