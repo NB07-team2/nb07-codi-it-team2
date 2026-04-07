@@ -11,22 +11,23 @@ const isoDateString = z.string().refine(
       (v: string) => !Number.isNaN(Date.parse(v)),
   { message: "유효한 ISO 날짜 문자열이 아닙니다." }
 );
-const isoUrlString = z.string().refine(
-      (v: string) => {
-        try {
-          return !!new URL(v); //주소 형식이 아니면 에러 발생
-        } catch {
-          return false;
-        }
-      },
-  { message: "유효한 URL 문자열이 아닙니다." }
-);
+// 머지되면 주석 삭제하도록 하겠습니다. 
+// const isoUrlString = z.string().refine(
+//       (v: string) => {
+//         try {
+//           return !!new URL(v); //주소 형식이 아니면 에러 발생
+//         } catch {
+//           return false;
+//         }
+//       },
+//   { message: "유효한 URL 문자열이 아닙니다." }
+// );
 
 export const createProductbody = z.object({
     name: z.string().min(1, '상품 이름을 입력해주세요.').max(50, '상품 이름은 최대 50자까지 입력 가능합니다.'),
     price: z.number().int().min(0),
     content: z.string().min(1,'상품 설명을 입력해주세요.').max(1000, '상품 설명은 최대 1000자까지 입력 가능합니다.'),
-    image: isoUrlString.optional(),
+    image: z.any(),
     categoryName: z.union([
         z.literal("all"),
         z.literal("top"),
