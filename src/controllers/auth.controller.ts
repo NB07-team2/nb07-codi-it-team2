@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { InvalidRequestError } from '../errors/errors';
-import { loginSchema } from '../structs/auth.schema.struct';
+import { loginSchema } from '../structs/auth.struct';
 import * as authService from '../services/auth.service';
 import {
   NODE_ENV,

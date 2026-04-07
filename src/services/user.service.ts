@@ -5,6 +5,7 @@ import {
   UserResponse,
   UserWithGrade,
   RegisterUserDto,
+  toUserResponse,
 } from '../types/user.type';
 import {
   ConflictError,
@@ -26,27 +27,10 @@ export const register = async (data: RegisterUserDto) => {
     password: hashedPassword,
     name: data.name,
     type: data.type,
-    image: data.image || undefined,
-    points: 0,
-    grade: { connect: { id: 'grade_green' } },
+    ...(data.image && { image: data.image }),
   });
 
-  return {
-    id: newUser.id,
-    name: newUser.name,
-    email: newUser.email,
-    type: newUser.type,
-    points: newUser.points,
-    createdAt: newUser.createdAt,
-    updatedAt: newUser.updatedAt,
-    grade: {
-      name: newUser.grade.name,
-      id: newUser.grade.id,
-      rate: newUser.grade.rate,
-      minAmount: newUser.grade.minAmount,
-    },
-    image: newUser.image,
-  };
+  return toUserResponse(newUser);
 };
 
 // 내 정보 조회
@@ -55,22 +39,7 @@ export const getMe = async (userId: string) => {
 
   if (!newUser) throw new NotFoundError('유저를 찾을 수 없습니다.');
 
-  return {
-    id: newUser.id,
-    name: newUser.name,
-    email: newUser.email,
-    type: newUser.type,
-    points: newUser.points,
-    createdAt: newUser.createdAt,
-    updatedAt: newUser.updatedAt,
-    grade: {
-      name: newUser.grade.name,
-      id: newUser.grade.id,
-      rate: newUser.grade.rate,
-      minAmount: newUser.grade.minAmount,
-    },
-    image: newUser.image,
-  };
+  return toUserResponse(newUser);
 };
 
 // 내 정보 수정
@@ -113,22 +82,7 @@ export const updateMe = async (
 
   const updatedUser: UserWithGrade = await userRepository.update(userId, data);
 
-  return {
-    id: updatedUser.id,
-    name: updatedUser.name,
-    email: updatedUser.email,
-    type: updatedUser.type,
-    points: updatedUser.points,
-    createdAt: updatedUser.createdAt,
-    updatedAt: updatedUser.updatedAt,
-    grade: {
-      name: updatedUser.grade.name,
-      id: updatedUser.grade.id,
-      rate: updatedUser.grade.rate,
-      minAmount: updatedUser.grade.minAmount,
-    },
-    image: updatedUser.image,
-  };
+  return toUserResponse(updatedUser);
 };
 
 // 관심 스토어 조회
@@ -142,18 +96,7 @@ export const getFavorites = async (userId: string) => {
   return favorites.map((fav) => ({
     storeId: fav.storeId,
     userId: fav.userId,
-    store: {
-      id: fav.store.id,
-      name: fav.store.name,
-      createdAt: fav.store.createdAt,
-      updatedAt: fav.store.updatedAt,
-      userId: fav.store.userId,
-      address: fav.store.address,
-      detailAddress: fav.store.detailAddress,
-      phoneNumber: fav.store.phoneNumber,
-      content: fav.store.content,
-      image: fav.store.image,
-    },
+    store: { ...fav.store },
   }));
 };
 
