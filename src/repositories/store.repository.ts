@@ -1,5 +1,6 @@
 import {
   CreateStoreRepoDto,
+  FindMyStoreProductsRepoParams,
   MyStoreBasePayload,
   MyStoreData,
   StoreWithCount,
@@ -91,16 +92,43 @@ export const StoreRepository = {
     });
     return store;
   },
-  findById: async (storeId: string) => {
+  findByStoreId: async (storeId: string) => {
     return await prisma.store.findUnique({
       where: { id: storeId },
     });
   },
+
   //스토어 수정
   updateStore: async (id: string, data: UpdateStoreRepoDto) => {
     return await prisma.store.update({
       where: { id },
       data,
     });
+  },
+
+  //내 스토어 등록 상품 조회
+  findMyStoreProducts: async (params: FindMyStoreProductsRepoParams) => {
+    const { storeId, page, pageSize } = params;
+    const skip = (page - 1) * pageSize;
+
+    const [totalCount, list] = await Promise.all([
+      prisma.product.count({
+        where: { storeId },
+      }),
+      prisma.product.findMany({
+        where: { storeId },
+        skip,
+        take: pageSize,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          stocks: {
+            select: {
+              quantity: true,
+            },
+          },
+        },
+      }),
+    ]);
+    return { totalCount, list };
   },
 };

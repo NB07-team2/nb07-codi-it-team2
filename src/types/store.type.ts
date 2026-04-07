@@ -1,5 +1,14 @@
 import { Prisma } from '@prisma/client';
+import {
+  GetStoreProductListStruct,
+  StoreStruct,
+} from '../structs/store.struct';
+import { Infer } from 'superstruct';
 
+//스토어 생성 요청 타입
+export type CreateStoreRequest = Infer<typeof StoreStruct>;
+
+//스토어 생성 응답 타입
 export interface CreateStoreRepoDto {
   name: string;
   address: string;
@@ -8,6 +17,7 @@ export interface CreateStoreRepoDto {
   content: string;
   image: string;
 }
+
 //스토어 상세 응답 타입
 export type StoreWithCount = Prisma.StoreGetPayload<{
   include: { _count: { select: { favoritedBy: true } } };
@@ -38,7 +48,8 @@ export interface UpdateStoreRepoDto {
   content?: string;
   image?: string;
 }
-//스토어 수정 req
+
+//스토어 수정 요청 타입
 export type UpdateStoreRequest = {
   name: string;
   address: string;
@@ -47,3 +58,28 @@ export type UpdateStoreRequest = {
   content: string;
   image?: any;
 };
+
+//내 스토어 상품 목록 조회 DTO용 타입
+export type ProductWithStockQuantity = Prisma.ProductGetPayload<{
+  include: {
+    stocks: {
+      select: {
+        quantity: true;
+      };
+    };
+  };
+}>;
+
+//페이지네이션 타입
+export type PaginationParams = Infer<typeof GetStoreProductListStruct>;
+
+//서비스 로직용 파라미터 타입 (페이지네이션 확장)
+export interface MyStoreProductsServiceParams extends PaginationParams {
+  userId: string;
+  userType: string;
+}
+
+//리포지토리용 파라미터 타입
+export interface FindMyStoreProductsRepoParams extends PaginationParams {
+  storeId: string;
+}

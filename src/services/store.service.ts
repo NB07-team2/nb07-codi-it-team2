@@ -1,12 +1,16 @@
 import { ConflictError, ForbiddenError, NotFoundError } from '../errors/errors';
 import {
   MyStoreDetailResponseDto,
+  MyStoreProductItemDto,
   StoreDetailResponseDto,
   StoreResponseDto,
 } from '../models/store.model';
 import { StoreRepository } from '../repositories/store.repository';
-import { CreateStoreRequest } from '../structs/store.struct';
-import { UpdateStoreRequest } from '../types/store.type';
+import {
+  CreateStoreRequest,
+  MyStoreProductsServiceParams,
+  UpdateStoreRequest,
+} from '../types/store.type';
 import * as imageService from './image.service';
 
 //전화번호 중복 확인
@@ -36,6 +40,7 @@ export async function createStoreService(
   //1인 1스토어
   const userStore = await StoreRepository.findByUserId(userId);
   if (userStore) throw new ConflictError('스토어가 이미 존재합니다.');
+
   //전화번호 중복 확인 (현재 내 스토어 ID는 제외하고 검색)
   const normalizedPhone = data.phoneNumber.replace(/-/g, ''); //중복 확인시과 db 저장시에는 하이픈 제거
   await validatePhoneNumber(normalizedPhone);
@@ -89,7 +94,7 @@ export const editStore = async (
   if (userType !== 'SELLER')
     throw new ForbiddenError('판매자 권한이 필요합니다.');
 
-  const store = await StoreRepository.findById(storeId);
+  const store = await StoreRepository.findByStoreId(storeId);
   if (!store) throw new NotFoundError('존재하지 않는 스토어입니다.');
   if (store.userId !== userId)
     throw new ForbiddenError('본인의 스토어만 수정할 수 있습니다.');
@@ -119,4 +124,28 @@ export const editStore = async (
   });
 
   return new StoreResponseDto(updatedStore);
+};
+
+//내 스토어 등록 상품 조회
+export const myStoreProducts = async (params: MyStoreProductsServiceParams) => {
+  const { page, pageSize, userId, userType } = params;
+
+  if (userType !== 'SELLER')
+    throw new ForbiddenError('판매자 권한이 필요합니다.');
+
+  const store = await StoreRepository.findByUserId(userId);
+  if (!store) {
+    throw new NotFoundError('존재하지 않는 스토어입니다.');
+  }
+
+  const { totalCount, list } = await StoreRepository.findMyStoreProducts({
+    storeId: store.id,
+    page,
+    pageSize,
+  });
+
+  return {
+    list: list.map((product) => new MyStoreProductItemDto(product)),
+    totalCount,
+  };
 };
