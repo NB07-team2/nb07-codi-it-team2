@@ -1,5 +1,5 @@
 import { Inquiry } from '@prisma/client';
-import { InquiryCreateReqDto } from '../types/inquiry.type';
+import { InquiryCreateInput } from '../structs/inquiry.schema.struct';
 
 export class CreateInquiryDto {
     title: string;
@@ -8,10 +8,10 @@ export class CreateInquiryDto {
     userId: string;
     productId: string;
     
-    constructor(data:InquiryCreateReqDto) {
+    constructor(data:InquiryCreateInput) {
       this.title = data.title;
       this.content = data.content;
-      this.isSecret = data.isSecret || false; 
+      this.isSecret = data.isSecret; 
       this.userId = data.userId;
       this.productId = data.productId;
     }

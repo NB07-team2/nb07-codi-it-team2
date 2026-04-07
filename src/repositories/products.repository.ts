@@ -7,7 +7,7 @@ export async function createInquiry(inquiryData : CreateInquiryRepoDto) {
         data: {
             title: inquiryData.title,
             content: inquiryData.content,
-            isSecret: inquiryData.isSecret || false,
+            isSecret: inquiryData.isSecret,
             user: { connect: { id: inquiryData.userId } },
             product: { connect: { id: inquiryData.productId } },
         },   
