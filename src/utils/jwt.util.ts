@@ -1,21 +1,7 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { env } from './env.util';
 import { UserType } from '@prisma/client';
-
-export interface JwtPayload {
-  userId: string;
-}
-
-export interface TokenPayload {
-  userId: string;
-  type: UserType; // 유저 type 추가
-}
-
-export interface JwtVerifyResult {
-  valid: boolean;
-  payload?: JwtPayload;
-  expired?: boolean;
-}
+import { JwtPayload, JwtVerifyResult } from '../types/jwt.type';
 
 // 액세스 토큰 생성
 export const generateAccessToken = (userId: string, type: UserType): string => {

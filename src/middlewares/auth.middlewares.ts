@@ -5,7 +5,7 @@ import {
   UnauthorizedError,
 } from '../errors/errors';
 import { verifyAccessToken } from '../utils/jwt.util';
-import { TokenPayload } from '../utils/jwt.util';
+import { TokenPayload } from '../types/jwt.type';
 
 export const authenticate = (
   req: Request,

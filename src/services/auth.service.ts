@@ -17,7 +17,7 @@ import {
   AuthUserResponseDto,
   LoginResponseDto,
 } from '../models/auth.model';
-import { TokenPayload } from '../utils/jwt.util';
+import { TokenPayload } from '../types/jwt.type';
 
 export const login = async (
   data: LoginInput,
