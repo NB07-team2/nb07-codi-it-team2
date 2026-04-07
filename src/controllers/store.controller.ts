@@ -1,11 +1,15 @@
 import { Request, Response } from 'express';
 import { create } from 'superstruct';
-import { StoreStruct } from '../structs/store.struct';
+import {
+  GetStoreProductListStruct,
+  StoreStruct,
+} from '../structs/store.struct';
 import {
   createStoreService,
   editStore,
   getMyStore,
   getStoreDetail,
+  myStoreProducts,
 } from '../services/store.service';
 
 //스토어 등록
@@ -63,5 +67,18 @@ export const updateStore = async (
     req.file,
   );
 
+  res.status(200).json(result);
+};
+
+//내 스토어 등록 상품 조회
+export const getMyStoreProducts = async (req: Request, res: Response) => {
+  const validatedParams = create(req.query, GetStoreProductListStruct);
+  const { id: userId, type: userType } = req.user!;
+
+  const result = await myStoreProducts({
+    ...validatedParams,
+    userId,
+    userType,
+  });
   res.status(200).json(result);
 };

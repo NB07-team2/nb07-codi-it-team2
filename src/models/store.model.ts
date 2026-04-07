@@ -1,5 +1,9 @@
 import { Store } from '@prisma/client';
-import { MyStoreData, StoreWithCount } from '../types/store.type';
+import {
+  MyStoreData,
+  ProductWithStockQuantity,
+  StoreWithCount,
+} from '../types/store.type';
 
 //하이픈 붙여주는 헬퍼 함수
 const formatPhoneNumber = (phone: string): string => {
@@ -94,5 +98,31 @@ export class MyStoreDetailResponseDto {
     this.totalSoldCount = data.totalSoldCount ?? 0;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
+  }
+}
+
+//내 스토어 상품 목록 조회
+export class MyStoreProductItemDto {
+  id: string;
+  image: string;
+  name: string;
+  price: number;
+  createdAt: Date;
+  isSoldOut: boolean;
+  stock: number;
+  isDiscount: boolean;
+
+  constructor(data: ProductWithStockQuantity) {
+    this.id = data.id;
+    this.image = data.image || '';
+    this.name = data.name;
+    this.price = data.price;
+    this.createdAt = data.createdAt;
+    this.isSoldOut = data.isSoldOut;
+
+    // 재고 합산 계산
+    this.stock = data.stocks?.reduce((acc, s) => acc + s.quantity, 0) || 0;
+    // 할인율이 존재하면 true 반환
+    this.isDiscount = !!data.discountRate && data.discountRate > 0;
   }
 }
