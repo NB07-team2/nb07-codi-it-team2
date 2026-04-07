@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { UserType } from '@prisma/client';
 
 export const registerSchema = z.object({
   email: z.string().email({ message: '올바른 이메일 형식이 아닙니다' }),
@@ -12,7 +13,8 @@ export const registerSchema = z.object({
     .string()
     .min(2, { message: '이름은 최소 2자 이상이어야 합니다' })
     .max(50, { message: '이름은 최대 50자까지 입력 가능합니다' }),
-  profileImage: z.string().nullable().optional(),
+  image: z.string().nullable().optional(),
+  type: z.nativeEnum(UserType).describe('회원 유형을 입력해주세요'),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;

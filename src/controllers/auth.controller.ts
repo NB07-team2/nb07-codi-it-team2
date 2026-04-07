@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { InvalidRequestError } from '../errors/errors';
-import { loginSchema } from '../structs/auth.schema.struct';
+import { loginSchema } from '../structs/auth.struct';
 import * as authService from '../services/auth.service';
 import {
   NODE_ENV,
@@ -16,6 +16,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   if (!result) {
     throw new Error('Service returned undefined or null');
   }
+
   const { response, refreshToken } = result;
 
   res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
@@ -37,6 +38,7 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
 
   const refreshToken = authHeader.substring(7);
   const tokens = await authService.refreshTokens(refreshToken);
+
   res.status(200).json(tokens);
 };
 
@@ -50,5 +52,6 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
 
   res.clearCookie(REFRESH_TOKEN_COOKIE_NAME);
   res.clearCookie(ACCESS_TOKEN_COOKIE_NAME);
+
   res.status(200).json({ message: '성공적으로 로그아웃되었습니다.' });
 };

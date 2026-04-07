@@ -5,10 +5,15 @@ import { upload } from '../services/image.service';
 
 const userRouter = Router();
 
-userRouter.post('/', userController.register); 
+userRouter.post('/', userController.register);
 userRouter.get('/me', authenticate, userController.getMe);
-userRouter.patch('/me', authenticate, upload.single('image'), userController.updateMe); 
-userRouter.get('/me/likes', authenticate, userController.getFavorites); 
-userRouter.delete('/delete', authenticate, userController.deleteMe); 
+userRouter.patch(
+  '/me',
+  authenticate,
+  upload.single('image'),
+  userController.updateMe,
+);
+userRouter.get('/me/likes', authenticate, userController.getFavorites);
+userRouter.delete('/delete', authenticate, userController.deleteMe);
 
 export default userRouter;
