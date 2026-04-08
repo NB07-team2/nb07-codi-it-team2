@@ -144,6 +144,7 @@ export const StoreRepository = {
       },
     });
   },
+  // 관심 스토어 확인
   findFavorite: async (userId: string, storeId: string) => {
     return await prisma.favorite.findUnique({
       where: {
@@ -151,6 +152,8 @@ export const StoreRepository = {
       },
     });
   },
+
+  //관심 스토어 해제
   favoriteStoreClear: async (userId: string, storeId: string) => {
     return await prisma.favorite.delete({
       where: {
