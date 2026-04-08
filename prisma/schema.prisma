@@ -78,7 +78,6 @@ model Grade {
 
 // 관심 스토어 중간 테이블
 model Favorite {
-  id      Int    @id @default(autoincrement())
   userId  String
   storeId String
 
@@ -87,8 +86,7 @@ model Favorite {
 
   createdAt DateTime @default(now())
 
-  @@unique([userId, storeId]) // 한 유저가 관심스토어 중복 방지
-  @@map("favorite")
+  @@id([userId, storeId]) // 유저ID + 스토어ID 를 기본키로 사용
 }
 
 enum InquiryStatus {

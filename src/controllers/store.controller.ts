@@ -2,11 +2,14 @@ import { Request, Response } from 'express';
 import { create } from 'superstruct';
 import {
   GetStoreProductListStruct,
+  StoreIdStruct,
   StoreStruct,
 } from '../structs/store.struct';
 import {
   createStoreService,
   editStore,
+  favoriteStoreClear,
+  favoriteStoreRegister,
   getMyStore,
   getStoreDetail,
   myStoreProducts,
@@ -49,23 +52,17 @@ export const getMyStoreController = async (req: Request, res: Response) => {
 };
 
 //스토어 상세조회
-export const storeDetail = async (
-  req: Request<{ storeId: string }>,
-  res: Response,
-) => {
-  const { storeId } = req.params;
+export const storeDetail = async (req: Request, res: Response) => {
+  const { storeId } = create(req.params, StoreIdStruct);
   const result = await getStoreDetail(storeId);
 
   res.status(200).json(result);
 };
 
 //스토어 수정
-export const updateStore = async (
-  req: Request<{ storeId: string }>,
-  res: Response,
-) => {
+export const updateStore = async (req: Request, res: Response) => {
   const { id: userId, type: userType } = req.user!;
-  const { storeId } = req.params;
+  const { storeId } = create(req.params, StoreIdStruct);
 
   if (req.body.image && !req.file) {
     throw new BadRequestError('이미지는 파일 형태로만 업로드 가능합니다.');
@@ -99,5 +96,23 @@ export const getMyStoreProducts = async (req: Request, res: Response) => {
     userId,
     userType,
   });
+  res.status(200).json(result);
+};
+
+//관심 스토어 등록
+export const addFavoriteStore = async (req: Request, res: Response) => {
+  const { id: userId } = req.user!;
+  const { storeId } = create(req.params, StoreIdStruct);
+
+  const result = await favoriteStoreRegister(userId, storeId);
+  res.status(201).json(result);
+};
+
+//관심 스토어 해제
+export const clearFavoriteStore = async (req: Request, res: Response) => {
+  const { id: userId } = req.user!;
+  const { storeId } = create(req.params, StoreIdStruct);
+
+  const result = await favoriteStoreClear(userId, storeId);
   res.status(200).json(result);
 };

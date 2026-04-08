@@ -1,5 +1,6 @@
 import { Store } from '@prisma/client';
 import {
+  FavoriteResponseType,
   MyStoreData,
   ProductWithStockQuantity,
   StoreWithCount,
@@ -124,5 +125,38 @@ export class MyStoreProductItemDto {
     this.stock = data.stocks?.reduce((acc, s) => acc + s.quantity, 0) || 0;
     // 할인율이 존재하면 true 반환
     this.isDiscount = !!data.discountRate && data.discountRate > 0;
+  }
+}
+
+//관심 스토어 응답 DTO
+export class FavoriteStoreResponseDto {
+  type: FavoriteResponseType;
+  store: {
+    id: string;
+    userId: string;
+    name: string;
+    address: string;
+    detailAddress: string;
+    phoneNumber: string;
+    content: string;
+    image: string;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+
+  constructor(type: FavoriteResponseType, store: Store) {
+    this.type = type;
+    this.store = {
+      id: store.id,
+      userId: store.userId,
+      name: store.name,
+      address: store.address,
+      detailAddress: store.detailAddress,
+      phoneNumber: formatPhoneNumber(store.phoneNumber),
+      content: store.content,
+      image: store.image || '',
+      createdAt: store.createdAt,
+      updatedAt: store.updatedAt,
+    };
   }
 }

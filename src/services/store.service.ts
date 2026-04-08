@@ -1,5 +1,6 @@
 import { ConflictError, ForbiddenError, NotFoundError } from '../errors/errors';
 import {
+  FavoriteStoreResponseDto,
   MyStoreDetailResponseDto,
   MyStoreProductItemDto,
   StoreDetailResponseDto,
@@ -148,4 +149,44 @@ export const myStoreProducts = async (params: MyStoreProductsServiceParams) => {
     list: list.map((product) => new MyStoreProductItemDto(product)),
     totalCount,
   };
+};
+
+//관심 스토어 등록
+export const favoriteStoreRegister = async (
+  userId: string,
+  storeId: string,
+) => {
+  const store = await StoreRepository.findByStoreId(storeId);
+  if (!store) throw new NotFoundError('존재하지 않는 스토어입니다.');
+  // 본인 스토어 여부 확인
+  if (store.userId === userId)
+    throw new ForbiddenError(
+      '본인의 스토어를 등록할 수 없습니다.잘못된 요청입니다.(store)',
+    );
+  //관심 스토어 중복 확인
+  const existingFavorite = await StoreRepository.findFavorite(userId, storeId);
+  if (existingFavorite) {
+    throw new ConflictError('이미 관심 스토어로 등록되어 있습니다.');
+  }
+  const addFavorite = await StoreRepository.favoriteStoreRegister(
+    userId,
+    storeId,
+  );
+  return new FavoriteStoreResponseDto('register', addFavorite.store);
+};
+
+//관심 스토어 해제
+export const favoriteStoreClear = async (userId: string, storeId: string) => {
+  const store = await StoreRepository.findByStoreId(storeId);
+  if (!store) throw new NotFoundError('존재하지 않는 스토어입니다.');
+  //관심 스토어 존재 확인
+  const favorite = await StoreRepository.findFavorite(userId, storeId);
+  if (!favorite) {
+    throw new NotFoundError('관심 스토어로 등록되어 있지 않습니다.');
+  }
+  const favoriteClear = await StoreRepository.favoriteStoreClear(
+    userId,
+    storeId,
+  );
+  return new FavoriteStoreResponseDto('delete', favoriteClear.store);
 };
