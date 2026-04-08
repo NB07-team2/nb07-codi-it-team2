@@ -5,6 +5,14 @@ import {
 } from '../structs/store.struct';
 import { Infer } from 'superstruct';
 
+// Multer 파일 객체의 최소 규격 정의
+export interface MulterFileObject {
+  originalname: string;
+  mimetype: string;
+  buffer?: Buffer;
+  path?: string;
+}
+
 //스토어 생성 요청 타입
 export type CreateStoreRequest = Infer<typeof StoreStruct>;
 
