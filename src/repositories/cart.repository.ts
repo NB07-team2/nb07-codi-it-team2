@@ -11,3 +11,21 @@ export const createCart = async (buyerId: string) => {
     data: { buyerId },
   });
 };
+
+export const findCartWithDetails = async (buyerId: string) => {
+  return await prisma.cart.findUnique({
+    where: { buyerId },
+    include: {
+      items : {
+        include: {
+          product: {
+            include: {
+              store: true,
+              stocks: { include: { size: true } }
+            }
+          }
+        }
+      }
+    },
+  });
+} ;
