@@ -31,14 +31,11 @@ export const createProductService = async (
     throw new error.NotFoundError('해당 카테고리를 찾을 수 없습니다.');
   }
 
-
-
   let imageUrlString = '';
   if (file) {
     const uploadResult = await imageService.uploadImage(file);
     imageUrlString = uploadResult.url;
   }
-
 
   const createdProduct = await ProductRepository.createProduct({
     name: input.name,
@@ -48,8 +45,12 @@ export const createProductService = async (
     categoryId: category.id,
     storeId: store.id,
     discountRate: input.discountRate,
-    discountStartTime: input.discountStartTime ? new Date(input.discountStartTime) : null,
-    discountEndTime: input.discountEndTime ? new Date(input.discountEndTime) : null,
+    discountStartTime: input.discountStartTime
+      ? new Date(input.discountStartTime)
+      : null,
+    discountEndTime: input.discountEndTime
+      ? new Date(input.discountEndTime)
+      : null,
   });
 
   if (!createdProduct) {
@@ -92,5 +93,6 @@ export const createProductService = async (
   return new CreateProductResponseDto({
     ...createdProduct,
     stocks: savedStocks,
+    inquiries: [],
   });
 };

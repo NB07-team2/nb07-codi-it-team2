@@ -33,6 +33,7 @@ export const createProductbody = z
       z.literal('shoes'),
       z.literal('acc'),
     ]),
+    inquiry: z.string().optional(),
     stocks: z
       .union([z.array(stockItem).min(1), z.string()])
       .transform((stocks) => {
