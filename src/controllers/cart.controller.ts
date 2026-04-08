@@ -12,3 +12,11 @@ export const createCart = asyncHandler(async (req: Request, res: Response) => {
   // 서비스에서 가공된 DTO를 그대로 응답
   res.status(201).json(cart);
 });
+
+export const getMyCart = asyncHandler(async (req: Request, res: Response) => {
+  const user = req.user!;
+
+  const cart = await cartService.getMyCart(user);
+
+  res.status(200).json(cart);
+})
