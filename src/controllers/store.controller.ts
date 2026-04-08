@@ -11,13 +11,23 @@ import {
   getStoreDetail,
   myStoreProducts,
 } from '../services/store.service';
+import { BadRequestError } from '../errors/errors';
 
 //스토어 등록
 export const createStoreController = async (req: Request, res: Response) => {
   // 유저 아이디와 권한 타입
   const { id: userId, type: userType } = req.user!;
 
-  const validatedData = create({ ...req.body, image: req.file }, StoreStruct);
+  if (req.body.image && !req.file) {
+    throw new BadRequestError('이미지는 파일 형태로만 업로드 가능합니다.');
+  }
+
+  const dataToValidate = {
+    ...req.body,
+    image: req.file,
+  };
+
+  const validatedData = create(dataToValidate, StoreStruct);
 
   const result = await createStoreService(
     userId,
@@ -57,7 +67,16 @@ export const updateStore = async (
   const { id: userId, type: userType } = req.user!;
   const { storeId } = req.params;
 
-  const validatedData = create({ ...req.body, image: req.file }, StoreStruct);
+  if (req.body.image && !req.file) {
+    throw new BadRequestError('이미지는 파일 형태로만 업로드 가능합니다.');
+  }
+
+  const dataToValidate = {
+    ...req.body,
+    image: req.file,
+  };
+
+  const validatedData = create(dataToValidate, StoreStruct);
 
   const result = await editStore(
     userId,
