@@ -1,4 +1,4 @@
-
+import { InquiryStatus } from "@prisma/client";
 
 export type CreateProductData = {
   id: string;
