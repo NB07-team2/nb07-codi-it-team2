@@ -1,7 +1,5 @@
-// repositories/user.repository.ts
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { Prisma } from '@prisma/client';
+import { prisma } from '../utils/prismaClient.util';
 
 // 유저 - 이메일로 조회
 export const findByEmail = async (email: string) => {
@@ -24,15 +22,15 @@ export const findById = async (id: string) => {
 };
 
 // 회원가입
-export const create = async (data: any) => {
+export const create = async (data: Prisma.UserCreateInput) => {
   return await prisma.user.create({
     data,
     include: { grade: true },
   });
 };
 
-// 정보 수정
-export const update = async (id: string, data: any) => {
+// 내 정보 수정
+export const update = async (id: string, data: Prisma.UserUpdateInput) => {
   return await prisma.user.update({
     where: { id },
     data,

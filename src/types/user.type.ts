@@ -1,24 +1,6 @@
 import { User, Grade, UserType } from '@prisma/client';
 import { Request } from 'express';
 
-// 유저 응답 인터페이스
-export interface UserResponse {
-  id: string;
-  name: string;
-  email: string;
-  type: UserType;
-  points: number;
-  createdAt: Date;
-  updatedAt: Date;
-  grade: {
-    name: string;
-    id: string;
-    rate: number;
-    minAmount: number;
-  };
-  image: string;
-}
-
 export interface UserWithGrade extends User {
   grade: Grade;
 }

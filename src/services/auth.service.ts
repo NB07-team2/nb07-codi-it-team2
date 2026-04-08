@@ -10,14 +10,14 @@ import {
 } from '../utils/jwt.util';
 import { comparePassword } from '../utils/password.util';
 import * as userRepository from '../repositories/user.repository';
-import { LoginInput } from '../structs/auth.schema.struct';
+import { LoginInput } from '../structs/auth.struct';
 import { LoginRequestDto, RefreshTokenRequestDto } from '../models/auth.model';
 import {
   AuthTokensResponseDto,
   AuthUserResponseDto,
   LoginResponseDto,
 } from '../models/auth.model';
-import { TokenPayload } from '../utils/jwt.util';
+import { TokenPayload } from '../types/jwt.type';
 
 export const login = async (
   data: LoginInput,

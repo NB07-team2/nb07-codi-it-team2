@@ -44,8 +44,8 @@ export const getFavorites = asyncHandler(
   async (req: Request, res: Response) => {
     const authReq = req as unknown as AuthenticatedRequest;
     const { id: userId } = authReq.user;
-
     const favorites = await userService.getFavorites(userId);
+
     res.status(200).json(favorites);
   },
 );
@@ -56,5 +56,6 @@ export const deleteMe = asyncHandler(async (req: Request, res: Response) => {
   const { id: userId } = authReq.user;
 
   await userService.deleteMe(userId);
+
   res.status(200).json({ message: '회원 탈퇴 성공' });
 });
