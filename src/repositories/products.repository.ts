@@ -1,26 +1,84 @@
-import {CreateInquiryRepoDto } from '../types/inquiry.type';
+import { createProductRepoInput } from '../types/products';
 import prisma from '../utils/prismaClient.util';
 
-export async function createInquiry(inquiryData : CreateInquiryRepoDto) {
-    // 문의 생성
-    const newInquiry = await prisma.inquiry.create({
-        data: {
-            title: inquiryData.title,
-            content: inquiryData.content,
-            isSecret: inquiryData.isSecret,
-            user: { connect: { id: inquiryData.userId } },
-            product: { connect: { id: inquiryData.productId } },
-        },   
-    }); 
-  
-  return newInquiry; 
-}
+export const ProductRepository = {
+  createProduct: async (input: createProductRepoInput) => {
+    const { stocks = [], ...productData } = input;
 
-export async function getProductById(productId: string) {
-    const product = await prisma.product.findUnique({
-        where: {
-            id: productId,
-        },   
+    return prisma.$transaction(async (tx) => {
+      const created = await tx.product.create({
+        data: productData,
+      });
+
+      if (stocks.length > 0) {
+        await tx.stock.createMany({
+          data: stocks.map((stock) => ({
+            productId: created.id,
+            sizeId: stock.sizeId,
+            quantity: stock.quantity,
+          })),
+        });
+      }
+
+      const totalStock = stocks.reduce((sum, stock) => sum + stock.quantity, 0);
+
+      await tx.product.update({
+        where: { id: created.id },
+        data: { isSoldOut: totalStock === 0 },
+      });
+
+      return tx.product.findUnique({
+        where: { id: created.id },
+        include: {
+          store: { select: { id: true, name: true } },
+          category: { select: { id: true, name: true } },
+          stocks: {
+            include: {
+              size: { select: { id: true, name: true } },
+            },
+            orderBy: [{ sizeId: 'asc' }],
+          },
+          inquiries: {
+            include: {
+              reply: {
+                include: {
+                  user: { select: { id: true, name: true } },
+                },
+              },
+            },
+            orderBy: [{ createdAt: 'desc' }],
+          },
+        },
+      });
     });
-    return product;
-} 
+  },
+
+  // findDetailById: async (productId: string) => {
+  //   return prisma.product.findUnique({
+  //     where: { id: productId },
+  //     include: {
+  //       store: { select: { id: true, name: true } },
+  //       category: { select: { id: true, name: true } },
+  //       inquiries: {
+  //         include: {
+  //           reply: {
+  //             include: {
+  //               user: { select: { id: true, name: true } },
+  //             },
+  //           },
+  //         },
+  //         orderBy: [{ createdAt: 'desc' }],
+  //       },
+  //     },
+  //   });
+  // },
+
+  // findReviewSummaryByProductId: async (productId: string) => {
+  //   return prisma.review.groupBy({
+  //     by: ['rating'],
+  //     where: { productId },
+  //     _count: { rating: true },
+  //     _sum: { rating: true },
+  //   });
+  // },
+};

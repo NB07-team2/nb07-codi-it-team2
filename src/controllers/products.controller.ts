@@ -1,16 +1,14 @@
 import { Request, Response } from 'express';
-import * as productsService from '../services/products.service';  
-import { inquiryCreateSchema } from '../structs/inquiry.schema.struct';
+import { createProductService } from '../services/products.service';
+import { createProductbody } from '../structs/products.schema.structs';
 
-export async function createInquiry(req:Request, res: Response) {
-   const productId = req.params.productId;
-   const { id: userId } = req.user!; 
-    const dateToValidate = {
-    ...req.body,
-    productId: productId, 
-    userId: userId    
-   };
-   const validatedData = inquiryCreateSchema.parse(dateToValidate); 
-   const newInquiry = await productsService.createInquiry(validatedData); 
-   res.status(201).json(newInquiry);
-}   
+// 상품 등록
+export const createProductController = async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+
+  const validatedProduct = createProductbody.parse(req.body);
+  const created = await createProductService(userId, validatedProduct, req.file);
+
+    res.status(201).json(created);
+  };
+
