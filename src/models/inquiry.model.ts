@@ -1,5 +1,6 @@
 import { Inquiry } from '@prisma/client';
 import { InquiryCreateInput } from '../structs/inquiry.schema.struct';
+import { InquiryMyListItem } from '../types/inquiry.type';
 
 export class CreateInquiryDto {
     title: string;
@@ -43,4 +44,52 @@ export class InquiryResponseDto {
     }
   } 
 
-  export default {CreateInquiryDto, InquiryResponseDto};
+export class InquiriesMyListResponseDto {
+    id: string;
+    userId: string;
+    title: string;
+    content: string;
+    isSecret: boolean;
+    status: string;
+    createdAt: Date;
+    updatedAt: Date;
+    product: {
+      id: string;
+      name: string;
+      image: string;
+      store: {
+        id: string;
+        name: string;
+      };
+    };
+    user: {
+      id: string;
+      name: string;
+    }
+  
+    constructor(data: InquiryMyListItem)  {
+      this.id = data.id;
+      this.userId = data.userId;
+      this.title = data.title;
+      this.content = data.content;      
+      this.isSecret = data.isSecret;
+      this.status = data.status;
+      this.createdAt = data.createdAt;
+      this.updatedAt = data.updatedAt;
+      this.product = {
+        id: data.product.id,
+        name: data.product.name,
+        image: data.product.image || '',
+        store: {
+          id: data.product.store.id,
+          name: data.product.store.name,
+        },
+      };
+      this.user = {
+        id: data.user.id,
+        name: data.user.name,
+      };
+    }
+  }
+
+  export default {CreateInquiryDto, InquiryResponseDto, InquiriesMyListResponseDto};
