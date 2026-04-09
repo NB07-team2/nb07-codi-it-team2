@@ -100,7 +100,7 @@ export const getMyStoreProducts = async (req: Request, res: Response) => {
 };
 
 //관심 스토어 등록
-export const addFavoriteStore = async (req: Request, res: Response) => {
+export const registerFavoriteStore = async (req: Request, res: Response) => {
   const { id: userId } = req.user!;
   const { storeId } = create(req.params, StoreIdStruct);
 
