@@ -8,7 +8,7 @@ import {
 import {
   createStoreService,
   editStore,
-  favoriteStoreClear,
+  favoriteStoreDelete,
   favoriteStoreRegister,
   getMyStore,
   getStoreDetail,
@@ -109,10 +109,10 @@ export const addFavoriteStore = async (req: Request, res: Response) => {
 };
 
 //관심 스토어 해제
-export const clearFavoriteStore = async (req: Request, res: Response) => {
+export const deleteFavoriteStore = async (req: Request, res: Response) => {
   const { id: userId } = req.user!;
   const { storeId } = create(req.params, StoreIdStruct);
 
-  const result = await favoriteStoreClear(userId, storeId);
+  const result = await favoriteStoreDelete(userId, storeId);
   res.status(200).json(result);
 };

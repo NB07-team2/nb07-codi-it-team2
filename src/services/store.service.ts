@@ -176,7 +176,7 @@ export const favoriteStoreRegister = async (
 };
 
 //관심 스토어 해제
-export const favoriteStoreClear = async (userId: string, storeId: string) => {
+export const favoriteStoreDelete = async (userId: string, storeId: string) => {
   const store = await StoreRepository.findByStoreId(storeId);
   if (!store) throw new NotFoundError('존재하지 않는 스토어입니다.');
   //관심 스토어 존재 확인
@@ -184,7 +184,7 @@ export const favoriteStoreClear = async (userId: string, storeId: string) => {
   if (!favorite) {
     throw new NotFoundError('관심 스토어로 등록되어 있지 않습니다.');
   }
-  const favoriteClear = await StoreRepository.favoriteStoreClear(
+  const favoriteClear = await StoreRepository.favoriteStoreDelete(
     userId,
     storeId,
   );
