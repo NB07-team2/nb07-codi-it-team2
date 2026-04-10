@@ -43,9 +43,6 @@ describe('이미지 서비스 유닛 테스트', () => {
       await expect(uploadImage(undefined)).rejects.toThrow(
         '잘못된 요청입니다.',
       );
-      await expect(uploadImage(undefined)).rejects.toThrow(
-        '잘못된 요청입니다.',
-      );
     });
   });
 
