@@ -1,3 +1,14 @@
+import {
+  object,
+  string,
+  defaulted,
+  coerce,
+  integer,
+  min,
+  optional,
+  enums,
+} from 'superstruct';
+
 import {z} from 'zod';
 
 export const inquiryCreateSchema = z.object({
@@ -9,3 +20,11 @@ export const inquiryCreateSchema = z.object({
 });
 
 export type InquiryCreateInput = z.infer<typeof inquiryCreateSchema>;
+
+const integerString = coerce(integer(), string(), (value) => parseInt(value));
+
+export const getInquiriesMyListStruct = object({  
+  page: defaulted(min(integerString, 1), 1),
+  pageSize: defaulted(min(integerString, 1), 16),
+  status: optional(enums(["WaitingAnswer", "CompletedAnswer"])),
+});
