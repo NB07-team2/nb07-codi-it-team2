@@ -1,4 +1,3 @@
-import { InquiriesMyListResponseDto } from '../models/inquiry.model';
 import {InquiryMyPagingRepoParams,InquiryStatus } from '../types/inquiry.type';
 import prisma from '../utils/prismaClient.util';
 
@@ -45,10 +44,9 @@ export async function myInquiryList(params: InquiryMyPagingRepoParams, userId: s
             where: whereCondition
         }),
     ]);
-    
-    const inquiries = list.map(item => new InquiriesMyListResponseDto(item));
+
     return {
-        list: inquiries,
+        list: list,
         totalCount : totalCount,
     };      
 }
