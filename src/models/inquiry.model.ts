@@ -47,11 +47,8 @@ export class InquiryResponseDto {
 export class InquiriesMyListResponseDto {
     id: string;
     title: string;
-    content: string;
     isSecret: boolean;
     status: string;
-    createdAt: Date;
-    updatedAt: Date;
     product: {
       id: string;
       name: string;
@@ -65,15 +62,13 @@ export class InquiriesMyListResponseDto {
       id: string;
       name: string;
     }
-  
+    content: string;
+    createdAt: Date;
     constructor(data: InquiryMyListItem)  {
       this.id = data.id;
-      this.title = data.title;
-      this.content = data.content;      
+      this.title = data.title;   
       this.isSecret = data.isSecret;
       this.status = data.status;
-      this.createdAt = data.createdAt;
-      this.updatedAt = data.updatedAt;
       this.product = {
         id: data.product.id,
         name: data.product.name,
@@ -87,6 +82,9 @@ export class InquiriesMyListResponseDto {
         id: data.user.id,
         name: data.user.name,
       };
+      this.content = data.content;   
+      this.createdAt = data.createdAt;
+
     }
   }
 

@@ -4,11 +4,12 @@ import { create } from 'superstruct';
 import { getInquiriesMyListStruct } from '../structs/inquiry.struct';
 
 export async function myInquiryList(req: Request, res: Response) {
-  const { id: userId } = req.user!;
+  const { id: userId , type: userType } = req.user!
   const inquiriesListParams = create(req.query, getInquiriesMyListStruct);
   const inquiriesData = await inquiryService.myInquiryList(
     { ...inquiriesListParams },
     userId,
+    userType
   );
   res.status(200).json(inquiriesData);
 }

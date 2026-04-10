@@ -22,11 +22,8 @@ export type InquiryMyPagingServiceParams = PaginationMyListParams;
 export interface InquiryMyListItem {
     id: string;
     title: string;
-    content: string;
     isSecret: boolean;
     status: string;
-    createdAt: Date;
-    updatedAt: Date;
     product: {
         id: string;
         name: string;
@@ -40,4 +37,7 @@ export interface InquiryMyListItem {
         id: string;
         name: string;
     };
+     content: string;
+    createdAt: Date;
+
 }   

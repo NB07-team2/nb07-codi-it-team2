@@ -1,13 +1,23 @@
 import {InquiryMyPagingRepoParams,InquiryStatus } from '../types/inquiry.type';
 import prisma from '../utils/prismaClient.util';
 
-export async function myInquiryList(params: InquiryMyPagingRepoParams, userId: string) {
+export async function myInquiryList(params: InquiryMyPagingRepoParams, userId: string, userType: string) {
     const { page, pageSize, status} = params;
     const skip = (page - 1) * pageSize; 
-    const whereCondition = {
-        userId,
+
+    const whereCondition: any = {
         ...(status ? { status: status as InquiryStatus } : {}),
     };
+    if (userType === 'SELLER') {
+        whereCondition.product = {
+            store: {
+                id: userId,
+            },
+        };
+    }else{
+        whereCondition.userId = userId;
+    }
+
     const [list,totalCount] = await prisma.$transaction([
         prisma.inquiry.findMany({
             where: whereCondition,
@@ -38,11 +48,8 @@ export async function myInquiryList(params: InquiryMyPagingRepoParams, userId: s
     const inquiries = list.map(inquiry => ({
         id: inquiry.id,
         title: inquiry.title,
-        content: inquiry.content,
         isSecret: inquiry.isSecret,
         status: inquiry.status,
-        createdAt: inquiry.createdAt,
-        updatedAt: inquiry.updatedAt,
         product: {
             id: inquiry.product.id,
             name: inquiry.product.name,
@@ -56,6 +63,8 @@ export async function myInquiryList(params: InquiryMyPagingRepoParams, userId: s
             id: inquiry.user.id,
             name: inquiry.user.name,
         },
+        content: inquiry.content,
+        createdAt: inquiry.createdAt,
     }));
     return {
         list: inquiries,
