@@ -60,7 +60,7 @@ jobs:
           PORT: 3000
           DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/testdb
           JWT_SECRET: test_jwt_secret_must_be_over_32_characters_long
-          REFRESH_SECRET: test_refresh_secret_must_be_over_32_characters_long
+          JWT_REFRESH_SECRET: test_refresh_secret_must_be_over_32_characters_long
           AWS_REGION: ap-northeast-2
           AWS_S3_BUCKET_NAME: test-bucket
           AWS_ACCESS_KEY: mock-key
