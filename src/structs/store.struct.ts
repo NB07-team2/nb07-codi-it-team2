@@ -28,6 +28,11 @@ const MulterFile = define<MulterFileObject>('MulterFile', (value: unknown) => {
   );
 });
 
+//스토어 아이디 파라미터
+export const StoreIdStruct = object({
+  storeId: string(),
+});
+
 //스토어 생성, 수정 용
 export const StoreStruct = object({
   name: size(string(), 2, 20),

@@ -1,8 +1,10 @@
 import { Router } from 'express';
 import {
   createStoreController,
+  deleteFavoriteStore,
   getMyStoreController,
   getMyStoreProducts,
+  registerFavoriteStore,
   storeDetail,
   updateStore,
 } from '../controllers/store.controller';
@@ -16,7 +18,7 @@ router.patch('/:storeId', authenticate, upload.single('image'), updateStore);
 router.get('/:storeId', storeDetail);
 router.get('/detail/my', authenticate, getMyStoreController);
 router.get('/detail/my/product', authenticate, getMyStoreProducts);
-//router.post(':/storeId/favorite', authenticate);
-//outer.delete(':/storeId/favorite', authenticate);
+router.post('/:storeId/favorite', authenticate, registerFavoriteStore);
+router.delete('/:storeId/favorite', authenticate, deleteFavoriteStore);
 
 export default router;

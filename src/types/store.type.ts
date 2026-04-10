@@ -91,3 +91,6 @@ export interface MyStoreProductsServiceParams extends PaginationParams {
 export interface FindMyStoreProductsRepoParams extends PaginationParams {
   storeId: string;
 }
+
+//관심 스토어 타입
+export type FavoriteResponseType = 'register' | 'delete';

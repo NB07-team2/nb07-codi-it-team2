@@ -131,4 +131,40 @@ export const StoreRepository = {
     ]);
     return { totalCount, list };
   },
+
+  //관심 스토어 등록
+  favoriteStoreRegister: async (userId: string, storeId: string) => {
+    return await prisma.favorite.create({
+      data: {
+        userId: userId, //누구의 관심 스토어
+        storeId: storeId, //어떤 스토어 찜했는지
+      },
+      include: {
+        store: true,
+      },
+    });
+  },
+  // 관심 스토어 확인
+  findFavorite: async (userId: string, storeId: string) => {
+    return await prisma.favorite.findUnique({
+      where: {
+        userId_storeId: { userId, storeId },
+      },
+    });
+  },
+
+  //관심 스토어 해제
+  favoriteStoreDelete: async (userId: string, storeId: string) => {
+    return await prisma.favorite.delete({
+      where: {
+        userId_storeId: {
+          userId: userId,
+          storeId: storeId,
+        },
+      },
+      include: {
+        store: true,
+      },
+    });
+  },
 };
