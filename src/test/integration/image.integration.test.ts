@@ -1,6 +1,6 @@
 import { deleteFromS3, uploadImage } from '../../services/image.service';
 
-describe('S3 Image Integration Test (실제 AWS 연동)', () => {
+describe.skip('S3 Image Integration Test (실제 AWS 연동)', () => {
   let uploadedUrl: string;
 
   // 테스트 실행 전 체크
