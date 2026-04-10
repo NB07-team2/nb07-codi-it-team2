@@ -1,5 +1,5 @@
 import { Inquiry } from '@prisma/client';
-import { InquiryCreateInput } from '../structs/inquiry.schema.struct';
+import { InquiryCreateInput } from '../structs/inquiry.struct';
 import { InquiryMyListItem } from '../types/inquiry.type';
 
 export class CreateInquiryDto {
@@ -46,7 +46,6 @@ export class InquiryResponseDto {
 
 export class InquiriesMyListResponseDto {
     id: string;
-    userId: string;
     title: string;
     content: string;
     isSecret: boolean;
@@ -69,7 +68,6 @@ export class InquiriesMyListResponseDto {
   
     constructor(data: InquiryMyListItem)  {
       this.id = data.id;
-      this.userId = data.userId;
       this.title = data.title;
       this.content = data.content;      
       this.isSecret = data.isSecret;

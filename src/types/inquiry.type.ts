@@ -1,6 +1,6 @@
 import {
   getInquiriesMyListStruct,
-} from '../structs/inquiry.schema.struct';
+} from '../structs/inquiry.struct';
 
 import { Infer } from 'superstruct';
 
@@ -21,7 +21,6 @@ export type InquiryMyPagingServiceParams = PaginationMyListParams;
 
 export interface InquiryMyListItem {
     id: string;
-    userId: string;
     title: string;
     content: string;
     isSecret: boolean;

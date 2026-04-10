@@ -37,7 +37,6 @@ export async function myInquiryList(params: InquiryMyPagingRepoParams, userId: s
     
     const inquiries = list.map(inquiry => ({
         id: inquiry.id,
-        userId: inquiry.userId,
         title: inquiry.title,
         content: inquiry.content,
         isSecret: inquiry.isSecret,

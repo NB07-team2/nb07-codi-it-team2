@@ -25,6 +25,6 @@ const integerString = coerce(integer(), string(), (value) => parseInt(value));
 
 export const getInquiriesMyListStruct = object({  
   page: defaulted(min(integerString, 1), 1),
-  pageSize: defaulted(min(integerString, 1), 10),
+  pageSize: defaulted(min(integerString, 1), 16),
   status: optional(enums(["WaitingAnswer", "CompletedAnswer"])),
 });
