@@ -131,4 +131,3 @@ export class InquiriesMyListResponseDto {
       } : null;
     }
   }
-  export default {CreateInquiryDto, InquiryResponseDto, InquiriesMyListResponseDto, InquiryDetailResponseDto};
