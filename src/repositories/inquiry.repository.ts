@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import {InquiryMyPagingRepoParams,InquiryStatus } from '../types/inquiry.type';
 import prisma from '../utils/prismaClient.util';
 
@@ -51,8 +52,9 @@ export async function myInquiryList(params: InquiryMyPagingRepoParams, userId: s
     };      
 }
 
-export async function getInquiryDetail(inquiryId: string,userId:string,userType:string) {  
-         const whereCondition:any = {...(inquiryId? {id: inquiryId}: {})};
+export async function getInquiryDetail(inquiryId: string,userId:string,userType:string) { 
+
+    const whereCondition: Prisma.InquiryWhereInput = {...(inquiryId? {id: inquiryId}: {})};
         if(userType === 'SELLER'){
                     whereCondition.product = {
                     store: {
