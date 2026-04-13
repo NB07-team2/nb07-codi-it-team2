@@ -1,6 +1,7 @@
 import {
   InvalidCredentialsError,
   InvalidRequestError,
+  NotFoundError,
   TokenExpiredError,
 } from '../errors/errors';
 import {
@@ -27,7 +28,7 @@ export const login = async (
   const user = await userRepository.findByEmail(email);
 
   if (!user) {
-    throw new InvalidCredentialsError();
+    throw new NotFoundError();
   }
 
   if (!user.password) {
