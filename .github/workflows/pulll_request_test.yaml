@@ -43,22 +43,26 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      # [작성 후 주석 해제] DB 마이그레이션 실행
-      # - name: Run DB migrations
-      #   env:
-      #     DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/testdb
-      #   run: npx prisma migrate deploy
+      # DB 마이그레이션 실행
+      - name: Run DB migrations
+        env:
+          DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/testdb
+        run: npx prisma migrate deploy
 
       # 빌드 체크 (오타, 설정 오류 검거용)
       - name: Build check
         run: npm run build
 
       # [작성 후 주석 해제] 테스트 코드 실행
-      # - name: Run tests
-      #   env:
-      #     NODE_ENV: test
-      #     PORT: 3000
-      #     DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/testdb
-      #     JWT_SECRET: test_jwt_secret
-      #     REFRESH_SECRET: test_refresh_secret
-      #   run: npm test
+      - name: Run tests
+        env:
+          NODE_ENV: test
+          PORT: 3000
+          DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/testdb
+          JWT_SECRET: test_jwt_secret_must_be_over_32_characters_long
+          JWT_REFRESH_SECRET: test_refresh_secret_must_be_over_32_characters_long
+          AWS_REGION: ap-northeast-2
+          AWS_S3_BUCKET_NAME: test-bucket
+          AWS_ACCESS_KEY: mock-key
+          AWS_SECRET_ACCESS_KEY: mock-secret
+        run: npm test -- --passWithNoTests
