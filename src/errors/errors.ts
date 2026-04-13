@@ -19,7 +19,7 @@ export class ForbiddenError extends CustomError {
 }
 
 export class NotFoundError extends CustomError {
-  constructor(message: string = '요청하신 정보를 찾을 수 없습니다.') {
+  constructor(message: string = '요청한 리소스를 찾을 수 없습니다.') {
     super(message, 404);
   }
 }
@@ -52,6 +52,6 @@ export class InvalidRequestError extends BadRequestError {
 
 export class InvalidCredentialsError extends UnauthorizedError {
   constructor() {
-    super('존재하지 않거나 비밀번호가 일치하지 않습니다');
+    super('이메일 또는 비밀번호가 올바르지 않습니다.');
   }
 }
