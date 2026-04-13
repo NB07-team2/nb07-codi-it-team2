@@ -40,4 +40,26 @@ export interface InquiryMyListItem {
      content: string;
     createdAt: Date;
 
-}   
+}
+
+export interface InquiryDetailItem {
+    id: string;
+    userId: string;
+    productId: string;
+    title: string;
+    content: string;
+    status: string;
+    isSecret: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    reply: {
+      id: string;
+      content: string;
+      createdAt: Date;
+      updatedAt: Date;
+      user: {
+        id:string;
+        name: string;
+      };
+    } | null;
+} 

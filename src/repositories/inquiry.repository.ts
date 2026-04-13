@@ -50,3 +50,30 @@ export async function myInquiryList(params: InquiryMyPagingRepoParams, userId: s
         totalCount : totalCount,
     };      
 }
+
+export async function getInquiryDetail(inquiryId: string,userId:string,userType:string) {  
+         const whereCondition:any = {...(inquiryId? {id: inquiryId}: {})};
+        if(userType === 'SELLER'){
+                    whereCondition.product = {
+                    store: {
+                        userId: userId,
+                    },
+                };
+            }else{
+            whereCondition.userId = userId;
+            }
+
+    const inquiry = await prisma.inquiry.findFirst({
+        where: whereCondition,
+        include: {
+            reply: {
+                select: { id: true, content: true, createdAt: true, updatedAt: true,
+                user: {
+                        select: { id: true, name: true },
+                    },
+                },
+            },
+        },
+    });
+    return inquiry; 
+}   
