@@ -13,3 +13,10 @@ export async function myInquiryList(req: Request, res: Response) {
   );
   res.status(200).json(inquiriesData);
 }
+
+export async function getInquiryDetail(req: Request, res: Response) {
+    const inquiryId  = req.params.id as string;
+    const { id: userId, type: userType } = req.user!;
+    const inquiryDetail = await inquiryService.getInquiryDetail(inquiryId, userId, userType);
+    res.status(200).json(inquiryDetail);
+}     
