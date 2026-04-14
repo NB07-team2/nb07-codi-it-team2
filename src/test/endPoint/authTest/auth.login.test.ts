@@ -1,9 +1,9 @@
 // 사용자가 API를 호출하는 것처럼 전체 과정 검증
 // 명세서 400, 401, 404 에러 케이스
 import request from 'supertest';
-import app from '../../app';
-import { prisma } from '../../utils/prismaClient.util';
-import { hashPassword } from '../../utils/password.util';
+import app from '../../../app';
+import { prisma } from '../../../utils/prismaClient.util';
+import { hashPassword } from '../../../utils/password.util';
 
 describe('Auth EndPoint Test - POST /api/auth/login', () => {
   const testUser = {
