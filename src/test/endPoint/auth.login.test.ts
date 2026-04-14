@@ -16,6 +16,18 @@ describe('Auth EndPoint Test - POST /api/auth/login', () => {
     await prisma.user.deleteMany({ where: { email: testUser.email } });
     const hashedPassword = await hashPassword(testUser.password);
 
+    // 등급 데이터 보장
+    await prisma.grade.upsert({
+      where: { id: 'grade_green' },
+      update: {},
+      create: {
+        id: 'grade_green',
+        name: 'Green',
+        rate: 1,
+        minAmount: 0,
+      },
+    });
+
     await prisma.user.create({
       data: {
         email: testUser.email,
@@ -23,6 +35,7 @@ describe('Auth EndPoint Test - POST /api/auth/login', () => {
         name: testUser.name,
         type: 'BUYER',
         points: 1000,
+        gradeId: 'grade_green',
       },
     });
   });

@@ -1,7 +1,4 @@
 // express를 안 거치고, service 계층과 DB가 잘 연동되는지
-import dotenv from 'dotenv';
-dotenv.config({ path: '.env.test', override: true });
-console.log('실제 사용 중인 URL:', process.env.DATABASE_URL);
 import * as authService from '../../services/auth.service';
 import { prisma } from '../../utils/prismaClient.util';
 import { hashPassword } from '../../utils/password.util';
@@ -15,10 +12,28 @@ describe('Auth 통합 테스트 - Service', () => {
 
   beforeAll(async () => {
     const hashedPassword = await hashPassword(testUser.password);
+
+    // 등급 데이터 보장
+    await prisma.grade.upsert({
+      where: { id: 'grade_green' },
+      update: {},
+      create: {
+        id: 'grade_green',
+        name: 'Green',
+        rate: 1,
+        minAmount: 0,
+      },
+    });
+
     await prisma.user.upsert({
       where: { email: testUser.email },
       update: {},
-      create: { ...testUser, password: hashedPassword, type: 'BUYER' },
+      create: {
+        ...testUser,
+        password: hashedPassword,
+        type: 'BUYER',
+        gradeId: 'grade_green',
+      },
     });
   });
 
