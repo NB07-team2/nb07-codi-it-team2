@@ -23,6 +23,7 @@ describe('스토어 통합 테스트', () => {
   let createdStoreId: string;
   let testCategoryId: string;
   let testSizeId: number;
+  let defaultGradeId: string;
 
   //테스트 전, 후 공통으로 적용될 삭제 순서
   const cleanup = async () => {
@@ -35,10 +36,16 @@ describe('스토어 통합 테스트', () => {
     await prisma.store.deleteMany();
     await prisma.user.deleteMany();
     await prisma.productCategory.deleteMany();
+    await prisma.grade.deleteMany();
   };
   // 1.테스트 전 DB 초기화 및 유저 세팅
   beforeAll(async () => {
     await cleanup();
+    //테스트용 등급 생성
+    const grade = await prisma.grade.create({
+      data: { id: 'grade_green', name: 'Green', rate: 1, minAmount: 0 },
+    });
+    defaultGradeId = grade.id;
     // 유저 생성
     await prisma.user.createMany({
       data: [
@@ -48,6 +55,7 @@ describe('스토어 통합 테스트', () => {
           email: 'seller@integ.com',
           password: 'password123',
           name: '통합판매자',
+          gradeId: defaultGradeId,
         },
         {
           id: testBuyerId,
@@ -55,6 +63,7 @@ describe('스토어 통합 테스트', () => {
           email: 'buyer@integ.com',
           password: 'password123',
           name: '통합구매자',
+          gradeId: defaultGradeId,
         },
       ],
     });
