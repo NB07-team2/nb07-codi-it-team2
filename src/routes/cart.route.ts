@@ -6,6 +6,6 @@ const router = Router();
 
 router.post('/', authenticate, cartController.createCart);
 router.get('/', authenticate, cartController.getMyCart);
-router.patch('/', authenticate, cartController.updateCart)
+router.patch('/', authenticate, cartController.updateCart);
 
 export default router;

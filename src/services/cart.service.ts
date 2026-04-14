@@ -1,6 +1,7 @@
 import * as cartRepository from "../repositories/cart.repository";
 import { BadRequestError, ForbiddenError, NotFoundError } from "../errors/errors";
 import { SimpleUser } from "../types/cart.type";
+import prisma from "../utils/prismaClient.util";
 
 export const createCart = async (user: SimpleUser) => {
   if (user.type !== "BUYER") {
@@ -44,40 +45,42 @@ export const updateCart = async (
     throw new ForbiddenError("접근 권한이 없습니다.");
   }
 
-  const cart = await cartRepository.findByBuyerId(user.id);
-  if (!cart) {
-    throw new NotFoundError("장바구니가 존재하지 않습니다. 먼저 장바구니를 생성해주세요.");
-  }
+  return await prisma.$transaction(async (tx) => {
+    const cart = await cartRepository.findByBuyerId(user.id);
+    if (!cart) {
+      throw new NotFoundError("장바구니가 존재하지 않습니다.");
+    }
 
-  const product = await cartRepository.findProductById(productId);
-  if (!product) {
-    throw new BadRequestError(`존재하지 않는 상품 ID(${productId})입니다.`);
-  }
+    const product = await cartRepository.findProductById(productId);
+    if (!product) {
+      throw new BadRequestError(`존재하지 않는 상품 ID입니다.`);
+    }
 
-  const results = await Promise.all(
-    sizes.map(async (item) => {
-      const stock = await cartRepository.findStock(productId, item.sizeId);
+    const results = await Promise.all(
+      sizes.map(async (item) => {
+        const stock = await cartRepository.findStock(productId, item.sizeId);
 
-      if (!stock) {
-        throw new BadRequestError(`${product.name} 상품에 해당 사이즈(ID: ${item.sizeId})가 존재하지 않습니다.`);
-      }
+        if (!stock) {
+          throw new BadRequestError(`${product.name}의 해당 사이즈가 존재하지 않습니다.`);
+        }
 
-      if (item.quantity < 1) {
-        throw new BadRequestError("수량은 1개 이상이어야 합니다.");
-      }
+        if (item.quantity < 1) {
+          throw new BadRequestError("수량은 1개 이상이어야 합니다.");
+        }
 
-      const updatedItem = await cartRepository.upsertCartItem(
-        cart.id,
-        productId,
-        item.sizeId,
-        stock.id,
-        item.quantity
-      );
+        const updatedItem = await cartRepository.upsertCartItemWithTx(
+          tx, 
+          cart.id,
+          productId,
+          item.sizeId,
+          stock.id,
+          item.quantity
+        );
 
-      const { stockId, ...rest } = updatedItem;
-      return rest;
-    }) 
-  );
-
-  return results;
-}; 
+        const { stockId, ...rest } = updatedItem;
+        return rest;
+      })
+    );
+    return results;
+  });
+};
