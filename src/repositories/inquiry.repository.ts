@@ -58,7 +58,6 @@ export async function getInquiryDetail(inquiryId: string,userId:string,userType:
         id: inquiryId,
     };
 
-    // 2. userType에 따라 조건만 추가 (이미 객체가 존재하므로 필드만 할당)
     if (userType === 'SELLER') {
         whereCondition.product = {
             store: {
