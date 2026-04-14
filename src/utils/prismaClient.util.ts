@@ -7,6 +7,12 @@ const globalForPrisma = global as unknown as { prisma: PrismaClient };
 export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
+    // DB 환경 변수 강제 지정
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
     //로그 설정: 대시보드 쿼리 최적화를 위해 쿼리 실행 시간을 모니터링
     log: [
       { emit: 'event', level: 'query' },
