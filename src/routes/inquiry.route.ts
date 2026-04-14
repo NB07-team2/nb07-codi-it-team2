@@ -5,5 +5,6 @@ import { authenticate } from '../middlewares/auth.middlewares';
 const router = Router();
 
 router.get('/', authenticate, inquiryController.myInquiryList);
+router.get('/:id', authenticate, inquiryController.getInquiryDetail);
 
 export default router;
