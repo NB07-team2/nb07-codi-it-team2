@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler.util";
 import * as cartService from "../services/cart.service";
 import { BadRequestError } from "../errors/errors";
+import { updateCartSchema } from "../structs/cart.struct";
 
 export const createCart = asyncHandler(async (req: Request, res: Response) => {
   // 미들웨어에서 검증된 user 객체 사용 (Non-null assertion 사용)
@@ -24,25 +25,11 @@ export const getMyCart = asyncHandler(async (req: Request, res: Response) => {
 
 export const updateCart = asyncHandler(async (req: Request, res: Response) => {
   const user = req.user!;
-  const { productId, sizes } = req.body;
+  const validatedData = updateCartSchema.parse(req.body);
 
-if (!productId || typeof productId !== 'string') {
-    throw new BadRequestError("유효한 productId가 필요합니다.");
-  }
-
-if (!Array.isArray(sizes) || sizes.length === 0) {
-  throw new BadRequestError("수정할 사이즈 정보가 최소 하나 이상 필요합니다.");
-}
-
-const isValid = sizes.every(item => 
-  typeof item.sizeId === 'number' && 
-  typeof item.quantity === 'number'
-);
-
-if (!isValid) {
-  throw new BadRequestError("사이즈 ID와 수량은 모두 숫자여야 합니다.");
-}
+  const { productId, sizes } = validatedData;
 
   const updatedItems = await cartService.updateCart(user, productId, sizes);
+  
   res.status(200).json(updatedItems);
 });
