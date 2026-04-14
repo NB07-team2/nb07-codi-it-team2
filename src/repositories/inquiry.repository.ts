@@ -54,17 +54,20 @@ export async function myInquiryList(params: InquiryMyPagingRepoParams, userId: s
 
 export async function getInquiryDetail(inquiryId: string,userId:string,userType:string) { 
 
-    const whereCondition: Prisma.InquiryWhereInput = {...(inquiryId? {id: inquiryId}: {})};
-        if(userType === 'SELLER'){
-                    whereCondition.product = {
-                    store: {
-                        userId: userId,
-                    },
-                };
-            }else{
-            whereCondition.userId = userId;
-            }
+    const whereCondition: Prisma.InquiryWhereInput = {
+        id: inquiryId,
+    };
 
+    // 2. userType에 따라 조건만 추가 (이미 객체가 존재하므로 필드만 할당)
+    if (userType === 'SELLER') {
+        whereCondition.product = {
+            store: {
+                userId: userId,
+            },
+        };
+    } else {
+        whereCondition.userId = userId;
+    }
     const inquiry = await prisma.inquiry.findFirst({
         where: whereCondition,
         include: {
