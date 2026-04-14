@@ -23,7 +23,7 @@ export const prisma =
   });
 
 // 쿼리 실행 시간 로깅 미들웨어 (통계 최적화용)
-if (NODE_ENV !== 'production') {
+if (NODE_ENV === 'development') {
   // Prisma 내부 이벤트를 구독하여 실행 시간을 출력
   (prisma as any).$on(
     'query',
