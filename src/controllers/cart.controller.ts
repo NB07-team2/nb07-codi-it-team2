@@ -20,3 +20,12 @@ export const getMyCart = asyncHandler(async (req: Request, res: Response) => {
 
   res.status(200).json(cart);
 })
+
+export const updateCart = asyncHandler(async ( req: Request, res: Response) => {
+  const user = req.user!;
+  const { productId, sizes } = req.body;
+
+    const updatedItems = await cartService.updateCart(user, productId, sizes)
+  
+    res.status(200).json(updatedItems)
+})
