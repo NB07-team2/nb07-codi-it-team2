@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import {InquiryMyPagingRepoParams,InquiryStatus } from '../types/inquiry.type';
+import {InquiryMyPagingRepoParams,InquiryStatus, UpdateInquiryRepoDto } from '../types/inquiry.type';
 import prisma from '../utils/prismaClient.util';
 
 export async function myInquiryList(params: InquiryMyPagingRepoParams, userId: string, userType: string) {
@@ -80,4 +80,46 @@ export async function getInquiryDetail(inquiryId: string,userId:string,userType:
         },
     });
     return inquiry; 
-}   
+} 
+
+export async function getInquiryById(inquiryId: string) {
+    return await prisma.inquiry.findUnique({
+        where: { id: inquiryId },
+    });
+}
+
+
+export async function updateInquiry (inquiryId: string, data: UpdateInquiryRepoDto,userId: string) {
+    const existingInquiry = await prisma.inquiry.findFirst({
+    where: {
+        id: inquiryId,
+        userId: userId,
+    },
+    });
+    if (!existingInquiry) {
+            return null;
+    }
+    const updatedInquiry = await prisma.inquiry.update({
+        where: { id: inquiryId },
+        data: {
+            ...data,
+            status: 'WaitingAnswer',
+        },
+    });
+    return updatedInquiry;
+}
+
+export async function deleteInquiry (inquiryId: string,userId: string) {
+        const existingInquiry = await prisma.inquiry.findFirst({
+            where: {
+                id: inquiryId,
+                userId: userId,
+            },
+        });
+        if (!existingInquiry) {
+            return null;
+        }
+    return await prisma.inquiry.delete({
+        where: { id: inquiryId },
+    });
+}
