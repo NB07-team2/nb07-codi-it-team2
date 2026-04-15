@@ -1,8 +1,8 @@
 import {
   InvalidCredentialsError,
-  InvalidRequestError,
   NotFoundError,
   TokenExpiredError,
+  UnauthorizedError,
 } from '../errors/errors';
 import {
   generateAccessToken,
@@ -62,11 +62,12 @@ export const refreshTokens = async (
   const dto = new RefreshTokenRequestDto(refreshToken);
   const result = verifyRefreshToken(dto.refreshToken);
 
+  // 위조된 토큰일 경우 401 Error
   if (!result.valid) {
     if (result.expired) {
       throw new TokenExpiredError();
     }
-    throw new InvalidRequestError();
+    throw new UnauthorizedError('Unauthorized');
   }
 
   const payload = result.payload as TokenPayload;
