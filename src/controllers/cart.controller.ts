@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler.util";
 import * as cartService from "../services/cart.service";
+import { updateCartSchema } from "../structs/cart.struct";
 
 export const createCart = asyncHandler(async (req: Request, res: Response) => {
   // 미들웨어에서 검증된 user 객체 사용 (Non-null assertion 사용)
@@ -20,3 +21,14 @@ export const getMyCart = asyncHandler(async (req: Request, res: Response) => {
 
   res.status(200).json(cart);
 })
+
+export const updateCart = asyncHandler(async (req: Request, res: Response) => {
+  const user = req.user!;
+  const validatedData = updateCartSchema.parse(req.body);
+
+  const { productId, sizes } = validatedData;
+
+  const updatedItems = await cartService.updateCart(user, productId, sizes);
+  
+  res.status(200).json(updatedItems);
+});
