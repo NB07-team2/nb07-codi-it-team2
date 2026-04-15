@@ -2,7 +2,6 @@
 import * as authService from '../../services/auth.service';
 import { prisma } from '../../utils/prismaClient.util';
 import { hashPassword } from '../../utils/password.util';
-import { log } from 'console';
 
 describe('Auth 통합 테스트', () => {
   const testUser = {
