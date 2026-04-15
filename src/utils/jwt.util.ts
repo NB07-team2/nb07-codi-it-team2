@@ -24,7 +24,7 @@ export const generateRefreshToken = (
 export const verifyAccessToken = (token: string): JwtVerifyResult => {
   try {
     const payload = jwt.verify(token, env.JWT_SECRET, {
-      clockTolerance: process.env.NODE_ENV === 'test' ? 0 : 30,
+      clockTolerance: 10,
     }) as JwtPayload;
     return {
       valid: true,

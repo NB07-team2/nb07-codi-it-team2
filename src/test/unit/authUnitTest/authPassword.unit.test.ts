@@ -1,6 +1,6 @@
 // 비즈니스 로직, HTTP 요청 없이
 // Utility 함수가 제대로 작동하는지만
-import { comparePassword, hashPassword } from '../../utils/password.util';
+import { comparePassword, hashPassword } from '../../../utils/password.util';
 
 describe('Auth Unit Test - Utils', () => {
   it('✅ 비밀번호 해싱 및 비교가 정상적으로 이루어져야 한다', async () => {

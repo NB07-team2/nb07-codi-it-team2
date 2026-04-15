@@ -52,6 +52,7 @@ export const login = async (
   return result;
 };
 
+// 로그아웃
 export const logout = async (userId: string): Promise<void> => {
   return;
 };
