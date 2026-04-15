@@ -54,11 +54,7 @@ export const login = async (
 };
 
 // 로그아웃
-export const logout = async (accessToken: string): Promise<void> => {
-  const result = verifyAccessToken(accessToken);
-  if (!result.valid) {
-    throw new UnauthorizedError('인증이 필요합니다.');
-  }
+export const logout = async (userId: string): Promise<void> => {
   return;
 };
 

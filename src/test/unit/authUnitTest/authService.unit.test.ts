@@ -33,7 +33,7 @@ describe('Auth Service Unit Test - refreshTokens & logout', () => {
       expect(jwtUtil.verifyRefreshToken).toHaveBeenCalledWith(mockToken);
     });
 
-    it('❌ 위조된 토큰일 경우 UnauthorizedError를 던져야 한다', async () => {
+    it('❌ 유효하지 않거나 만료된 Refresh Token일 경우 UnauthorizedError를 던져야 한다', async () => {
       (jwtUtil.verifyRefreshToken as jest.Mock).mockReturnValue({
         valid: false,
         expired: false,
@@ -47,22 +47,8 @@ describe('Auth Service Unit Test - refreshTokens & logout', () => {
 
   // 2. 로그아웃 로직 테스트
   describe('logout()', () => {
-    it('✅ 유효한 토큰으로 로그아웃 시 에러 없이 종료되어야 한다', async () => {
-      (jwtUtil.verifyAccessToken as jest.Mock).mockReturnValue({
-        valid: true,
-      });
-
-      await expect(authService.logout(mockToken)).resolves.not.toThrow();
-    });
-
-    it('❌ 유효하지 않은 토큰일 경우 UnauthorizedError를 던져야 한다', async () => {
-      (jwtUtil.verifyAccessToken as jest.Mock).mockReturnValue({
-        valid: false,
-      });
-
-      await expect(authService.logout(mockToken)).rejects.toThrow(
-        '인증이 필요합니다.',
-      );
+    it('✅ 유효한 userId로 로그아웃 시 에러 없이 종료되어야 한다', async () => {
+      await expect(authService.logout('user-123')).resolves.not.toThrow();
     });
   });
 });
