@@ -66,3 +66,15 @@ export const upsertCartItemWithTx = async (
     data: { cartId, productId, sizeId, stockId, quantity },
   });
 };
+
+export const findCartItemById = async (id: string) => {
+  return await prisma.cartItem.findUnique({
+    where: { id },
+  });
+};
+
+export const deleteCartItemById = async (id: string) => {
+  return await prisma.cartItem.delete({
+    where: { id },
+  });
+};

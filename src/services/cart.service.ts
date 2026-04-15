@@ -84,3 +84,21 @@ export const updateCart = async (
     return results;
   });
 };
+
+export const deleteCartItem = async (user: SimpleUser, cartItemId: string) => {
+  if (user.type !== "BUYER") {
+    throw new ForbiddenError("접근 권한이 없습니다.");
+  }
+
+  const cartItem = await cartRepository.findCartItemById(cartItemId);
+  if (!cartItem) {
+    throw new NotFoundError("요청한 리소스를 찾을 수 없습니다.");
+  }
+
+  const myCart = await cartRepository.findByBuyerId(user.id);
+  if (!myCart || cartItem.cartId !== myCart.id) {
+    throw new ForbiddenError("접근 권한이 없습니다.");
+  }
+
+  await cartRepository.deleteCartItemById(cartItemId);
+};
