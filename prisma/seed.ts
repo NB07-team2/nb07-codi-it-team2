@@ -116,13 +116,12 @@ async function main() {
 
   const sizeMap = { S: sizes[0].id, M: sizes[1].id, L: sizes[2].id };
 
-  // 5. 상품(Product) 생성 (재고 포함)
+  // 5. 상품(Product) 생성
   let products = await prisma.product.findMany({
     where: { storeId: store.id },
   });
 
   if (products.length === 0) {
-    console.log('👖 상품 및 재고 데이터 생성 중...');
     const p1 = await prisma.product.create({
       data: {
         name: 'Basic Jeans',
@@ -132,7 +131,6 @@ async function main() {
         categoryId: catBottom.id,
         image: '',
         stocks: {
-          // ✨ 여기서 이미 재고를 만듭니다!
           create: [
             { sizeId: sizeMap.S, quantity: 10 },
             { sizeId: sizeMap.M, quantity: 5 },
@@ -149,47 +147,45 @@ async function main() {
         categoryId: catSkirt.id,
         image: '',
         stocks: {
-          // ✨ 여기서도 재고를 만듭니다!
           create: [{ sizeId: sizeMap.M, quantity: 15 }],
         },
       },
     });
     products = [p1, p2];
-
-    // ❌ 기존에 에러를 유발했던 prisma.stock.createMany 부분은 삭제했습니다.
-    console.log('✅ 상품 및 재고 생성 완료');
   }
 
-  // 6. 주문(Order) 생성
-  let orderWithItems = await prisma.order.findFirst({
-    where: { userId: 'buyer-test-id' },
-    include: { orderItems: true },
-  });
+// 6. 주문(Order) 생성 (100개 대량 생성)
+  console.log('🛍️ 대시보드 통계용 데이터 100개 생성 중...');
+  const now = new Date();
+  
+  // 반복문 밖에서 변수 선언 (주머니 만들기)
+  let latestOrder: any = null; 
 
-  if (!orderWithItems && products.length >= 2) {
-    orderWithItems = await prisma.order.create({
+  for (let i = 0; i < 100; i++) {
+    const randomDaysAgo = Math.floor(Math.random() * 365);
+    const orderDate = new Date();
+    orderDate.setDate(now.getDate() - randomDaysAgo);
+
+    const randomPrice = Math.floor(Math.random() * 10) * 10000 + 10000;
+
+    // 생성된 주문을 반복문 밖의 변수에 계속 덮어씌움 (결국 마지막 주문이 남음)
+    latestOrder = await prisma.order.create({
       data: {
         userId: 'buyer-test-id',
         name: '테스트구매자',
         phone: '010-0000-0000',
-        address: '서울시 강남구 역삼동',
-        subtotal: 69800,
-        totalQuantity: 2,
+        address: '서울시 강남구',
+        subtotal: randomPrice,
+        totalQuantity: 1,
         usePoint: 0,
-        totalSales: 69800,
+        totalSales: randomPrice,
+        createdAt: orderDate,
         orderItems: {
           create: [
             {
-              productId: products[0]!.id,
-              name: products[0]!.name,
-              price: 39900,
-              quantity: 1,
-              sizeId: sizeMap.S,
-            },
-            {
-              productId: products[1]!.id,
-              name: products[1]!.name,
-              price: 29900,
+              productId: products[i % products.length]!.id,
+              name: products[i % products.length]!.name,
+              price: randomPrice,
               quantity: 1,
               sizeId: sizeMap.M,
             },
@@ -198,14 +194,14 @@ async function main() {
       },
       include: { orderItems: true },
     });
-    console.log('✅ 주문 데이터 생성 완료');
   }
+  console.log('✅ 대량 주문 데이터 생성 완료');
 
-  // 7. 문의(Inquiry) 및 리뷰(Review)
+  // 7. 문의 및 리뷰
   const existingInquiry = await prisma.inquiry.findFirst({
     where: { userId: 'buyer-test-id' },
   });
-  if (!existingInquiry && products.length >= 2) {
+  if (!existingInquiry && products.length > 0) {
     await prisma.inquiry.create({
       data: {
         title: '사이즈 문의',
@@ -220,32 +216,27 @@ async function main() {
   const existingReview = await prisma.review.findFirst({
     where: { userId: 'buyer-test-id' },
   });
-  if (
-    !existingReview &&
-    orderWithItems &&
-    orderWithItems.orderItems.length >= 2
-  ) {
-    await prisma.review.createMany({
-      data: [
-        {
-          rating: 5,
-          content: '핏 좋아요!',
-          userId: 'buyer-test-id',
-          productId: products[0]!.id,
-          orderItemId: orderWithItems.orderItems[0]!.id,
-        },
-      ],
+
+  if (!existingReview && latestOrder && latestOrder.orderItems.length > 0) {
+    await prisma.review.create({
+      data: {
+        rating: 5,
+        content: '핏 좋아요!',
+        userId: 'buyer-test-id',
+        productId: latestOrder.orderItems[0].productId,
+        orderItemId: latestOrder.orderItems[0].id,
+      },
     });
-    console.log('✅ 리뷰 및 문의 데이터 생성 완료');
+    console.log('✅ 리뷰 데이터 생성 완료');
   }
 
-  console.log('✨ 모든 시드 작업이 성공적으로 완료되었습니다!');
+  console.log('✨ 모든 시드 작업 완료!');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ 시딩 중 오류 발생', e);
-    process.exit(1);
+    console.error('❌ 에러:', e);
+    process.exit(1); 
   })
   .finally(async () => {
     await prisma.$disconnect();
