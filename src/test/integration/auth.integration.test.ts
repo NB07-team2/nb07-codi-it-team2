@@ -2,6 +2,7 @@
 import * as authService from '../../services/auth.service';
 import { prisma } from '../../utils/prismaClient.util';
 import { hashPassword } from '../../utils/password.util';
+import { log } from 'console';
 
 describe('Auth 통합 테스트', () => {
   const testUser = {
@@ -84,7 +85,7 @@ describe('Auth 통합 테스트', () => {
 
     // 로그아웃 함수가 에러 없이 잘 수행되는지 확인
     await expect(
-      authService.logout(loginResult.response.accessToken),
+      authService.logout(loginResult.response.user.id),
     ).resolves.not.toThrow();
   });
 });
