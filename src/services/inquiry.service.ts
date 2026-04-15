@@ -44,6 +44,9 @@ export async function updateInquiry (inquiryId: string, userId: string, updateDa
 }
 
 export async function deleteInquiry(inquiryId: string, userId: string, userType: string) {
+    if(userType !== "BUYER"){
+        throw new ForbiddenError('구매자만 문의를 삭제할 수 있습니다.');
+    }
     const existingInquiry = await inquiryRepository.getInquiryDetail(inquiryId, userId, userType);
     if (!existingInquiry) {
         throw new NotFoundError('문의가 존재하지 않습니다.');

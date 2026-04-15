@@ -155,16 +155,6 @@ export class InquiryUpdateResponseDto {
     isSecret: boolean;
     createdAt: Date;
     updatedAt: Date;
-    reply: {
-      id: string;
-      content: string;
-      createdAt: Date;
-      updatedAt: Date;
-      user: {
-        id: string;
-        name: string;
-      }
-    } | null;
 
     constructor(data: InquiryUpdateItem)  {
       this.id = data.id;
@@ -175,17 +165,7 @@ export class InquiryUpdateResponseDto {
       this.isSecret = data.isSecret;
       this.status = data.status;
       this.createdAt = data.createdAt;
-      this.updatedAt = data.updatedAt;      
-      this.reply = data.reply ?{
-        id: data.reply.id,
-        content: data.reply.content,
-        createdAt: data.reply.createdAt,
-        updatedAt: data.reply.updatedAt,
-        user: {
-          id: data.reply.user.id,
-          name: data.reply.user.name,
-        },
-      } : null;
+      this.updatedAt = data.updatedAt; 
     }
   }
 

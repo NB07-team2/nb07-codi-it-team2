@@ -80,16 +80,6 @@ export interface InquiryUpdateItem {
     isSecret: boolean;
     createdAt: Date;
     updatedAt: Date;
-    reply: {
-      id: string;
-      content: string;
-      createdAt: Date;
-      updatedAt: Date;
-      user: {
-        id:string;
-        name: string;
-      };
-    } | null;
 } 
 
 export interface InquiryDeleteItem {

@@ -82,44 +82,16 @@ export async function getInquiryDetail(inquiryId: string,userId:string,userType:
     return inquiry; 
 }
 
-export async function updateInquiry (inquiryId: string, data: UpdateInquiryRepoDto,userId: string,userType: string) {
-    
-    if(userType === 'SELLER'){
-        const existingInquiry = await prisma.inquiry.findFirst({
-            where: {
-                id: inquiryId,
-                product: {
-                    store: {
-                        userId: userId,
-                    },
-                },
-            },
-            include: {
-                reply: {
-                    select: { id: true },
-                },
-            },
-        });
-        if (!existingInquiry) {
+export async function updateInquiry (inquiryId: string, data: UpdateInquiryRepoDto,userId: string) {
+    const existingInquiry = await prisma.inquiry.findFirst({
+    where: {
+        id: inquiryId,
+        userId: userId,
+    },
+    });
+    if (!existingInquiry) {
             return null;
-        }
-    }else{
-        const existingInquiry = await prisma.inquiry.findFirst({
-            where: {
-                id: inquiryId,
-                userId: userId,
-            },
-            include: {
-                reply: {
-                    select: { id: true },
-                },
-            },
-        });
-        if (!existingInquiry) {
-            return null;
-        }
     }
-    
     const updatedInquiry = await prisma.inquiry.update({
         where: { id: inquiryId },
         data: {
