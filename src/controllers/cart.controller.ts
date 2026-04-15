@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler.util";
 import * as cartService from "../services/cart.service";
 import { updateCartSchema, CartItemIdSchema } from "../structs/cart.struct";
-import { get } from "http";
 
 export const createCart = asyncHandler(async (req: Request, res: Response) => {
   const user = req.user!;
