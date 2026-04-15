@@ -78,3 +78,47 @@ export const deleteCartItemById = async (id: string) => {
     where: { id },
   });
 };
+
+export const findCartItemWithDetails = async (id: string) => {
+  return await prisma.cartItem.findUnique({
+    where: { id },
+    select: {
+      // 1. CartItem 본체의 필드들
+      id: true,
+      cartId: true,
+      productId: true,
+      sizeId: true,
+      quantity: true,
+      createdAt: true,
+      updatedAt: true,
+      // stockId는 명세서에 없으므로 적지 않으면 제외됩니다.
+
+      // 2. Product에서 필요한 것만 골라오기
+      product: {
+        select: {
+          id: true,
+          storeId: true,
+          name: true,
+          price: true,
+          image: true,
+          discountRate: true,
+          discountStartTime: true,
+          discountEndTime: true,
+          createdAt: true,
+          updatedAt: true,
+          // content, isSoldOut, sales 등은 여기서 빠집니다.
+        },
+      },
+
+      // 3. Cart에서 필요한 것만 골라오기
+      cart: {
+        select: {
+          id: true,
+          buyerId: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
+  });
+};

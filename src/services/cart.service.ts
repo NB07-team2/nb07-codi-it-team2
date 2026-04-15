@@ -102,3 +102,21 @@ export const deleteCartItem = async (user: SimpleUser, cartItemId: string) => {
 
   await cartRepository.deleteCartItemById(cartItemId);
 };
+
+export const getCartByItem = async (user: SimpleUser, cartItemId: string) => {
+  if (user.type !== "BUYER") {
+    throw new ForbiddenError("접근 권한이 없습니다.");
+  }
+
+  const cartItem = await cartRepository.findCartItemWithDetails(cartItemId);
+
+  if (!cartItem) {
+    throw new NotFoundError("요청한 리소스를 찾을 수 없습니다.");
+  }
+
+  if (cartItem.cart.buyerId !== user.id) {
+    throw new ForbiddenError("접근 권한이 없습니다.");
+  }
+
+  return cartItem;
+};

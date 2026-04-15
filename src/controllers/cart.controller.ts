@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler.util";
 import * as cartService from "../services/cart.service";
-import { updateCartSchema, deleteCartItemSchema } from "../structs/cart.struct";
+import { updateCartSchema, CartItemIdSchema } from "../structs/cart.struct";
+import { get } from "http";
 
 export const createCart = asyncHandler(async (req: Request, res: Response) => {
   const user = req.user!;
@@ -33,8 +34,16 @@ export const updateCart = asyncHandler(async (req: Request, res: Response) => {
 export const deleteCartItem = asyncHandler(async (req: Request, res: Response) => {
   const user = req.user!;
   
-  const { cartItemId } = deleteCartItemSchema.parse(req.params);
+  const { cartItemId } = CartItemIdSchema.parse(req.params);
 
   await cartService.deleteCartItem(user, cartItemId);
   res.status(204).send();
 });
+
+export const getCartItem = asyncHandler(async (req: Request, res: Response) => {
+  const user = req.user!;
+  const { cartItemId } = CartItemIdSchema.parse(req.params);
+
+  const getItem = await cartService.getCartByItem(user, cartItemId);
+  res.status(200).json(getItem);
+})
