@@ -12,6 +12,12 @@ export interface CreateInquiryRepoDto {
     productId: string;
 }
 
+export interface UpdateInquiryRepoDto {
+    title?: string;
+    content?: string;
+    isSecret?: boolean;
+}
+
 export type PaginationMyListParams = Infer<typeof getInquiriesMyListStruct>;
 
 export type InquiryStatus = 'WaitingAnswer' | 'CompletedAnswer';
@@ -43,6 +49,50 @@ export interface InquiryMyListItem {
 }
 
 export interface InquiryDetailItem {
+    id: string;
+    userId: string;
+    productId: string;
+    title: string;
+    content: string;
+    status: string;
+    isSecret: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    reply: {
+      id: string;
+      content: string;
+      createdAt: Date;
+      updatedAt: Date;
+      user: {
+        id:string;
+        name: string;
+      };
+    } | null;
+} 
+
+export interface InquiryUpdateItem {
+    id: string;
+    userId: string;
+    productId: string;
+    title: string;
+    content: string;
+    status: string;
+    isSecret: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    reply: {
+      id: string;
+      content: string;
+      createdAt: Date;
+      updatedAt: Date;
+      user: {
+        id:string;
+        name: string;
+      };
+    } | null;
+} 
+
+export interface InquiryDeleteItem {
     id: string;
     userId: string;
     productId: string;

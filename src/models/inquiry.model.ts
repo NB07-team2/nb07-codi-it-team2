@@ -1,6 +1,6 @@
 import { Inquiry } from '@prisma/client';
-import { InquiryCreateInput } from '../structs/inquiry.struct';
-import { InquiryDetailItem, InquiryMyListItem } from '../types/inquiry.type';
+import { InquiryCreateInput, InquiryUpdateInput } from '../structs/inquiry.struct';
+import { InquiryDeleteItem, InquiryDetailItem, InquiryMyListItem, InquiryUpdateItem } from '../types/inquiry.type';
 
 export class CreateInquiryDto {
     title: string;
@@ -120,6 +120,107 @@ export class InquiriesMyListResponseDto {
       this.createdAt = data.createdAt;
       this.updatedAt = data.updatedAt;      
       this.reply = data.reply ? {
+        id: data.reply.id,
+        content: data.reply.content,
+        createdAt: data.reply.createdAt,
+        updatedAt: data.reply.updatedAt,
+        user: {
+          id: data.reply.user.id,
+          name: data.reply.user.name,
+        },
+      } : null;
+    }
+  }
+
+  export class UpdateInquiryDto {
+    title?: string;
+    content?: string;
+    isSecret?: boolean;
+    
+    constructor(data:InquiryUpdateInput) {
+      this.title = data.title;
+      this.content = data.content;
+      this.isSecret = data.isSecret; 
+    }
+} 
+
+
+export class InquiryUpdateResponseDto {
+    id: string;
+    userId: string;
+    productId: string;
+    title: string;
+    content: string;
+    status: string;
+    isSecret: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    reply: {
+      id: string;
+      content: string;
+      createdAt: Date;
+      updatedAt: Date;
+      user: {
+        id: string;
+        name: string;
+      }
+    } | null;
+
+    constructor(data: InquiryUpdateItem)  {
+      this.id = data.id;
+      this.userId = data.userId;
+      this.productId = data.productId;
+      this.title = data.title;
+      this.content = data.content;      
+      this.isSecret = data.isSecret;
+      this.status = data.status;
+      this.createdAt = data.createdAt;
+      this.updatedAt = data.updatedAt;      
+      this.reply = data.reply ?{
+        id: data.reply.id,
+        content: data.reply.content,
+        createdAt: data.reply.createdAt,
+        updatedAt: data.reply.updatedAt,
+        user: {
+          id: data.reply.user.id,
+          name: data.reply.user.name,
+        },
+      } : null;
+    }
+  }
+
+  export class InquiryDeleteResponseDto {
+    id: string;
+    userId: string;
+    productId: string;
+    title: string;
+    content: string;
+    status: string;
+    isSecret: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    reply: {
+      id: string;
+      content: string;
+      createdAt: Date;
+      updatedAt: Date;
+      user: {
+        id: string;
+        name: string;
+      }
+    } | null;
+
+    constructor(data: InquiryDeleteItem)  {
+      this.id = data.id;
+      this.userId = data.userId;
+      this.productId = data.productId;
+      this.title = data.title;
+      this.content = data.content;      
+      this.isSecret = data.isSecret;
+      this.status = data.status;
+      this.createdAt = data.createdAt;
+      this.updatedAt = data.updatedAt;      
+      this.reply = data.reply ?{
         id: data.reply.id,
         content: data.reply.content,
         createdAt: data.reply.createdAt,
