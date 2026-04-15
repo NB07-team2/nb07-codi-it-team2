@@ -1,9 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import {
-  LoginRequiredError,
-  TokenExpiredError,
-  UnauthorizedError,
-} from '../errors/errors';
+import { TokenExpiredError, UnauthorizedError } from '../errors/errors';
 import { verifyAccessToken } from '../utils/jwt.util';
 import { TokenPayload } from '../types/jwt.type';
 
@@ -14,7 +10,7 @@ export const authenticate = (
 ) => {
   const authHeader = req.headers.authorization;
   let token = authHeader?.startsWith('Bearer ')
-    ? authHeader.substring(7)
+    ? authHeader.substring(7).trim()
     : null;
 
   // 토큰이 헤더에 없다면 쿠키에서 추출 시도
@@ -33,7 +29,7 @@ export const authenticate = (
     if (result.expired) {
       return next(new TokenExpiredError());
     }
-    return next(new LoginRequiredError());
+    return next(new UnauthorizedError('인증이 필요합니다.'));
   }
 
   const payload = result.payload as TokenPayload;

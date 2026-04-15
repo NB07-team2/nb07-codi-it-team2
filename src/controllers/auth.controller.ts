@@ -44,10 +44,13 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
 
 // 로그아웃
 export const logout = async (req: Request, res: Response): Promise<void> => {
-  const userId = req.user?.id;
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith('Bearer ')
+    ? authHeader.substring(7).trim()
+    : null;
 
-  if (userId) {
-    await authService.logout(userId);
+  if (token) {
+    await authService.logout(token);
   }
 
   res.clearCookie(REFRESH_TOKEN_COOKIE_NAME);

@@ -7,6 +7,7 @@ import {
 import {
   generateAccessToken,
   generateRefreshToken,
+  verifyAccessToken,
   verifyRefreshToken,
 } from '../utils/jwt.util';
 import { comparePassword } from '../utils/password.util';
@@ -52,7 +53,12 @@ export const login = async (
   return result;
 };
 
-export const logout = async (userId: string): Promise<void> => {
+// 로그아웃
+export const logout = async (accessToken: string): Promise<void> => {
+  const result = verifyAccessToken(accessToken);
+  if (!result.valid) {
+    throw new UnauthorizedError('인증이 필요합니다.');
+  }
   return;
 };
 
