@@ -1,4 +1,3 @@
-import { UnauthorizedError } from './../../../errors/errors';
 import * as authService from '../../../services/auth.service';
 import * as jwtUtil from '../../../utils/jwt.util';
 

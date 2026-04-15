@@ -1,7 +1,6 @@
 import request from 'supertest';
 import * as jwtUtil from '../../../utils/jwt.util';
 import { UserType } from '@prisma/client';
-import { env } from '../../../utils/env.util';
 import app from '../../../app';
 
 describe('Auth EndPoint Test - POST /api/auth/logout', () => {
