@@ -2,31 +2,31 @@ import { CustomError } from './customError';
 
 export class BadRequestError extends CustomError {
   constructor(message: string = '잘못된 요청입니다.') {
-    super(message, 400);
+    super(400, message, 'Bad Request');
   }
 }
 
 export class UnauthorizedError extends CustomError {
   constructor(message: string = '인증이 필요합니다.') {
-    super(message, 401);
+    super(401, message, 'Unauthorized');
   }
 }
 
 export class ForbiddenError extends CustomError {
   constructor(message: string = '접근 권한이 없습니다.') {
-    super(message, 403);
+    super(403, message, 'Forbidden');
   }
 }
 
 export class NotFoundError extends CustomError {
   constructor(message: string = '요청한 리소스를 찾을 수 없습니다.') {
-    super(message, 404);
+    super(404, message, 'Not Found');
   }
 }
 
 export class ConflictError extends CustomError {
   constructor(message: string = '이미 존재하는 데이터입니다.') {
-    super(message, 409);
+    super(409, message, 'Conflict');
   }
 }
 
@@ -46,7 +46,7 @@ export class LoginRequiredError extends UnauthorizedError {
 // 400 Bad Request
 export class InvalidRequestError extends BadRequestError {
   constructor() {
-    super('잘못된 요청입니다');
+    super('잘못된 요청입니다.');
   }
 }
 
