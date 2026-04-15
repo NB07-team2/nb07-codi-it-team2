@@ -7,7 +7,6 @@ import {
 import {
   generateAccessToken,
   generateRefreshToken,
-  verifyAccessToken,
   verifyRefreshToken,
 } from '../utils/jwt.util';
 import { comparePassword } from '../utils/password.util';
