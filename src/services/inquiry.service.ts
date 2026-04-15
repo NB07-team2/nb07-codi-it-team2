@@ -59,17 +59,5 @@ export async function deleteInquiry(inquiryId: string, userId: string, userType:
         reply?: InquiryDeleteResponseDto['reply'] 
     };
 
-    return new InquiryDeleteResponseDto({ 
-        ...result, 
-        reply: result.reply ? {
-            id: result.reply.id,
-            content: result.reply.content,
-            createdAt: result.reply.createdAt,
-            updatedAt: result.reply.updatedAt,
-            user: {
-                id: result.reply.user.id,
-                name: result.reply.user.name,
-            },
-        } : null, 
-    });
+    return result;
 } 
