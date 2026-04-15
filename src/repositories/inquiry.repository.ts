@@ -82,6 +82,13 @@ export async function getInquiryDetail(inquiryId: string,userId:string,userType:
     return inquiry; 
 }
 
+export async function getInquiryById(inquiryId: string) {
+    return await prisma.inquiry.findUnique({
+        where: { id: inquiryId },
+    });
+}
+
+
 export async function updateInquiry (inquiryId: string, data: UpdateInquiryRepoDto,userId: string) {
     const existingInquiry = await prisma.inquiry.findFirst({
     where: {
@@ -102,22 +109,7 @@ export async function updateInquiry (inquiryId: string, data: UpdateInquiryRepoD
     return updatedInquiry;
 }
 
-export async function deleteInquiry (inquiryId: string,userId: string,userType: string) {
-    if(userType === 'SELLER'){
-        const existingInquiry = await prisma.inquiry.findFirst({
-            where: {
-                id: inquiryId,
-                product: {
-                    store: {
-                        userId: userId,
-                    },
-                },
-            },
-        });
-        if (!existingInquiry) {
-            return null;
-        }
-    }else{
+export async function deleteInquiry (inquiryId: string,userId: string) {
         const existingInquiry = await prisma.inquiry.findFirst({
             where: {
                 id: inquiryId,
@@ -127,7 +119,6 @@ export async function deleteInquiry (inquiryId: string,userId: string,userType: 
         if (!existingInquiry) {
             return null;
         }
-    }
     return await prisma.inquiry.delete({
         where: { id: inquiryId },
     });

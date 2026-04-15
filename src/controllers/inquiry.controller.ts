@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import * as inquiryService from '../services/inquiry.service';
 import { create } from 'superstruct';
 import { getInquiriesMyListStruct, inquiryUpdateSchema } from '../structs/inquiry.struct';
+import { InquiryDeleteResponseDto } from '../models/inquiry.model';
 
 export async function myInquiryList(req: Request, res: Response) {
   const { id: userId , type: userType } = req.user!
@@ -32,6 +33,9 @@ export async function updateInquiry(req: Request, res: Response) {
 export async function deleteInquiry(req: Request, res: Response) {
     const inquiryId  = req.params.id as string;
     const { id: userId, type: userType } = req.user!;
-    await inquiryService.deleteInquiry(inquiryId, userId, userType);
-    res.status(204).send();
+    const deletedInquiry = await inquiryService.deleteInquiry(inquiryId, userId, userType);
+    const result = deletedInquiry as typeof deletedInquiry & { 
+        reply?: InquiryDeleteResponseDto['reply'] 
+    };
+    res.status(200).send(result);
 }

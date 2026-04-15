@@ -70,18 +70,6 @@ export interface InquiryDetailItem {
     } | null;
 } 
 
-export interface InquiryUpdateItem {
-    id: string;
-    userId: string;
-    productId: string;
-    title: string;
-    content: string;
-    status: string;
-    isSecret: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-} 
-
 export interface InquiryDeleteItem {
     id: string;
     userId: string;

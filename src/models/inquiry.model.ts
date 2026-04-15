@@ -1,6 +1,6 @@
 import { Inquiry } from '@prisma/client';
 import { InquiryCreateInput, InquiryUpdateInput } from '../structs/inquiry.struct';
-import { InquiryDeleteItem, InquiryDetailItem, InquiryMyListItem, InquiryUpdateItem } from '../types/inquiry.type';
+import { InquiryDeleteItem, InquiryDetailItem, InquiryMyListItem } from '../types/inquiry.type';
 
 export class CreateInquiryDto {
     title: string;
@@ -156,7 +156,7 @@ export class InquiryUpdateResponseDto {
     createdAt: Date;
     updatedAt: Date;
 
-    constructor(data: InquiryUpdateItem)  {
+    constructor(data: Inquiry)  {
       this.id = data.id;
       this.userId = data.userId;
       this.productId = data.productId;
