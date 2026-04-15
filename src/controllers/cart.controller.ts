@@ -39,7 +39,7 @@ export const deleteCartItem = asyncHandler(async (req: Request, res: Response) =
   res.status(204).send();
 });
 
-export const getCartItem = asyncHandler(async (req: Request, res: Response) => {
+export const getCartItemDetail = asyncHandler(async (req: Request, res: Response) => {
   const user = req.user!;
   const { cartItemId } = CartItemIdSchema.parse(req.params);
 
