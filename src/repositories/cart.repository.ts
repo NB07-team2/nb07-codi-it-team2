@@ -78,3 +78,50 @@ export const deleteCartItemById = async (id: string) => {
     where: { id },
   });
 };
+
+export const findCartItemWithDetails = async (id: string) => {
+  return await prisma.cartItem.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      cartId: true,
+      productId: true,
+      sizeId: true,
+      quantity: true,
+      createdAt: true,
+      updatedAt: true,
+
+      product: {
+        select: {
+          id: true,
+          storeId: true,
+          name: true,
+          price: true,
+          image: true,
+          discountRate: true,
+          discountStartTime: true,
+          discountEndTime: true,
+          createdAt: true,
+          updatedAt: true,
+          reviews: {
+      select: {
+        rating: true 
+      }
+    },
+          categoryId: true,   
+          content: true,   
+          isSoldOut: true,
+        },
+      },
+
+      cart: {
+        select: {
+          id: true,
+          buyerId: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
+  });
+};

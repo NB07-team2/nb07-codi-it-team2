@@ -14,7 +14,7 @@ export const updateCartSchema = z.object({
   ).min(1, "수정할 사이즈 정보가 최소 하나 이상 필요합니다.")
 });
 
-export const deleteCartItemSchema = z.object({
+export const CartItemIdSchema = z.object({
   cartItemId: z.cuid("유효하지 않은 아이템 ID 형식입니다.")
 });
 
