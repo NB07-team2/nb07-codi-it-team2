@@ -39,5 +39,5 @@ export const inquiryUpdateSchema = z.object({
 export type InquiryUpdateInput = z.infer<typeof inquiryUpdateSchema>;
 
 export const inquiryIdSchema = z.object({
-  id: z.string().min(1, '문의 ID는 필수입니다.'),
+  id: z.string().min(1, '올바른 문의 ID 형식이 아닙니다.'),
 }); 
