@@ -115,13 +115,21 @@ export async function deleteInquiry (inquiryId: string,userId: string) {
                 userId: userId,
             },
             include: {
-                reply: true,
+                reply: {include: { user:true}}
             },
         });
         if (!existingInquiry) {
             return null;
         }
     return await prisma.inquiry.delete({
-        where: { id: inquiryId },
+        where: { 
+            id: inquiryId, 
+            userId: userId,
+         },
+        include: {
+            reply: { 
+                include: { user: true } 
+            }
+        },
     });
 }

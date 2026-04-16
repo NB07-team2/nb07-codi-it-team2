@@ -55,8 +55,9 @@ export async function deleteInquiry(inquiryId: string, userId: string, userType:
         throw new ForbiddenError('문의 작성자만 삭제할 수 있습니다.');
     }
     const deletedInquiry = await inquiryRepository.deleteInquiry(inquiryId, userId);
-    const result = deletedInquiry as typeof deletedInquiry & { 
-        reply?: InquiryDeleteResponseDto['reply'] 
-    };
-    return result;
+
+    if (!deletedInquiry) {
+        throw new NotFoundError('문의 삭제에 실패하였습니다.');
+    }
+    return new InquiryDeleteResponseDto(deletedInquiry);
 } 
