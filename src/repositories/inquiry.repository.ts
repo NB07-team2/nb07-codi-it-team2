@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import {InquiryMyPagingRepoParams,InquiryStatus, UpdateInquiryRepoDto } from '../types/inquiry.type';
+import {CreateReplyRepoDto, InquiryMyPagingRepoParams,InquiryStatus, UpdateInquiryRepoDto } from '../types/inquiry.type';
 import prisma from '../utils/prismaClient.util';
 
 export async function myInquiryList(params: InquiryMyPagingRepoParams, userId: string, userType: string) {
@@ -132,4 +132,35 @@ export async function deleteInquiry (inquiryId: string,userId: string) {
             }
         },
     });
+}
+
+export async function createReply(replyData: CreateReplyRepoDto) {
+    const {inquiryId,userId} = replyData;
+
+    const whereCondition: Prisma.InquiryWhereInput = {
+        id: inquiryId,
+    };
+        whereCondition.product = {
+            store: {
+                userId: userId,
+            },
+        }; 
+    const existingInquiry = await prisma.inquiry.findFirst({
+        where: whereCondition,
+    });
+    if (!existingInquiry) {
+        return null;
+    }
+    const createdReply = await prisma.reply.create({
+        data: {
+            content: replyData.content,
+            inquiryId: replyData.inquiryId,
+            userId: replyData.userId,
+        },
+    });
+    await prisma.inquiry.update({
+        where: { id: replyData.inquiryId },
+        data: { status: 'CompletedAnswer' },
+    });
+    return createdReply;
 }

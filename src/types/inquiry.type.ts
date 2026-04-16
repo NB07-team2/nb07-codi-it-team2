@@ -91,3 +91,9 @@ export interface InquiryDeleteItem {
       };
     } | null;
 } 
+
+export interface CreateReplyRepoDto {
+    content: string;
+    inquiryId: string;
+    userId: string;
+}
