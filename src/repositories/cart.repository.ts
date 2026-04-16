@@ -103,6 +103,14 @@ export const findCartItemWithDetails = async (id: string) => {
           discountEndTime: true,
           createdAt: true,
           updatedAt: true,
+          reviews: {
+      select: {
+        rating: true 
+      }
+    },
+          categoryId: true,   
+          content: true,   
+          isSoldOut: true,
         },
       },
 

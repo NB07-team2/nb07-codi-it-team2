@@ -117,6 +117,21 @@ export const getCartByItem = async (user: SimpleUser, cartItemId: string) => {
   if (cartItem.cart.buyerId !== user.id) {
     throw new ForbiddenError("접근 권한이 없습니다.");
   }
+  const reviews = cartItem.product.reviews;
+  const reviewsCount = reviews.length;
+  
+  const reviewsRating = reviewsCount > 0 
+    ? reviews.reduce((acc, cur) => acc + cur.rating, 0) / reviewsCount 
+    : 0;
 
-  return cartItem;
+  const { reviews: _, ...productWithoutReviews } = cartItem.product;
+
+  return {
+    ...cartItem,
+    product: {
+      ...productWithoutReviews,
+      reviewsRating: Number(reviewsRating.toFixed(1)), 
+      reviewsCount,
+    },
+  };
 };
