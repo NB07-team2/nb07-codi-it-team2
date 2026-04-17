@@ -1,6 +1,6 @@
 import * as inquiryRepository from '../repositories/inquiry.repository';
-import {CreateReplyDto, InquiriesMyListResponseDto, InquiryDeleteResponseDto, InquiryDetailResponseDto, InquiryUpdateResponseDto, ReplyResponseDto, UpdateInquiryDto } from '../models/inquiry.model';
-import { ForbiddenError, NotFoundError } from '../errors/errors';
+import {InquiriesMyListResponseDto, InquiryDeleteResponseDto, InquiryDetailResponseDto, InquiryUpdateResponseDto, ReplyResponseDto, UpdateInquiryDto } from '../models/inquiry.model';
+import { ConflictError, ForbiddenError, NotFoundError } from '../errors/errors';
 import { InquiryUpdateInput, ReplyCreateInput } from '../structs/inquiry.struct';
 export async function myInquiryList(params: { page: number; pageSize: number; status?: 'WaitingAnswer' | 'CompletedAnswer' }, userId: string, userType: string) {
     const { page, pageSize, status } = params;
@@ -62,16 +62,18 @@ export async function deleteInquiry(inquiryId: string, userId: string, userType:
     return new InquiryDeleteResponseDto(deletedInquiry);
 } 
 
-export async function createReply(insertData: ReplyCreateInput,userType: string) {
+export async function createReply(insertData: ReplyCreateInput,userType: string, userId: string) {
     if(userType !== "SELLER"){
         throw new ForbiddenError('판매자만 답변을 등록할 수 있습니다.');
     }
-    const dto = new CreateReplyDto(insertData);
-    const existingInquiry = await inquiryRepository.getInquiryById(dto.inquiryId);
+    const existingInquiry = await inquiryRepository.getInquiryById(insertData.inquiryId);
     if (!existingInquiry) {
         throw new NotFoundError('문의가 존재하지 않습니다.');
     }
-    const createdReply = await inquiryRepository.createReply(dto);
+    if (existingInquiry.status === 'CompletedAnswer') {
+        throw new ConflictError('이미 답변이 등록된 문의입니다.');
+    }
+    const createdReply = await inquiryRepository.createReply(insertData, userId);
     if (!createdReply) {
         throw new NotFoundError('답변 생성에 실패하였습니다.');
     }

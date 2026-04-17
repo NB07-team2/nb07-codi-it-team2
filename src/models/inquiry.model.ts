@@ -1,5 +1,5 @@
 import { Inquiry, Reply } from '@prisma/client';
-import { InquiryCreateInput, InquiryUpdateInput, ReplyCreateInput } from '../structs/inquiry.struct';
+import { InquiryCreateInput, InquiryUpdateInput} from '../structs/inquiry.struct';
 import { InquiryDeleteItem, InquiryDetailItem, InquiryMyListItem } from '../types/inquiry.type';
 
 export class CreateInquiryDto {
@@ -212,19 +212,6 @@ export class InquiryUpdateResponseDto {
       } : null;
     }
   }
-
-  export class CreateReplyDto{
-    content: string;
-    inquiryId: string;
-    userId: string;
-
-    constructor(data: ReplyCreateInput) {
-      this.content = data.content;
-      this.inquiryId = data.inquiryId; 
-      this.userId = data.userId;
-    }
-  }
-
   export class ReplyResponseDto {
     id: string;
     inquiryId: string;

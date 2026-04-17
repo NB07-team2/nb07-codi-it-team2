@@ -95,5 +95,4 @@ export interface InquiryDeleteItem {
 export interface CreateReplyRepoDto {
     content: string;
     inquiryId: string;
-    userId: string;
 }

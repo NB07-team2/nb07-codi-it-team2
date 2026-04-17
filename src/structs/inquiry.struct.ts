@@ -44,8 +44,7 @@ export const inquiryIdSchema = z.object({
 
 export const replyCreateSchema = z.object({
   content: z.string().min(1, '내용은 필수입니다.').max(1000, '내용은 최대 1000자까지 입력 가능합니다.'),
-  inquiryId: z.string().min(1, '문의 ID는 필수입니다.'),
-  userId: z.string().min(1, '사용자 ID는 필수입니다.'),
+  inquiryId: z.string().min(1, '문의 ID는 필수입니다.')
 });
 
 export type ReplyCreateInput = z.infer<typeof replyCreateSchema>;

@@ -45,6 +45,6 @@ export async function createReply(req: Request, res: Response) {
     userId: userId    
    };
     const validatedData = replyCreateSchema.parse(dateToValidate);
-    const createdReply = await inquiryService.createReply(validatedData, userType);
+    const createdReply = await inquiryService.createReply(validatedData, userType, userId);
     res.status(201).json(createdReply);
 }

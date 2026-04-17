@@ -134,33 +134,35 @@ export async function deleteInquiry (inquiryId: string,userId: string) {
     });
 }
 
-export async function createReply(replyData: CreateReplyRepoDto) {
-    const {inquiryId,userId} = replyData;
+export async function createReply(replyData: CreateReplyRepoDto, userId: string) {
+    const {inquiryId} = replyData;
 
     const whereCondition: Prisma.InquiryWhereInput = {
         id: inquiryId,
     };
-        whereCondition.product = {
-            store: {
-                userId: userId,
-            },
-        }; 
+    whereCondition.product = {
+        store: {
+            userId: userId,
+        },
+    }; 
     const existingInquiry = await prisma.inquiry.findFirst({
         where: whereCondition,
     });
     if (!existingInquiry) {
         return null;
     }
-    const createdReply = await prisma.reply.create({
+    return await prisma.$transaction(async (tx) => {
+        const createdReply = await tx.reply.create({
         data: {
             content: replyData.content,
             inquiryId: replyData.inquiryId,
-            userId: replyData.userId,
+            userId: userId,
         },
     });
-    await prisma.inquiry.update({
+    await tx.inquiry.update({
         where: { id: replyData.inquiryId },
         data: { status: 'CompletedAnswer' },
     });
     return createdReply;
+    })       
 }
