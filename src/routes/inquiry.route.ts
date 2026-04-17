@@ -8,6 +8,7 @@ router.get('/', authenticate, inquiryController.myInquiryList);
 router.get('/:id', authenticate, inquiryController.getInquiryDetail);
 router.patch('/:id', authenticate, inquiryController.updateInquiry);
 router.delete('/:id', authenticate, inquiryController.deleteInquiry);
+router.post('/:id/replies', authenticate, inquiryController.createReply);
 
 
 export default router;
