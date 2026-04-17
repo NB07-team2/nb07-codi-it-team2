@@ -15,7 +15,20 @@ import metadataRouter from './routes/metadata.route';
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      'https://main.d3413g8a7ia3kb.amplifyapp.com', // 프론트엔드 주소
+      'http://localhost:3001', //로컬 테스트용
+      'http://localhost:3000', //로컬 테스트용
+    ],
+
+    credentials: true, // 쿠키나 인증 헤더(Authorization)를 주고받기 위해 필수
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  }),
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
