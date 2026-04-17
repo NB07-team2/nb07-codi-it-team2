@@ -1,0 +1,39 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: SSH into EC2 and Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ec2-user/nb07-codi-it-team2
+            
+            # 1. 현재 브랜치에 맞는 최신 코드 가져오기
+            git fetch origin
+            git checkout ${{ github.ref_name }}
+            git pull origin ${{ github.ref_name }}
+            
+            # 2. 패키지 설치 및 빌드
+            npm install
+            npm run build
+            
+            # 3. Prisma 클라이언트 갱신 및 DB 동기화
+            npx prisma generate
+            
+            # 4. PM2를 사용한 무중단 재시작 다)
+            pm2 reload ecosystem.config.js --env production
