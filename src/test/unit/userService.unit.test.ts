@@ -142,3 +142,43 @@ describe('updateMe()', () => {
     ).rejects.toThrow();
   });
 });
+
+// 관심 스토어 조회
+describe('getFavorites()', () => {
+  const userId = 'user-123';
+
+  it('✅ 관심 스토어 목록이 있으면 가공된 스토어 정보를 반환해야 한다', async () => {
+    const mockFavorites = [
+      {
+        storeId: 'store-1',
+        userId,
+        store: {
+          id: 'store-1',
+          name: '관심 맛집',
+          image: 'store.png',
+          address: '서울시',
+          phoneNumber: '01011112222',
+        },
+      },
+    ];
+
+    (userRepository.findById as jest.Mock).mockResolvedValue({ id: userId });
+    (userRepository.findFavoritesByUserId as jest.Mock).mockResolvedValue(
+      mockFavorites,
+    );
+
+    const result = await userService.getFavorites(userId);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]!.store.name).toBe('관심 맛집');
+    expect(result[0]).toHaveProperty('storeId');
+  });
+
+  it('❌ 유저가 존재하지 않으면 NotFoundError를 던져야 한다', async () => {
+    (userRepository.findById as jest.Mock).mockResolvedValue(null);
+
+    await expect(userService.getFavorites(userId)).rejects.toThrow(
+      '유저를 찾을 수 없습니다.',
+    );
+  });
+});

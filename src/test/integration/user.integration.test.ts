@@ -89,4 +89,59 @@ describe('User Integration Test - register()', () => {
     // 사용한 데이터 삭제 (정리)
     await prisma.user.delete({ where: { id: user.id } });
   });
+
+  // 관심 스토어 조회
+  it('✅ DB에서 유저의 관심 스토어 목록을 정확히 가져와야 한다', async () => {
+    const uniqueTime = Date.now();
+
+    // 유저 생성 (구매자)
+    const user = await prisma.user.create({
+      data: {
+        email: `fav_tester_${uniqueTime}@test.com`,
+        password: 'password123!',
+        name: '찜유저',
+        type: 'BUYER',
+        gradeId: 'grade_green',
+      },
+    });
+
+    // 판매자 및 스토어 생성
+    const seller = await prisma.user.create({
+      data: {
+        email: `seller_${uniqueTime}@test.com`,
+        password: 'password123!',
+        name: '스토어주인',
+        type: 'SELLER',
+        gradeId: 'grade_green',
+      },
+    });
+
+    const store = await prisma.store.create({
+      data: {
+        name: '찜하고싶은가게',
+        address: '서울시 강남구',
+        detailAddress: '테스트빌딩',
+        phoneNumber: `010${uniqueTime.toString().slice(-8)}`,
+        content: '가게 소개입니다.',
+        userId: seller.id,
+      },
+    });
+
+    // 관심 등록
+    await prisma.favorite.create({
+      data: { userId: user.id, storeId: store.id },
+    });
+
+    const result = await userService.getFavorites(user.id);
+
+    expect(result.length).toBeGreaterThanOrEqual(1);
+    expect(result[0]!.store.name).toBe('찜하고싶은가게');
+
+    // 정리 ( user만 지워도 되지만 안전하게 개별 삭제 )
+    await prisma.favorite.deleteMany({ where: { userId: user.id } });
+    await prisma.store.delete({ where: { id: store.id } });
+    await prisma.user.deleteMany({
+      where: { id: { in: [user.id, seller.id] } },
+    });
+  });
 });

@@ -126,3 +126,36 @@ describe('PATCH /api/users/me', () => {
     await prisma.user.delete({ where: { email: userEmail } });
   });
 });
+
+// 관심 스토어 조회
+describe('GET /api/users/me/likes', () => {
+  it('✅ 200: 유저의 관심 스토어 목록을 성공적으로 반환해야 한다', async () => {
+    const userEmail = 'api-fav@test.com';
+
+    // 회원가입
+    await request(app).post('/api/users').send({
+      email: userEmail,
+      password: 'password123!',
+      name: '찜테스터',
+      type: 'BUYER',
+    });
+
+    // 로그인 및 토큰 확보
+    const loginRes = await request(app).post('/api/auth/login').send({
+      email: userEmail,
+      password: 'password123!',
+    });
+    const token = loginRes.body.accessToken;
+
+    // API 요청
+    const response = await request(app)
+      .get('/api/users/me/likes')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true);
+
+    // 정리
+    await prisma.user.delete({ where: { email: userEmail } });
+  });
+});
