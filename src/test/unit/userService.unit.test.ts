@@ -7,6 +7,7 @@ import { ConflictError } from '../../errors/errors';
 jest.mock('../../repositories/user.repository');
 jest.mock('../../utils/password.util');
 
+// 회원 가입
 describe('User Service Unit Test - register()', () => {
   const registerData: any = {
     email: 'test@test.com',
@@ -62,6 +63,34 @@ describe('User Service Unit Test - register()', () => {
 
     await expect(userService.register(registerData)).rejects.toThrow(
       new ConflictError('이미 존재하는 유저입니다.'),
+    );
+  });
+});
+
+// 내 정보 조회
+describe('getMe()', () => {
+  it('✅ 존재하는 유저 ID를 입력하면 유저 정보를 반환해야 한다', async () => {
+    const mockUser = {
+      id: 'user-123',
+      email: 'test@test.com',
+      name: '테스터',
+      type: 'BUYER',
+      points: 0,
+      grade: { id: 'grade_green', name: 'Green', rate: 1, minAmount: 0 },
+    };
+    (userRepository.findById as jest.Mock).mockResolvedValue(mockUser);
+
+    const result = await userService.getMe('user-123');
+
+    expect(userRepository.findById).toHaveBeenCalledWith('user-123');
+    expect(result.id).toBe('user-123');
+  });
+
+  it('❌ 존재하지 않는 유저 ID일 경우 NotFoundError를 던져야 한다', async () => {
+    (userRepository.findById as jest.Mock).mockResolvedValue(null);
+
+    await expect(userService.getMe('non-existent')).rejects.toThrow(
+      '유저를 찾을 수 없습니다.',
     );
   });
 });

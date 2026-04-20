@@ -57,3 +57,39 @@ describe('User Endpoint Test - POST /api/users', () => {
     expect(response.body.message).toBe('이미 존재하는 유저입니다.');
   });
 });
+
+// 내 정보 조회
+describe('GET /api/users/me', () => {
+  it('✅ 200: 인증된 유저의 정보를 정상적으로 반환해야 한다', async () => {
+    // 테스트 유저 생성 및 로그인 (토큰 확보)
+    const userEmail = 'me@test.com';
+    await request(app).post('/api/users').send({
+      email: userEmail,
+      password: 'password123!',
+      name: '나야나',
+      type: 'BUYER',
+    });
+
+    const loginRes = await request(app).post('/api/auth/login').send({
+      email: userEmail,
+      password: 'password123!',
+    });
+    const accessToken = loginRes.body.accessToken;
+
+    // 내 정보 조회 요청
+    const response = await request(app)
+      .get('/api/users/me')
+      .set('Authorization', `Bearer ${accessToken}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.email).toBe(userEmail);
+
+    // 데이터 오염 방지
+    await prisma.user.delete({ where: { email: userEmail } });
+  });
+
+  it('❌ 401: 토큰 없이 접근할 경우', async () => {
+    const response = await request(app).get('/api/users/me');
+    expect(response.status).toBe(401);
+  });
+});
