@@ -1,5 +1,6 @@
 import * as userService from '../../services/user.service';
 import { prisma } from '../../utils/prismaClient.util';
+import * as passwordUtil from '../../utils/password.util';
 
 describe('User Integration Test - register()', () => {
   const testEmail = 'integration@test.com';
@@ -44,7 +45,7 @@ describe('User Integration Test - register()', () => {
 
   // 내 정보 조회
   it('✅ 실제 DB에서 특정 유저의 정보를 정확히 조회해와야 한다', async () => {
-    // 1. 이 테스트만을 위한 전용 유저 생성
+    // 전용 유저 생성
     const targetEmail = 'getme@test.com';
     const user = await prisma.user.create({
       data: {
@@ -56,13 +57,36 @@ describe('User Integration Test - register()', () => {
       },
     });
 
-    // 2. 서비스 함수 호출 (이제 user.id를 사용할 수 있습니다)
     const result = await userService.getMe(user.id);
 
     expect(result.id).toBe(user.id);
     expect(result.email).toBe(targetEmail);
 
-    // 3. 사용한 데이터 삭제 (정리)
+    // 사용한 데이터 삭제 (정리)
+    await prisma.user.delete({ where: { id: user.id } });
+  });
+
+  // 내 정보 수정
+  it('✅ 실제 DB에서 유저 정보를 수정하면 반영되어야 한다', async () => {
+    const user = await prisma.user.create({
+      data: {
+        email: 'update@test.com',
+        password: await passwordUtil.hashPassword('pass123!'),
+        name: '기본이름',
+        type: 'BUYER',
+        gradeId: 'grade_green',
+      },
+    });
+
+    const updateData = {
+      name: '수정된 이름',
+      currentPassword: 'pass123!',
+    };
+    const result = await userService.updateMe(user.id, updateData);
+
+    expect(result.name).toBe('수정된 이름');
+
+    // 사용한 데이터 삭제 (정리)
     await prisma.user.delete({ where: { id: user.id } });
   });
 });
