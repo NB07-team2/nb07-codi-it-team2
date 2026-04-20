@@ -159,3 +159,36 @@ describe('GET /api/users/me/likes', () => {
     await prisma.user.delete({ where: { email: userEmail } });
   });
 });
+
+// 회원 탈퇴
+describe('DELETE /api/users/delete', () => {
+  it('✅ 200: 성공적으로 회원 탈퇴 처리가 되어야 한다', async () => {
+    const userEmail = 'api-delete@test.com';
+    // 로그인 및 토큰 확보
+    await request(app).post('/api/users').send({
+      email: userEmail,
+      password: 'password123!',
+      name: '탈퇴자',
+      type: 'BUYER',
+    });
+    const loginRes = await request(app).post('/api/auth/login').send({
+      email: userEmail,
+      password: 'password123!',
+    });
+    const token = loginRes.body.accessToken;
+
+    // 탈퇴 요청
+    const response = await request(app)
+      .delete('/api/users/delete')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe('회원 탈퇴 성공');
+
+    // DB 확인
+    const dbUser = await prisma.user.findUnique({
+      where: { email: userEmail },
+    });
+    expect(dbUser).toBeNull();
+  });
+});

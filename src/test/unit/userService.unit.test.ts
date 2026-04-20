@@ -71,6 +71,9 @@ describe('User Service Unit Test - register()', () => {
 
 // 내 정보 조회
 describe('getMe()', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   it('✅ 존재하는 유저 ID를 입력하면 유저 정보를 반환해야 한다', async () => {
     const mockUser = {
       id: 'user-123',
@@ -105,6 +108,10 @@ describe('updateMe()', () => {
     password: 'hashed_current_password',
     image: 'old_image.png',
   };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   it('✅ 이름과 비밀번호를 수정하고, 이미지를 새로 업로드하면 기존 이미지를 삭제하고 성공해야 한다', async () => {
     (userRepository.findById as jest.Mock).mockResolvedValue(mockUser);
@@ -147,6 +154,10 @@ describe('updateMe()', () => {
 describe('getFavorites()', () => {
   const userId = 'user-123';
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('✅ 관심 스토어 목록이 있으면 가공된 스토어 정보를 반환해야 한다', async () => {
     const mockFavorites = [
       {
@@ -180,5 +191,46 @@ describe('getFavorites()', () => {
     await expect(userService.getFavorites(userId)).rejects.toThrow(
       '유저를 찾을 수 없습니다.',
     );
+  });
+});
+
+// 회원 탈퇴
+describe('deleteMe()', () => {
+  const userId = 'user-123';
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('✅ 탈퇴 시 기본 이미지가 아니면 S3에서 이미지를 삭제하고 유저를 삭제해야 한다', async () => {
+    const mockUser = {
+      id: userId,
+      image: 'https://codi-it-s3.amazonaws.com/custom-image.png',
+    };
+    (userRepository.findById as jest.Mock).mockResolvedValue(mockUser);
+    (userRepository.deleteUser as jest.Mock).mockResolvedValue(mockUser);
+
+    await userService.deleteMe(userId);
+
+    expect(imageService.deleteFromS3).toHaveBeenCalledWith(mockUser.image);
+    expect(userRepository.deleteUser).toHaveBeenCalledWith(userId);
+  });
+
+  it('✅ 기본 이미지일 경우 S3 삭제를 호출하지 않고 유저만 삭제해야 한다', async () => {
+    (imageService.deleteFromS3 as jest.Mock).mockClear();
+
+    const mockUser = {
+      id: userId,
+      image:
+        'https://codi-it-s3.s3.amazonaws.com/others/b7220551-54e3-414f-bed1-801a44e71d45.png',
+    };
+    (userRepository.findById as jest.Mock).mockResolvedValue(mockUser);
+    (userRepository.deleteUser as jest.Mock).mockResolvedValue(mockUser);
+
+    await userService.deleteMe(userId);
+
+    // 0번 호출되었는지 확인
+    expect(imageService.deleteFromS3).not.toHaveBeenCalled();
+    expect(userRepository.deleteUser).toHaveBeenCalledWith(userId);
   });
 });
