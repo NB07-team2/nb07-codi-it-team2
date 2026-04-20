@@ -92,7 +92,7 @@ export async function updateReply(replyId: string, replyData: ReplyUpdateInput, 
     if(existingReply.userId !== userId) {
         throw new ForbiddenError('답변 작성자만 수정할 수 있습니다.');
     }
-    const updatedReply = await inquiryRepository.updateReply(replyId, replyData, userId);
+    const updatedReply = await inquiryRepository.updateReply(replyId, replyData);
     if (!updatedReply) {
         throw new NotFoundError('답변 수정에 실패하였습니다.');
     }

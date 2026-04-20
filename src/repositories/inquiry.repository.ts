@@ -167,16 +167,7 @@ export async function createReply(replyData: CreateReplyRepoDto, userId: string)
     })       
 }
 
-export async function updateReply(replyId: string, replyData: UpdateReplyRepoDto,userId: string) {
-    const existingReply = await prisma.reply.findFirst({
-        where: {
-            id: replyId,
-            userId: userId,
-        },
-    });
-    if (!existingReply) {
-        return null;
-    }
+export async function updateReply(replyId: string, replyData: UpdateReplyRepoDto) {
     return await prisma.reply.update({
         where: { id: replyId },
         data: { content: replyData.content },
