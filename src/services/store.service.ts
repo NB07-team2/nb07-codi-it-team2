@@ -1,3 +1,4 @@
+import { UserType } from '@prisma/client';
 import { ConflictError, ForbiddenError, NotFoundError } from '../errors/errors';
 import {
   FavoriteStoreResponseDto,
@@ -31,7 +32,7 @@ async function validatePhoneNumber(
 //스토어 등록
 export async function createStoreService(
   userId: string,
-  userType: string,
+  userType: UserType,
   data: CreateStoreRequest,
   file?: Express.Multer.File,
 ) {
@@ -62,7 +63,7 @@ export async function createStoreService(
 }
 
 //내 스토어 상세 조회
-export const getMyStore = async (userId: string, userType: string) => {
+export const getMyStore = async (userId: string, userType: UserType) => {
   //판매자 여부 재확인
   if (userType !== 'SELLER')
     throw new ForbiddenError('판매자 권한이 필요합니다.');
@@ -86,7 +87,7 @@ export const getStoreDetail = async (storeId: string) => {
 //스토어 수정
 export const editStore = async (
   userId: string,
-  userType: string,
+  userType: UserType,
   storeId: string,
   data: UpdateStoreRequest,
   file?: Express.Multer.File,
