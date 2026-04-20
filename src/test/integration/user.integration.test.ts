@@ -144,4 +144,25 @@ describe('User Integration Test - register()', () => {
       where: { id: { in: [user.id, seller.id] } },
     });
   });
+
+  // 회원 탈퇴
+  it('✅ 회원 탈퇴 시 DB에서 유저 데이터가 완전히 삭제되어야 한다', async () => {
+    // 유저 생성
+    const user = await prisma.user.create({
+      data: {
+        email: 'delete@test.com',
+        password: '123',
+        name: '탈퇴유저',
+        type: 'BUYER',
+        gradeId: 'grade_green',
+      },
+    });
+
+    // 탈퇴 실행
+    await userService.deleteMe(user.id);
+
+    // 조회 시 없어야 함
+    const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
+    expect(dbUser).toBeNull();
+  });
 });
