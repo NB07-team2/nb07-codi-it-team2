@@ -18,7 +18,8 @@ const app = express();
 app.use(
   cors({
     origin: [
-      'https://main.d3413g8a7ia3kb.amplifyapp.com', // 프론트엔드 주소
+      'https://codiit.site', // 최종 프론트엔드 주소
+      'https://main.d3413g8a7ia3kb.amplifyapp.com', // 기존 프론트엔드 주소
       'http://localhost:3001', //로컬 테스트용
       'http://localhost:3000', //로컬 테스트용
     ],
