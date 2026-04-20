@@ -96,3 +96,7 @@ export interface CreateReplyRepoDto {
     content: string;
     inquiryId: string;
 }
+
+export interface UpdateReplyRepoDto {
+    content: string;
+}

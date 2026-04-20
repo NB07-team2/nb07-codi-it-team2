@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import {CreateReplyRepoDto, InquiryMyPagingRepoParams,InquiryStatus, UpdateInquiryRepoDto } from '../types/inquiry.type';
+import {CreateReplyRepoDto, InquiryMyPagingRepoParams,InquiryStatus, UpdateInquiryRepoDto, UpdateReplyRepoDto } from '../types/inquiry.type';
 import prisma from '../utils/prismaClient.util';
 
 export async function myInquiryList(params: InquiryMyPagingRepoParams, userId: string, userType: string) {
@@ -165,4 +165,17 @@ export async function createReply(replyData: CreateReplyRepoDto, userId: string)
     });
     return createdReply;
     })       
+}
+
+export async function updateReply(replyId: string, replyData: UpdateReplyRepoDto) {
+    return await prisma.reply.update({
+        where: { id: replyId },
+        data: { content: replyData.content },
+    });
+}
+
+export async function getReplyById(replyId: string) {
+    return await prisma.reply.findUnique({
+        where: { id: replyId },
+    });
 }
