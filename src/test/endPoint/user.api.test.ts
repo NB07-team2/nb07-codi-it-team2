@@ -93,3 +93,36 @@ describe('GET /api/users/me', () => {
     expect(response.status).toBe(401);
   });
 });
+
+// 내 정보 수정
+describe('PATCH /api/users/me', () => {
+  it('✅ 200: 성공적으로 정보를 수정해야 한다', async () => {
+    // 가입 및 로그인
+    const userEmail = 'patch@test.com';
+    await request(app).post('/api/users').send({
+      email: userEmail,
+      password: 'password123!',
+      name: '수정전',
+      type: 'BUYER',
+    });
+    const loginRes = await request(app).post('/api/auth/login').send({
+      email: userEmail,
+      password: 'password123!',
+    });
+    const token = loginRes.body.accessToken;
+
+    // 수정 요청
+    const response = await request(app)
+      .patch('/api/users/me')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: '수정 후',
+        currentPassword: 'password123!',
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.name).toBe('수정 후');
+
+    await prisma.user.delete({ where: { email: userEmail } });
+  });
+});
