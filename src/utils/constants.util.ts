@@ -13,3 +13,5 @@ export const AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY || '';
 export const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || '';
 export const AWS_REGION = process.env.AWS_REGION || 'ap-northeast-2';
 export const AWS_S3_BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME || '';
+export const DEFAULT_IMAGE =
+  'https://codi-it-s3.s3.amazonaws.com/others/b7220551-54e3-414f-bed1-801a44e71d45.png';
