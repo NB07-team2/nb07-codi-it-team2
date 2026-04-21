@@ -1,5 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import prisma from '../utils/prismaClient.util';
 
 export const getSalesStats = async (startDate: Date, endDate: Date, storeId: string) => {
   const orderItems = await prisma.orderItem.findMany({
