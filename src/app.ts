@@ -17,6 +17,7 @@ import productReviewRouter from './routes/productReview.route';
 
 const app = express();
 
+app.set('trust proxy', 1); //AWS 환경을 신뢰하겠다는 설정
 app.use(
   cors({
     origin: [
