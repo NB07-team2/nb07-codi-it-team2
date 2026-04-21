@@ -1,7 +1,7 @@
 import * as dashboardRepository from '../repositories/dashboard.repository';
 import { startOfDay, subDays, startOfWeek, startOfMonth, startOfYear } from 'date-fns';
 import { SimpleUser } from '../types/cart.type';
-import { ForbiddenError } from '../errors/errors';
+import { ForbiddenError, NotFoundError } from '../errors/errors';
 import prisma from '../utils/prismaClient.util';
 
 export const getDashboardStats = async (user: SimpleUser) => {
@@ -15,7 +15,7 @@ export const getDashboardStats = async (user: SimpleUser) => {
   });
 
   if (!store) {
-    throw new ForbiddenError("스토어가 존재하지 않습니다.");
+    throw new NotFoundError("스토어가 존재하지 않습니다.");
   }
 
   const storeId = store.id;
