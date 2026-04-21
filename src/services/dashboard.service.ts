@@ -35,7 +35,7 @@ export const getDashboardStats = async (user: SimpleUser) => {
   return { today, week, month, year, topSales, priceRange };
 };
 
-async function getPeriodData(currStart: Date, currEnd: Date, prevStart: Date, prevEnd: Date, storeId) {
+async function getPeriodData(currStart: Date, currEnd: Date, prevStart: Date, prevEnd: Date, storeId: string) {
   const current = await dashboardRepository.getSalesStats(currStart, currEnd, storeId);
   const previous = await dashboardRepository.getSalesStats(prevStart, prevEnd, storeId);
 
