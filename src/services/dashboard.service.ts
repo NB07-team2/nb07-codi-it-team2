@@ -1,5 +1,5 @@
 import * as dashboardRepository from '../repositories/dashboard.repository';
-import { startOfDay, subDays, startOfWeek, startOfMonth, startOfYear } from 'date-fns';
+import { startOfDay, subDays, startOfWeek, startOfMonth, startOfYear, endOfDay, subMonths, subYears } from 'date-fns';
 import { SimpleUser } from '../types/cart.type';
 import { ForbiddenError, NotFoundError } from '../errors/errors';
 import prisma from '../utils/prismaClient.util';
@@ -19,14 +19,13 @@ export const getDashboardStats = async (user: SimpleUser) => {
   }
 
   const storeId = store.id;
-
   const now = new Date();
 
   const [today, week, month, year, topSales, priceRange] = await Promise.all([
-    getPeriodData(startOfDay(now), now, startOfDay(subDays(now, 1)), subDays(now, 1), storeId),
-    getPeriodData(startOfWeek(now), now, startOfWeek(subDays(now, 7)), subDays(now, 7), storeId),
-    getPeriodData(startOfMonth(now), now, startOfMonth(subDays(now, 30)), subDays(now, 30), storeId),
-    getPeriodData(startOfYear(now), now, startOfYear(subDays(now, 365)), subDays(now, 365), storeId),
+    getPeriodData(startOfDay(now), now, startOfDay(subDays(now, 1)), endOfDay(subDays(now, 1)), storeId),
+    getPeriodData(startOfWeek(now), now, startOfWeek(subDays(now, 7)), endOfDay(subDays(now, 1)), storeId),
+    getPeriodData(startOfMonth(now), now, startOfMonth(subMonths(now, 1)), endOfDay(subDays(now, 1)), storeId),
+    getPeriodData(startOfYear(now), now, startOfYear(subYears(now, 1)), endOfDay(subDays(now, 1)), storeId),
     
     dashboardRepository.getTopSalesProducts(storeId),
     dashboardRepository.getPriceRangeStats(storeId),

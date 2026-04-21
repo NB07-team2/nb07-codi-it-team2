@@ -64,28 +64,28 @@ export const getPriceRangeStats = async (storeId: string) => {
     }
   });
 
-  const totalMyOrderCount = new Set(allMyItems.map(item => item.orderId)).size;
+  const totalMySales = allMyItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   
 const ranges = [
-    { label: "1만원 이하", min: 0, max: 10000 },
-    { label: "1만원~5만원", min: 10001, max: 50000 },
-    { label: "5만원 이상", min: 50001, max: 2147483647 },
-  ];
+  { label: "1만원 이하", min: 0, max: 10000 },
+  { label: "1만원~3만원", min: 10001, max: 30000 },
+  { label: "3만원~5만원", min: 30001, max: 50000 },
+  { label: "5만원~10만원", min: 50001, max: 100000 },
+  { label: "10만원 이상", min: 100001, max: 2147483647 }, 
+];
 
   return ranges.map((r) => {
     const itemsInRange =  allMyItems.filter(item => {
-      const itemTotal = item.price * item.quantity;
-      return itemTotal >= r.min && itemTotal <= r.max;
+      return item.price >= r.min && item.price <= r.max;
     });
 
     const rangeTotalSales = itemsInRange.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const rangeOrderCount = new Set(itemsInRange.map(item => item.orderId)).size;
 
     return {
       priceRange: r.label,
       totalSales: rangeTotalSales,
-      percentage: totalMyOrderCount > 0
-        ? Number(((rangeOrderCount / totalMyOrderCount) * 100).toFixed(1))
+      percentage: totalMySales > 0
+        ? Number(((rangeTotalSales / totalMySales) * 100).toFixed(1))
         : 0,
     };
   });
