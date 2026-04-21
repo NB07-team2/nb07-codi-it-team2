@@ -31,10 +31,6 @@ export const login = async (
     throw new NotFoundError();
   }
 
-  if (!user.password) {
-    throw new InvalidCredentialsError();
-  }
-
   const isPasswordValid = await comparePassword(dto.password, user.password);
 
   if (!isPasswordValid) {
