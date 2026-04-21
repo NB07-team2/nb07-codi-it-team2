@@ -15,12 +15,14 @@ export const reviewRepository = {
       },
     });
   },
+
   //이미 등록된 리뷰가 있는지 확인
   findReviewByOrderItemId: async (orderItemId: string) => {
     return await prisma.review.findUnique({
       where: { orderItemId },
     });
   },
+
   //리뷰 등록
   createReview: async (
     userId: string,
@@ -36,5 +38,35 @@ export const reviewRepository = {
         content: data.content,
       },
     });
+  },
+
+  //상품 존재 확인
+  checkProductExists: async (productId: string): Promise<boolean> => {
+    const count = await prisma.product.count({
+      where: { id: productId },
+    });
+    return count > 0;
+  },
+
+  //상품 아이디로 리뷰 목록 조회
+  findReviewsByProductId: async (
+    productId: string,
+    page: number,
+    limit: number,
+  ) => {
+    const [items, total] = await Promise.all([
+      prisma.review.findMany({
+        where: { productId },
+        include: {
+          user: { select: { name: true } },
+        },
+        skip: (page - 1) * limit, // 오프셋 계산
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.review.count({ where: { productId } }),
+    ]);
+
+    return { items, total };
   },
 };

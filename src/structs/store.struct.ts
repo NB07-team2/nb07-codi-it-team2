@@ -13,7 +13,9 @@ import {
 import { MulterFileObject } from '../types/store.type';
 
 //문자열을 숫자로 바꾸고 정수인지 확인하는 로직
-const integerString = coerce(integer(), string(), (value) => parseInt(value));
+export const integerString = coerce(integer(), string(), (value) =>
+  parseInt(value),
+);
 
 //  Multer 파일 객체인지 검사하는 커스텀 구조체 정의
 const MulterFile = define<MulterFileObject>('MulterFile', (value: unknown) => {
