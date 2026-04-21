@@ -3,7 +3,7 @@ export interface CreateProductRequest {
   price: number;
   content?: string;
   categoryName: string;
-  stocks: { size: string; quantity: number }[]; // 사이즈 이름과 수량
+  stocks: { size: string; quantity: number }[];
   discountRate?: number;
   discountStartTime?: string;
   discountEndTime?: string;

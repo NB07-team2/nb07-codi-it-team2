@@ -22,7 +22,7 @@ export const createProductbody = z
       .string()
       .min(1, '상품 설명을 입력해주세요.')
       .max(1000, '상품 설명은 최대 1000자까지 입력 가능합니다.'),
-    image: z.any().optional(), // image는 multer가 처리하므로 optional로 두는게 안전합니다
+    image: z.any().optional(),
     categoryName: z.enum([
       'all',
       'top',
@@ -82,5 +82,5 @@ export const createProductbody = z
     }
   });
 
-// transform은 서비스 로직 안에서 필요한 경우에만 처리하는 것이 타입 추론에 더 유리합니다.
+// transform은 서비스 로직 안에서 필요한 경우에만 처리
 export type CreateProductDTO = z.infer<typeof createProductbody>;
