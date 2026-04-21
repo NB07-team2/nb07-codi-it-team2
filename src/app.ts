@@ -12,10 +12,12 @@ import userRouter from './routes/user.route';
 import productRouter from './routes/products.route';
 import inquiryRouter from './routes/inquiry.route';
 import metadataRouter from './routes/metadata.route';
-import dashboardRouter from './routes/dashboard.route'
+import dashboardRouter from './routes/dashboard.route';
+import productReviewRouter from './routes/productReview.route';
 
 const app = express();
 
+app.set('trust proxy', 1); //AWS 환경을 신뢰하겠다는 설정
 app.use(
   cors({
     origin: [
@@ -48,6 +50,7 @@ app.use('/api/products', productRouter);
 app.use('/api/inquiries', inquiryRouter);
 app.use('/api/metadata', metadataRouter);
 app.use('/api/dashboard', dashboardRouter);
+app.use('/api/product', productReviewRouter);
 //에러 핸들러
 app.use(errorHandler);
 
