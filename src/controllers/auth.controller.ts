@@ -19,10 +19,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
   const { response, refreshToken } = result;
 
+  const isProduction = NODE_ENV === 'production';
+
   res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
+    // 배포 환경(HTTPS)에서는 true, 로컬(HTTP)에서는 false
     httpOnly: true,
-    secure: NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure: isProduction,
+    // 배포 환경에서는 'none' (크로스 도메인 허용), 로컬에서는 'lax'
+    sameSite: isProduction ? 'none' : 'lax',
   });
 
   res.status(201).json(response);

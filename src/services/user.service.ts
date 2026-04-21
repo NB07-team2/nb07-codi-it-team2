@@ -13,6 +13,7 @@ import {
 } from '../errors/errors';
 import { Prisma } from '@prisma/client';
 import { deleteFromS3 } from '../services/image.service';
+import { DEFAULT_IMAGE } from '../utils/constants.util';
 
 // 회원가입
 export const register = async (data: RegisterUserDto) => {
@@ -61,9 +62,6 @@ export const updateMe = async (
 
   if (updateData.name) data.name = updateData.name;
   if (updateData.image) {
-    const DEFAULT_IMAGE =
-      'https://codi-it-s3.s3.amazonaws.com/others/b7220551-54e3-414f-bed1-801a44e71d45.png';
-
     if (
       user.image &&
       user.image !== DEFAULT_IMAGE &&
@@ -104,9 +102,6 @@ export const deleteMe = async (userId: string) => {
   const user = await userRepository.findById(userId);
 
   if (!user) throw new NotFoundError('유저를 찾을 수 없습니다.');
-
-  const DEFAULT_IMAGE =
-    'https://codi-it-s3.s3.amazonaws.com/others/b7220551-54e3-414f-bed1-801a44e71d45.png';
 
   // 기본 이미지가 아닐 때만 S3에서 삭제
   if (user.image && user.image !== DEFAULT_IMAGE) {
