@@ -4,7 +4,7 @@ import {
   GetReviewsQueryStruct,
   ProductIdStruct,
 } from '../structs/review.struct';
-import { create, is } from 'superstruct';
+import { create } from 'superstruct';
 import * as ReviewService from '../services/review.service';
 
 //리뷰 등록
