@@ -48,6 +48,14 @@ async function main() {
       type: UserType.BUYER,
       gradeId: 'grade_green',
     },
+    {
+      id: 'buyer-test-id-2',
+      email: 'buyer2@test.com',
+      name: '테스트구매자2',
+      password: hashedPassword,
+      type: UserType.BUYER,
+      gradeId: 'grade_green',
+    },
   ];
 
   for (const user of testUsers) {
@@ -58,14 +66,16 @@ async function main() {
     });
   }
 
-  // 장바구니 생성 (구매자용)
-  await prisma.cart.upsert({
-    where: { buyerId: 'buyer-test-id' },
-    update: {},
-    create: { buyerId: 'buyer-test-id' },
-  });
-  console.log('✅ 구매자 장바구니 생성 완료');
-
+  // 장바구니 생성 (구매자 1, 2 모두 생성)
+  const buyerIds = ['buyer-test-id', 'buyer-test-id-2'];
+  for (const bId of buyerIds) {
+    await prisma.cart.upsert({
+      where: { buyerId: bId },
+      update: {},
+      create: { buyerId: bId },
+    });
+  }
+  console.log('✅ 구매자들 장바구니 생성 완료');
   // 3. 판매자 스토어 생성
   let store = await prisma.store.findUnique({
     where: { userId: 'seller-test-id' },
@@ -154,12 +164,12 @@ async function main() {
     products = [p1, p2];
   }
 
-// 6. 주문(Order) 생성 (100개 대량 생성)
+  // 6. 주문(Order) 생성 (100개 대량 생성)
   console.log('🛍️ 대시보드 통계용 데이터 100개 생성 중...');
   const now = new Date();
-  
+
   // 반복문 밖에서 변수 선언 (주머니 만들기)
-  let latestOrder: any = null; 
+  let latestOrder: any = null;
 
   for (let i = 0; i < 100; i++) {
     const randomDaysAgo = Math.floor(Math.random() * 365);
@@ -168,11 +178,15 @@ async function main() {
 
     const randomPrice = Math.floor(Math.random() * 10) * 10000 + 10000;
 
+    // ⭐️ i가 90 이상일 때(마지막 10개)는 구매자 2가 주문한 것으로 설정
+    const currentBuyerId = i >= 90 ? 'buyer-test-id-2' : 'buyer-test-id';
+    const currentBuyerName = i >= 90 ? '테스트구매자2' : '테스트구매자';
+
     // 생성된 주문을 반복문 밖의 변수에 계속 덮어씌움 (결국 마지막 주문이 남음)
     latestOrder = await prisma.order.create({
       data: {
-        userId: 'buyer-test-id',
-        name: '테스트구매자',
+        userId: currentBuyerId,
+        name: currentBuyerName,
         phone: '010-0000-0000',
         address: '서울시 강남구',
         subtotal: randomPrice,
@@ -236,7 +250,7 @@ async function main() {
 main()
   .catch((e) => {
     console.error('❌ 에러:', e);
-    process.exit(1); 
+    process.exit(1);
   })
   .finally(async () => {
     await prisma.$disconnect();

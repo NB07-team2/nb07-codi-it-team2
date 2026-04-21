@@ -9,6 +9,11 @@ import {
 } from '../../services/store.service';
 import { StoreRepository } from '../../repositories/store.repository';
 import * as imageService from '../../services/image.service';
+import {
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+} from '../../errors/errors';
 
 // 리포지토리 및 S3 모킹
 jest.mock('../../repositories/store.repository');
@@ -37,7 +42,7 @@ describe('스토어 서비스 유닛 테스트', () => {
     it('판매자 권한이 아니면 에러를 던져야 한다', async () => {
       await expect(
         createStoreService('user-1', 'BUYER', validData),
-      ).rejects.toThrow('판매자 권한이 필요합니다.');
+      ).rejects.toThrow(ForbiddenError);
     });
 
     it('이미 스토어가 존재하면 에러를 던져야 한다', async () => {
@@ -47,7 +52,7 @@ describe('스토어 서비스 유닛 테스트', () => {
 
       await expect(
         createStoreService('user-1', 'SELLER', validData),
-      ).rejects.toThrow('스토어가 이미 존재합니다.');
+      ).rejects.toThrow(ConflictError);
     });
 
     it('전화번호가 중복되면 에러를 던져야 한다', async () => {
@@ -58,7 +63,7 @@ describe('스토어 서비스 유닛 테스트', () => {
 
       await expect(
         createStoreService('user-1', 'SELLER', validData),
-      ).rejects.toThrow('이미 등록된 전화번호입니다');
+      ).rejects.toThrow(ConflictError);
     });
 
     it('정상 데이터가 주어지면 하이픈이 제거된 번호로 생성해야 한다', async () => {
@@ -97,7 +102,7 @@ describe('스토어 서비스 유닛 테스트', () => {
   describe('getMyStore', () => {
     it('판매자가 아니면 에러를 던져야 한다', async () => {
       await expect(getMyStore('user-1', 'BUYER')).rejects.toThrow(
-        '판매자 권한이 필요합니다.',
+        ForbiddenError,
       );
     });
 
@@ -105,7 +110,7 @@ describe('스토어 서비스 유닛 테스트', () => {
       (StoreRepository.getMyStoreDetail as jest.Mock).mockResolvedValue(null);
 
       await expect(getMyStore('user-1', 'SELLER')).rejects.toThrow(
-        '존재하지 않는 스토어 입니다.',
+        NotFoundError,
       );
     });
 
@@ -131,9 +136,7 @@ describe('스토어 서비스 유닛 테스트', () => {
     it('스토어가 존재하지 않으면 에러를 던져야 한다', async () => {
       (StoreRepository.getStoreDetail as jest.Mock).mockResolvedValue(null);
 
-      await expect(getStoreDetail('invalid-id')).rejects.toThrow(
-        '존재하지 않는 스토어 입니다.',
-      );
+      await expect(getStoreDetail('invalid-id')).rejects.toThrow(NotFoundError);
     });
 
     it('정상적으로 스토어 정보를 반환해야 한다', async () => {
@@ -166,7 +169,7 @@ describe('스토어 서비스 유닛 테스트', () => {
     it('판매자가 아니면 에러를 던져야 한다', async () => {
       await expect(
         editStore('user-1', 'BUYER', 'store-1', updateData),
-      ).rejects.toThrow('판매자 권한이 필요합니다.');
+      ).rejects.toThrow(ForbiddenError);
     });
 
     it('본인의 스토어가 아니면 에러를 던져야 한다', async () => {
@@ -177,7 +180,7 @@ describe('스토어 서비스 유닛 테스트', () => {
 
       await expect(
         editStore('user-1', 'SELLER', 'store-1', updateData),
-      ).rejects.toThrow('본인의 스토어만 수정할 수 있습니다.');
+      ).rejects.toThrow(ForbiddenError);
     });
 
     it('전화번호가 중복되면 에러를 던져야 한다', async () => {
@@ -192,7 +195,7 @@ describe('스토어 서비스 유닛 테스트', () => {
 
       await expect(
         editStore('user-1', 'SELLER', 'store-1', updateData),
-      ).rejects.toThrow('이미 등록된 전화번호입니다');
+      ).rejects.toThrow(ConflictError);
     });
 
     it('새 이미지가 업로드되면 기존 이미지를 S3에서 삭제하고 수정해야 한다', async () => {
@@ -238,7 +241,7 @@ describe('스토어 서비스 유닛 테스트', () => {
           userId: 'user-1',
           userType: 'BUYER',
         }),
-      ).rejects.toThrow('판매자 권한이 필요합니다.');
+      ).rejects.toThrow(ForbiddenError);
     });
 
     it('스토어가 없으면 에러를 던져야 한다', async () => {
@@ -251,7 +254,7 @@ describe('스토어 서비스 유닛 테스트', () => {
           userId: 'user-1',
           userType: 'SELLER',
         }),
-      ).rejects.toThrow('존재하지 않는 스토어입니다.');
+      ).rejects.toThrow(NotFoundError);
     });
 
     it('정상적으로 리스트와 총 개수를 반환해야 한다', async () => {
@@ -293,7 +296,7 @@ describe('스토어 서비스 유닛 테스트', () => {
       });
 
       await expect(favoriteStoreRegister('user-1', 'store-1')).rejects.toThrow(
-        '본인의 스토어를 등록할 수 없습니다',
+        ForbiddenError,
       );
     });
 
@@ -307,7 +310,7 @@ describe('스토어 서비스 유닛 테스트', () => {
       });
 
       await expect(favoriteStoreRegister('user-1', 'store-1')).rejects.toThrow(
-        '이미 관심 스토어로 등록되어 있습니다.',
+        ConflictError,
       );
     });
 
@@ -334,7 +337,7 @@ describe('스토어 서비스 유닛 테스트', () => {
       (StoreRepository.findByStoreId as jest.Mock).mockResolvedValue(null);
 
       await expect(favoriteStoreDelete('user-1', 'invalid')).rejects.toThrow(
-        '존재하지 않는 스토어입니다.',
+        NotFoundError,
       );
     });
 
@@ -345,7 +348,7 @@ describe('스토어 서비스 유닛 테스트', () => {
       (StoreRepository.findFavorite as jest.Mock).mockResolvedValue(null);
 
       await expect(favoriteStoreDelete('user-1', 'store-1')).rejects.toThrow(
-        '관심 스토어로 등록되어 있지 않습니다.',
+        NotFoundError,
       );
     });
 

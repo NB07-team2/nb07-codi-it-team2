@@ -7,8 +7,11 @@ export const createProductController = async (req: Request, res: Response) => {
   const userId = req.user!.id;
 
   const validatedProduct = createProductbody.parse(req.body);
-  const created = await createProductService(userId, validatedProduct, req.file);
+  const created = await createProductService(
+    userId,
+    validatedProduct,
+    req.file,
+  );
 
-    res.status(201).json(created);
-  };
-
+  res.status(201).json(created);
+};

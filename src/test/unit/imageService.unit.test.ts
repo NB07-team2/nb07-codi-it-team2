@@ -1,3 +1,4 @@
+import { BadRequestError } from '../../errors/errors';
 import { deleteFromS3, uploadImage } from '../../services/image.service';
 import s3Client from '../../utils/s3Client.util';
 
@@ -40,9 +41,7 @@ describe('이미지 서비스 유닛 테스트', () => {
     });
 
     it('파일이 없으면 BadRequestError를 던져야 한다', async () => {
-      await expect(uploadImage(undefined)).rejects.toThrow(
-        '잘못된 요청입니다.',
-      );
+      await expect(uploadImage(undefined)).rejects.toThrow(BadRequestError);
     });
   });
 
