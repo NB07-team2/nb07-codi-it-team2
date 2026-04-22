@@ -20,9 +20,7 @@ export class ProductResponseDto {
   discountStartTime: Date | null;
   discountEndTime: Date | null;
   reviewsCount: number;
-  // 리뷰 생성된 후 수정 예정
   reviews: ReviewSummary;
-  // 문의 파악 후 수정 예정
   inquiries: ProductWithRelations['inquiries'];
   categoryId: string;
   category: { id: string; name: string };
