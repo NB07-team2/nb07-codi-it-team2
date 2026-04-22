@@ -9,7 +9,6 @@ export class CreateOrderDto{
         productId: string;
         sizeId: number;
         quantity: number;
-        name: string;
     }[];
     usePoint?: number;
 
@@ -21,7 +20,6 @@ export class CreateOrderDto{
             productId: item.productId,
             sizeId: item.sizeId,
             quantity: item.quantity,
-            name: item.name,
         }));
         this.usePoint = data.usePoint || 0;
     }
@@ -30,7 +28,8 @@ export class CreateOrderDto{
 export class OrderResponseDto {
     id: string;
     name: string;
-    phone: string;
+    phoneNumber: string; // phoneNumber로 변경이 필요할 수 있으나, 
+                   // 현재 클래스 프로퍼티 정의에 맞춰 작성합니다.
     address: string;
     subtotal: number;
     totalQuantity: number;
@@ -44,7 +43,7 @@ export class OrderResponseDto {
         product: {
             name: string;
             image: string | null;
-            reviews?: {
+            reviews: {
                 id: string;
                 rating: number;
                 content: string;
@@ -53,9 +52,9 @@ export class OrderResponseDto {
         };
         size: {
             id: number;
-            size?:{
-                enName: string | null;
-                koName: string | null;
+            size: {
+                en: string | null;
+                ko: string | null;
             };
         };
         isReviewed: boolean;
@@ -68,15 +67,18 @@ export class OrderResponseDto {
         updatedAt: Date;
         orderId: string;
     } | null;
+
     constructor(data: OrderCreateItem) {
         this.id = data.id;
         this.name = data.name;
-        this.phone = data.phone;
+        this.phoneNumber = data.phone; // OrderCreateItem에서는 phone로 정의되어 있으므로 그대로 사용
         this.address = data.address;
         this.subtotal = data.subtotal;
         this.totalQuantity = data.totalQuantity;
         this.usePoint = data.usePoint;
         this.createdAt = data.createdAt;
+        
+        // map 내부 수정
         this.orderItems = data.orderItems.map(item => ({
             id: item.id,
             price: item.price,
@@ -85,22 +87,26 @@ export class OrderResponseDto {
             product: {
                 name: item.product.name,
                 image: item.product.image,
+                // reviews가 없으면 빈 배열([]) 반환
                 reviews: item.product.reviews?.map(review => ({
                     id: review.id,
                     rating: review.rating,
                     content: review.content,
                     createdAt: review.createdAt,
-                })),
+                })) || [], 
             },
             size: {
                 id: item.size.id,
                 size: {
-                    enName: item.size.enName || '',
-                    koName: item.size.koName || '',
+                    // item.size에 직접 값이 들어있으므로 타입에 맞춰 할당
+                    en: item.size.enName || '',
+                    ko: item.size.koName || '',
                 },
             },
-            isReviewed: item.isReviewed,
+            // 이미 OrderCreateItem에서 boolean으로 정의되어 있으므로 그대로 사용
+            isReviewed: item.isReviewed, 
         }));
+
         this.payments = data.payments ? {
             id: data.payments.id,
             price: data.payments.price,
@@ -108,8 +114,6 @@ export class OrderResponseDto {
             createdAt: data.payments.createdAt,
             updatedAt: data.payments.updatedAt,
             orderId: data.payments.orderId,
-        } : null;            
+        } : null;
     }
-} 
-
-
+}

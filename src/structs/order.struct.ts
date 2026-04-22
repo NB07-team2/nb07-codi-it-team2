@@ -8,7 +8,6 @@ export const orderCreateSchema = z.object({
     productId: z.string().min(1, '상품 ID는 필수입니다.'),
     sizeId: z.number().min(1, '사이즈 ID는 필수입니다.'),
     quantity: z.number().min(1, '수량은 1 이상이어야 합니다.'),
-    name: z.string().min(1, '상품 이름은 필수입니다.').max(100, '상품 이름은 최대 100자까지 입력 가능합니다.'),
   })).min(1, '주문 항목은 최소 1개 이상이어야 합니다.'),
   usePoint: z.number().min(0, '사용 포인트는 0 이상이어야 합니다.').optional(),
 });

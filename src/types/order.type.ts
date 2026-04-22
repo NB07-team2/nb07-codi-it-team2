@@ -6,7 +6,7 @@ export interface CreateOrderRepoDto {
         productId: string;
         sizeId: number;
         quantity: number;
-        name: string;
+        name?: string; // 상품 이름 추가 (선택적)
     }[];
     usePoint?: number;
 }
