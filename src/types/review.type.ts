@@ -1,5 +1,7 @@
 import { Infer } from 'superstruct';
 import { CreateReviewStruct } from '../structs/review.struct';
+import { Prisma } from '@prisma/client';
+import { reviewDetailInclude } from '../repositories/review.repository';
 
 export type CreateReviewType = Infer<typeof CreateReviewStruct>;
 
@@ -35,3 +37,25 @@ export interface ReviewListItem {
     name: string;
   };
 }
+
+//리뷰 상세 조회 타입
+export interface ReviewDetailResponse {
+  reviewId: string;
+  productName: string;
+  size: {
+    en: string;
+    ko: string;
+  };
+  price: number;
+  quantity: number;
+  rating: number;
+  content: string;
+  reviewer: string;
+  reviewCreatedAt: Date;
+  purchasedAt: Date;
+}
+
+//리뷰 상세조회 반환 타입
+export type ReviewDetailPayload = Prisma.ReviewGetPayload<{
+  include: typeof reviewDetailInclude;
+}>;

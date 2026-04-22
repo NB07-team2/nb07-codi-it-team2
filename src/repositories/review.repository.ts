@@ -1,5 +1,17 @@
+import { Prisma } from '@prisma/client';
 import { CreateReviewType, OrderItemWithOrder } from '../types/review.type';
 import prisma from '../utils/prismaClient.util';
+
+export const reviewDetailInclude = Prisma.validator<Prisma.ReviewInclude>()({
+  user: { select: { name: true } },
+  product: { select: { name: true, price: true } },
+  orderItem: {
+    include: {
+      size: true,
+      order: { select: { createdAt: true } },
+    },
+  },
+});
 
 export const reviewRepository = {
   //리뷰 쓸 주물 내역 찾기
@@ -68,5 +80,13 @@ export const reviewRepository = {
     ]);
 
     return { items, total };
+  },
+
+  //리뷰 상세조회
+  findReviewDetailById: async (reviewId: string) => {
+    return await prisma.review.findUnique({
+      where: { id: reviewId },
+      include: reviewDetailInclude,
+    });
   },
 };

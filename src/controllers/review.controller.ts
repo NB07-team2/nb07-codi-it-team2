@@ -3,6 +3,7 @@ import {
   CreateReviewStruct,
   GetReviewsQueryStruct,
   ProductIdStruct,
+  ReviewIdParamStruct,
 } from '../structs/review.struct';
 import { create } from 'superstruct';
 import * as ReviewService from '../services/review.service';
@@ -32,6 +33,24 @@ export const getReviewsController = async (req: Request, res: Response) => {
     productId,
     page,
     limit,
+  );
+
+  res.status(200).json(result);
+};
+
+//리뷰 상세조회
+export const getReviewDetailController = async (
+  req: Request,
+  res: Response,
+) => {
+  const { reviewId } = create(req.params, ReviewIdParamStruct);
+
+  const { id: userId, type: userType } = req.user!;
+
+  const result = await ReviewService.getReviewDetail(
+    reviewId,
+    userId,
+    userType,
   );
 
   res.status(200).json(result);
