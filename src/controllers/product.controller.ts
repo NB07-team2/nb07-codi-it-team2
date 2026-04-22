@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { createProductbody } from '../structs/product.struct'; // 팀원 제안 반영
+import { createProductbody, getProductsQuery } from '../structs/product.struct';
+import { ProductResponseDto } from '../models/product.model'; // 팀원 제안 반영
 import * as productService from '../services/product.service';
 
 export const createProductController = async (req: Request, res: Response) => {
@@ -17,4 +18,21 @@ export const createProductController = async (req: Request, res: Response) => {
   );
 
   res.status(201).json(result);
+};
+
+// 상품 목록 조회 컨트롤러
+export const getProductsListController = async (
+  req: Request,
+  res: Response,
+) => {
+  const query = getProductsQuery.parse(req.query);
+  const { list, totalCount } = await productService.getProducts(query);
+
+  // DTO 맵핑 (기존에 만든 DTO 재사용!)
+  const formattedList = list.map((product) => new ProductResponseDto(product));
+
+  res.status(200).json({
+    list: formattedList,
+    totalCount,
+  });
 };

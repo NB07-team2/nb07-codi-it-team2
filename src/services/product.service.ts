@@ -3,8 +3,9 @@ import { ProductRepository } from '../repositories/product.repository';
 import * as imageService from './image.service';
 import { ConflictError, NotFoundError, ForbiddenError } from '../errors/errors';
 import { ProductResponseDto } from '../models/product.model';
-import { CreateProductDTO } from '../structs/product.struct';
+import { CreateProductDTO, GetProductsQuery } from '../structs/product.struct';
 import { UserType, ProductCategoryName } from '@prisma/client';
+import { ProductWithRelations } from '../types/product.type';
 
 export const createProduct = async (
   userId: string,
@@ -48,4 +49,31 @@ export const createProduct = async (
   });
 
   return new ProductResponseDto(newProduct);
+};
+
+// 상품 목록 조회
+export const getProducts = async (query: GetProductsQuery) => {
+  const { list, totalCount } = (await ProductRepository.findAll(query)) as {
+    list: ProductWithRelations[];
+    totalCount: number;
+  };
+
+  if (totalCount === 0) {
+    throw new NotFoundError('상품을 찾을 수 없습니다.');
+  }
+
+  let finalList = [...list];
+
+  if (query.sort === 'highRating') {
+    finalList.sort((a, b) => {
+      const calculateAvg = (p: ProductWithRelations) => {
+        if (p.reviews.length === 0) return 0;
+        const sum = p.reviews.reduce((acc, cur) => acc + cur.rating, 0);
+        return sum / p.reviews.length;
+      };
+      return calculateAvg(b) - calculateAvg(a);
+    });
+  }
+
+  return { list: finalList, totalCount };
 };

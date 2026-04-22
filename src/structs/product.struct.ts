@@ -81,6 +81,26 @@ export const createProductbody = z
       }
     }
   });
+export const getProductsQuery = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).default(16),
+  search: z.string().optional(),
+  sort: z
+    .enum([
+      'mostReviewed',
+      'recent',
+      'lowPrice',
+      'highPrice',
+      'highRating',
+      'salesRanking',
+    ])
+    .default('recent'),
+  priceMin: z.coerce.number().min(0).optional(),
+  priceMax: z.coerce.number().min(0).optional(),
+  size: z.string().optional(),
+  favoriteStore: z.string().optional(),
+  categoryName: z.string().optional(),
+});
 
-// transform은 서비스 로직 안에서 필요한 경우에만 처리
+export type GetProductsQuery = z.infer<typeof getProductsQuery>;
 export type CreateProductDTO = z.infer<typeof createProductbody>;
