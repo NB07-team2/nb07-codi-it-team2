@@ -9,7 +9,7 @@ import imageRouter from './routes/image.route';
 import cartRouter from './routes/cart.route';
 import storeRouter from './routes/store.route';
 import userRouter from './routes/user.route';
-import productRouter from './routes/products.route';
+import productRouter from './routes/product.route';
 import inquiryRouter from './routes/inquiry.route';
 import metadataRouter from './routes/metadata.route';
 import dashboardRouter from './routes/dashboard.route';

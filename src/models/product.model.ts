@@ -1,163 +1,90 @@
-import { InquiryStatus } from "@prisma/client";
+import {
+  ProductWithRelations,
+  ReviewSummary,
+  StockDetail,
+} from '../types/product.type';
 
-export type CreateProductData = {
+export class ProductResponseDto {
   id: string;
   name: string;
-  image: string | null;
+  image: string;
   content: string | null;
-  price: number;
-  isSoldOut: boolean;
-  storeId: string;
-  categoryId: string;
-  discountRate: number | null;
-  discountStartTime: Date | null;
-  discountEndTime: Date | null;
   createdAt: Date;
   updatedAt: Date;
-  store: { id: string; name: string };
-  category: { id: string; name: string };
-  stocks: Array<{
-    id: string;
-    productId: string;
-    quantity: number;
-    size: { id: number; name: string };
-  }>;
-  inquiries: Array<{
-    id: string;
-    title: string;
-    content: string;
-    status: string;
-    isSecret: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-    reply: null | {
-      id: string;
-      content: string;
-      createdAt: Date;
-      updatedAt: Date;
-      user: { id: string; name: string };
-    };
-  }>;
-};
-
-export class CreateProductResponseDto {
-  // Product basic information
-  id: string;
-  name: string;
-  image: string | null;
-  content: string;
-  createdAt: Date;
-  updatedAt: Date;
-
-  // Review-related information
   reviewsRating: number;
-  reviewsCount: number;
-  reviews: {
-    rate1Length: number;
-    rate2Length: number;
-    rate3Length: number;
-    rate4Length: number;
-    rate5Length: number;
-    sumScore: number;
-  };
-
-  // Category-related information
-  categoryId: string;
-  category: { name: string; id: string };
-
-  // Stock-related information
-  stocks: Array<{
-    id: string;
-    productId: string;
-    quantity: number;
-    size: { id: number; name: string };
-  }>;
-
-  //inquiry-related information
-  inquiry: Array<{
-    id: string;
-    title: string;
-    content: string;
-    status: InquiryStatus;
-    isSecret: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-   reply: null | {
-      id: string;
-      content: string;
-      createdAt: Date;
-      updatedAt: Date;
-      user: { id: string; name: string };
-    };
-  }>;
-
-  // Store-related information
   storeId: string;
   storeName: string;
-
-  // Discount-related information
   price: number;
-  discountPrice: number | null;
-  discountRate: number | null;
-  discountStartTime: string | null;
-  discountEndTime: string | null;
-
-  // Product status
+  discountPrice: number;
+  discountRate: number;
+  discountStartTime: Date | null;
+  discountEndTime: Date | null;
+  reviewsCount: number;
+  reviews: ReviewSummary;
+  inquiries: ProductWithRelations['inquiries'];
+  categoryId: string;
+  category: { id: string; name: string };
+  stocks: StockDetail[];
   isSoldOut: boolean;
 
-  constructor(data: CreateProductData) {
-    this.id = data.id;
-    this.name = data.name;
-    this.image = data.image ?? '';
-    this.content = data.content ?? '';
-    this.createdAt = data.createdAt;
-    this.updatedAt = data.updatedAt;
-    this.inquiry = data.inquiries?.map((inquiry) => ({
-      id: inquiry.id,
-      title: inquiry.title,
-      content: inquiry.content,
-      status: inquiry.status as InquiryStatus,
-      isSecret: inquiry.isSecret,
-      createdAt: inquiry.createdAt,
-      updatedAt: inquiry.updatedAt,
-      reply: inquiry.reply
-        ? {
-            id: inquiry.reply.id,
-            content: inquiry.reply.content,
-            createdAt: inquiry.reply.createdAt,
-            updatedAt: inquiry.reply.updatedAt,
-            user: { id: inquiry.reply.user.id, name: inquiry.reply.user.name },
-          }
-        : null,
-    })) ?? [];
-    this.reviewsRating = 0;
-    this.reviewsCount = 0;
+  constructor(product: ProductWithRelations) {
+    this.id = product.id;
+    this.name = product.name;
+    this.image = product.image || '';
+    this.content = product.content;
+    this.createdAt = product.createdAt;
+    this.updatedAt = product.updatedAt;
+    this.storeId = product.storeId;
+    this.storeName = product.store?.name || '';
+    this.price = product.price;
+    this.discountRate = product.discountRate || 0;
+    this.discountPrice = Math.floor(
+      product.price * (1 - this.discountRate / 100),
+    );
+    this.discountStartTime = product.discountStartTime;
+    this.discountEndTime = product.discountEndTime;
+
+    // 리뷰 통계 초기화 (타입 안전성 확보)
+    this.reviewsCount = product.reviews.length;
+    this.reviewsRating =
+      this.reviewsCount > 0
+        ? Number(
+            (
+              product.reviews.reduce((acc, cur) => acc + cur.rating, 0) /
+              this.reviewsCount
+            ).toFixed(1),
+          )
+        : 0;
+    // 단순히 0으로 초기화하는 대신 실제 데이터를 카운트
     this.reviews = {
-      rate1Length: 0,
-      rate2Length: 0,
-      rate3Length: 0,
-      rate4Length: 0,
-      rate5Length: 0,
-      sumScore: 0,
+      rate1Length: product.reviews.filter((r) => r.rating === 1).length,
+      rate2Length: product.reviews.filter((r) => r.rating === 2).length,
+      rate3Length: product.reviews.filter((r) => r.rating === 3).length,
+      rate4Length: product.reviews.filter((r) => r.rating === 4).length,
+      rate5Length: product.reviews.filter((r) => r.rating === 5).length,
+      sumScore: product.reviews.reduce((acc, cur) => acc + cur.rating, 0),
     };
-    this.categoryId = data.categoryId;
-    this.category = { name: data.category.name, id: data.category.id };
-    this.stocks = data.stocks.map((stock) => ({
+
+    // 문의 정보 매핑 (ProductWithRelations 타입을 그대로 활용) - 문의 정보와 확인 필요
+    this.inquiries = product.inquiries;
+    this.categoryId = product.categoryId;
+    this.category = {
+      id: product.categoryId,
+      name: product.category?.name || '',
+    };
+
+    this.stocks = product.stocks.map((stock) => ({
       id: stock.id,
       productId: stock.productId,
       quantity: stock.quantity,
-      size: stock.size,
+      size: {
+        id: stock.size.id,
+        name: stock.size.name,
+      },
     }));
-    this.storeId = data.storeId;
-    this.storeName = data.store.name;
-    this.price = data.price;
-    this.discountRate = data.discountRate ?? null;
-    this.discountPrice =
-      data.discountRate != null
-        ? Math.round(data.price * (1 - data.discountRate / 100))
-        : null;
-    this.discountStartTime = data.discountStartTime?.toISOString() ?? null;
-    this.discountEndTime = data.discountEndTime?.toISOString() ?? null;
-    this.isSoldOut = data.isSoldOut;
+
+    // 모든 재고 수량이 0이면 true, 아니면 false
+    this.isSoldOut =
+      this.stocks.length > 0 && this.stocks.every((s) => s.quantity === 0);
   }
 }
