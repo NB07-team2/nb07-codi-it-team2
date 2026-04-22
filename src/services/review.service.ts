@@ -6,7 +6,10 @@ import {
   ForbiddenError,
   NotFoundError,
 } from '../errors/errors';
-import { CreateReivewResponseDto } from '../models/review.model';
+import {
+  CreateReivewResponseDto,
+  ReviewListResponseDto,
+} from '../models/review.model';
 import { reviewRepository } from '../repositories/review.repository';
 
 //리뷰 등록
@@ -42,4 +45,36 @@ export const createReview = async (
     data,
   );
   return new CreateReivewResponseDto(newReview);
+};
+
+//상품 리뷰 목록 조회
+export const getProductReviewsList = async (
+  productId: string,
+  pageStr?: string,
+  limitStr?: string,
+) => {
+  const limit = Math.min(Number(limitStr) || 5, 50); //limit 상한치 고정
+  const page = Math.max(1, Number(pageStr) || 1);
+
+  const isProductExist = await reviewRepository.checkProductExists(productId);
+  if (!isProductExist) {
+    throw new NotFoundError('존재하지 않는 상품입니다.');
+  }
+  const { items, total } = await reviewRepository.findReviewsByProductId(
+    productId,
+    page,
+    limit,
+  );
+  const mappedItems = items.map((item) => new ReviewListResponseDto(item));
+  const hasNextPage = total > page * limit;
+
+  return {
+    items: mappedItems,
+    meta: {
+      total,
+      page,
+      limit,
+      hasNextPage,
+    },
+  };
 };

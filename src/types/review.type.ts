@@ -20,3 +20,18 @@ export type OrderItemWithOrder = {
   productId: string;
   order: { userId: string };
 };
+
+//리뷰 아이템 리스트 타입
+export interface ReviewListItem {
+  id: string;
+  userId: string;
+  productId: string;
+  orderItemId: string;
+  rating: number;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+  user: {
+    name: string;
+  };
+}
