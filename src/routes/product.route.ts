@@ -9,7 +9,7 @@ productRouter.post(
   '/',
   authenticate,
   upload.single('image'),
-  productController.createProduct,
+  productController.createProductController,
 );
 // productRouter.get(
 //   '/',
