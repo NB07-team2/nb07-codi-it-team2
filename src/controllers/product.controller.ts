@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { createProductbody, getProductsQuery } from '../structs/product.struct';
-import { ProductResponseDto } from '../models/product.model'; // 팀원 제안 반영
+import { ProductResponseDto } from '../models/product.model';
 import * as productService from '../services/product.service';
 
 export const createProductController = async (req: Request, res: Response) => {
