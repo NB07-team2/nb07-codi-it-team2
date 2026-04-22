@@ -18,7 +18,7 @@ describe('Auth EndPoint Test - POST /api/auth/refresh', () => {
     // API 요청
     const response = await request(app)
       .post('/api/auth/refresh')
-      .set('Authorization', `Bearer ${validRefreshToken}`);
+      .set('Cookie', [`refresh-token=${validRefreshToken}`]);
 
     // 응답 검증
     expect(response.status).toBe(200);
@@ -31,9 +31,7 @@ describe('Auth EndPoint Test - POST /api/auth/refresh', () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toMatchObject({
-      statusCode: 400,
-      message: '잘못된 요청입니다.',
-      error: 'Bad Request',
+      message: '리프레시 토큰이 없습니다.',
     });
   });
 
@@ -47,7 +45,7 @@ describe('Auth EndPoint Test - POST /api/auth/refresh', () => {
 
     const response = await request(app)
       .post('/api/auth/refresh')
-      .set('Authorization', `Bearer ${expiredRefreshToken}`);
+      .set('Cookie', [`refresh-token=${expiredRefreshToken}`]);
 
     expect(response.status).toBe(401);
     expect(response.body).toMatchObject({
@@ -67,7 +65,7 @@ describe('Auth EndPoint Test - POST /api/auth/refresh', () => {
 
     const response = await request(app)
       .post('/api/auth/refresh')
-      .set('Authorization', `Bearer ${invalidRefreshToken}`);
+      .set('Cookie', [`refresh-token=${invalidRefreshToken}`]);
 
     expect(response.status).toBe(401);
     expect(response.body).toMatchObject({
