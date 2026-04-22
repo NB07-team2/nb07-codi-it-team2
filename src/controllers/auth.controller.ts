@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { InvalidRequestError } from '../errors/errors';
 import { loginSchema } from '../structs/auth.struct';
 import * as authService from '../services/auth.service';
 import {
@@ -34,13 +33,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
 // 토큰 갱신
 export const refresh = async (req: Request, res: Response): Promise<void> => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw new InvalidRequestError();
+  const refreshToken = req.cookies[REFRESH_TOKEN_COOKIE_NAME];
+  if (!refreshToken) {
+    res.status(400).json({ message: '리프레시 토큰이 없습니다.' });
+    return;
   }
-
-  const refreshToken = authHeader.substring(7);
   const tokens = await authService.refreshTokens(refreshToken);
 
   res.status(200).json(tokens);
