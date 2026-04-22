@@ -26,6 +26,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     secure: isProduction,
     // 배포 환경에서는 'none' (크로스 도메인 허용), 로컬에서는 'lax'
     sameSite: isProduction ? 'none' : 'lax',
+    // .codiit.site로 설정 - 앞에 어떤 서브 도메인이든 쿠키 공유 가능
+    domain: isProduction ? '.codiit.site' : undefined,
   });
 
   res.status(201).json(response);
