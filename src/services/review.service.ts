@@ -8,6 +8,7 @@ import {
 } from '../errors/errors';
 import {
   CreateReivewResponseDto,
+  ReviewDetailResponseDto,
   ReviewListResponseDto,
 } from '../models/review.model';
 import { reviewRepository } from '../repositories/review.repository';
@@ -77,4 +78,23 @@ export const getProductReviewsList = async (
       hasNextPage,
     },
   };
+};
+
+//리뷰 상세조회
+export const getReviewDetail = async (
+  reviewId: string,
+  userId: string,
+  userType: UserType,
+) => {
+  if (userType !== 'BUYER') throw new ForbiddenError('구매자만 가능합니다.');
+
+  const review = await reviewRepository.findReviewDetailById(reviewId);
+
+  if (!review) {
+    throw new NotFoundError('존재하지 않는 리뷰입니다.');
+  }
+  if (review.userId !== userId) {
+    throw new ForbiddenError('본인이 작성한 리뷰만 조회할 수 있습니다.');
+  }
+  return new ReviewDetailResponseDto(review);
 };
