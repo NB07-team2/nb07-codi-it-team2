@@ -6,7 +6,9 @@ export const getBuyerNotifications = async (userId: string) => {
         where: {
             userId: userId,
             isChecked: false,
-            type: { in: ["SOLDOUT", "INQUIRY_ANSWER"]}
+            type: {
+                in: [NotificationType.SOLDOUT, NotificationType.INQUIRY_ANSWER]
+            }
         },
         select: {
             id: true,
@@ -25,7 +27,9 @@ export const getSellerNotifications = async (userId: string) => {
         where: {
             userId: userId,
             isChecked: false,
-            type: { in: ["SOLDOUT","NEW_INQUIRY"]}
+            type: {
+                in: [NotificationType.SOLDOUT, NotificationType.NEW_INQUIRY]
+            }
         },
         select: {
             id: true,
