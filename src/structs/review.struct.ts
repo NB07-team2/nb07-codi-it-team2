@@ -1,4 +1,12 @@
-import { number, object, optional, pattern, size, string } from 'superstruct';
+import {
+  integer,
+  object,
+  optional,
+  partial,
+  pattern,
+  size,
+  string,
+} from 'superstruct';
 
 //상품 아이디 파라미터
 export const ProductIdStruct = object({
@@ -6,7 +14,7 @@ export const ProductIdStruct = object({
 });
 
 export const CreateReviewStruct = object({
-  rating: size(number(), 1, 5),
+  rating: size(integer(), 1, 5),
   content: size(string(), 10, 1000),
   orderItemId: string(),
 });
@@ -21,3 +29,11 @@ export const GetReviewsQueryStruct = object({
 export const ReviewIdParamStruct = object({
   reviewId: string(),
 });
+
+//리뷰 수정시 검증
+export const UpdateReviewStruct = partial(
+  object({
+    rating: size(integer(), 1, 5),
+    content: size(string(), 10, 1000),
+  }),
+);
