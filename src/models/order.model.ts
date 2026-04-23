@@ -42,7 +42,7 @@ export class OrderResponseDto {
         productId: string;
         product: {
             name: string;
-            image: string | null;
+            image: string;
             reviews: {
                 id: string;
                 rating: number;
@@ -86,7 +86,7 @@ export class OrderResponseDto {
             productId: item.productId,
             product: {
                 name: item.product.name,
-                image: item.product.image,
+                image: item.product.image || '',
                 // reviews가 없으면 빈 배열([]) 반환
                 reviews: item.product.reviews?.map(review => ({
                     id: review.id,

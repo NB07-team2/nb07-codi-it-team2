@@ -4,7 +4,6 @@ import * as orderRepository from "../repositories/order.repository";
 import { OrderCreateInput } from "../structs/order.struct";
 import { ForbiddenError, NotFoundError } from "../errors/errors";
 import * as pointRepository from "../repositories/point.repository";
-import * as stockRepository from "../repositories/stock.repository";
 export async function createOrder(orderData: OrderCreateInput, userId: string,userType: UserType) {
     if(userType !== 'BUYER'){   
         throw new ForbiddenError('주문은 구매자만 가능합니다.');
@@ -19,12 +18,6 @@ export async function createOrder(orderData: OrderCreateInput, userId: string,us
         }
     }
 
-    for (const item of dto.orderItems) {
-        const existingStock = await stockRepository.getStock(item.productId, item.sizeId);
-        if (existingStock < item.quantity) {
-            throw new NotFoundError(`상품 ID ${item.productId}의 사이즈 ID ${item.sizeId}에 대한 재고가 부족합니다.`);
-        }
-    }
     const createdOrder = await orderRepository.createOrder({
         name: dto.name,
         phone: dto.phone,
