@@ -17,7 +17,7 @@ export const streamNotifications = asyncHandler(async (req: Request, res: Respon
             res.write(`data: ${JSON.stringify(notifications)}\n\n`);
 
             const notificationIds = notifications.map((n) => n.id);
-            await notificationService.markAsRead(notificationIds);
+            await notificationService.markAsSent(notificationIds);
         }
     };
 

@@ -2,7 +2,7 @@ import { SimpleUser } from "../types/cart.type";
 import * as notificationRepository from "../repositories/notification.repository";
 import { Notification as PrismaNotification } from "@prisma/client";
 
-type NotificationResponse = Omit<PrismaNotification, "type">;
+type NotificationResponse = Omit<PrismaNotification, "type" | "isSent">;
 
 export const getNotificationsStream = async(user: SimpleUser): Promise<NotificationResponse[]> => {
     let notifications: NotificationResponse[] = [];
@@ -16,6 +16,6 @@ export const getNotificationsStream = async(user: SimpleUser): Promise<Notificat
     return notifications;
 };
 
-export const markAsRead = async (ids: string[]) => {
-    await notificationRepository.markAsRead(ids);
+export const markAsSent = async (ids: string[]) => {
+    await notificationRepository.markAsSent(ids);
 }

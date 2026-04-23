@@ -5,7 +5,7 @@ export const getBuyerNotifications = async (userId: string) => {
     return await prisma.notification.findMany({
         where: {
             userId: userId,
-            isChecked: false,
+            isSent: false,
             type: {
                 in: [NotificationType.SOLDOUT, NotificationType.INQUIRY_ANSWER]
             }
@@ -26,7 +26,7 @@ export const getSellerNotifications = async (userId: string) => {
     return await prisma.notification.findMany({
         where: {
             userId: userId,
-            isChecked: false,
+            isSent: false,
             type: {
                 in: [NotificationType.SOLDOUT, NotificationType.NEW_INQUIRY]
             }
@@ -54,13 +54,13 @@ export const createNotification = async (data: { userId: string, content: string
     });
 };
 
-export const markAsRead = async (ids: string[]) => {
+export const markAsSent = async (ids: string[]) => {
     return await prisma.notification.updateMany({
         where: {
             id: { in: ids },
         },
         data: {
-            isChecked: true,
+            isSent: true
         },
     });
 };
