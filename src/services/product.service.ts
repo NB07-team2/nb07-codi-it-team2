@@ -58,21 +58,30 @@ export const getProducts = async (query: GetProductsQuery) => {
     totalCount: number;
   };
 
-  if (totalCount === 0) {
-    throw new NotFoundError('상품을 찾을 수 없습니다.');
-  }
-
   let finalList = [...list];
 
+  // 별점순 정렬 로직 ( 전체 데이터를 정렬 후 페이징 )
   if (query.sort === 'highRating') {
+    // 전체 데이터를 평점순으로 정렬
     finalList.sort((a, b) => {
-      const calculateAvg = (p: ProductWithRelations) => {
+      const getAvg = (p: ProductWithRelations) => {
         if (p.reviews.length === 0) return 0;
-        const sum = p.reviews.reduce((acc, cur) => acc + cur.rating, 0);
-        return sum / p.reviews.length;
+        return (
+          p.reviews.reduce((acc, cur) => acc + cur.rating, 0) / p.reviews.length
+        );
       };
-      return calculateAvg(b) - calculateAvg(a);
+      // 평점이 같으면 최신순 정렬
+      const avgDiff = getAvg(b) - getAvg(a);
+      if (avgDiff === 0) {
+        return b.createdAt.getTime() - a.createdAt.getTime();
+      }
+      return avgDiff;
     });
+
+    // 정렬 후, 요청한 페이지에 맞게 배열 자르기
+    const startIndex = (query.page - 1) * query.pageSize;
+    const endIndex = startIndex + query.pageSize;
+    finalList = finalList.slice(startIndex, endIndex);
   }
 
   return { list: finalList, totalCount };

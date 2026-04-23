@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import { createProductbody, getProductsQuery } from '../structs/product.struct';
-import { ProductResponseDto } from '../models/product.model';
+import {
+  ProductListResponseDto,
+  ProductResponseDto,
+} from '../models/product.model';
 import * as productService from '../services/product.service';
 
 export const createProductController = async (req: Request, res: Response) => {
@@ -29,7 +32,9 @@ export const getProductsListController = async (
   const { list, totalCount } = await productService.getProducts(query);
 
   // DTO 맵핑 (기존에 만든 DTO 재사용!)
-  const formattedList = list.map((product) => new ProductResponseDto(product));
+  const formattedList = list.map(
+    (product) => new ProductListResponseDto(product),
+  );
 
   res.status(200).json({
     list: formattedList,

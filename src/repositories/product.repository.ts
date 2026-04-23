@@ -85,7 +85,13 @@ export const ProductRepository = {
 
     // 조건이 참일 때만 객체에 속성 추가
     const where: Prisma.ProductWhereInput = {
-      ...(search && { name: { contains: search, mode: 'insensitive' } }),
+      ...(search && {
+        // 상품명 또는 스토어명에 검색어 포함 여부
+        OR: [
+          { name: { contains: search, mode: 'insensitive' } },
+          { store: { name: { contains: search, mode: 'insensitive' } } },
+        ],
+      }),
       ...(categoryName && {
         category: { name: categoryName as ProductCategoryName },
       }),
@@ -107,25 +113,25 @@ export const ProductRepository = {
     };
 
     // 정렬 조건 구성
-    let orderBy:
-      | Prisma.ProductOrderByWithRelationInput
-      | Prisma.ProductOrderByWithRelationInput[] = { createdAt: 'desc' };
+    let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: 'desc' };
 
     if (sort === 'mostReviewed') orderBy = { reviews: { _count: 'desc' } };
-    // highRating이 들어오면 DB에서는 최신순으로 데이터를 가져오고, 이후 서비스 레이어에서 메모리 정렬을 수행
-    else if (sort === 'recent' || sort === 'highRating')
-      orderBy = { createdAt: 'desc' };
+    else if (sort === 'recent') orderBy = { createdAt: 'desc' };
     else if (sort === 'lowPrice') orderBy = { price: 'asc' };
     else if (sort === 'highPrice') orderBy = { price: 'desc' };
     else if (sort === 'salesRanking') orderBy = { sales: 'desc' };
+
+    const isHighRating = sort === 'highRating';
 
     // 데이터 조회 및 전체 카운트
     const [list, totalCount] = await Promise.all([
       prisma.product.findMany({
         where,
         orderBy,
-        skip: (page - 1) * pageSize,
-        take: pageSize,
+        // highRating이 아닐 때만 DB에서 페이징을 처리
+        ...(isHighRating
+          ? {}
+          : { skip: (page - 1) * pageSize, take: pageSize }),
         include: {
           store: true,
           category: true,
