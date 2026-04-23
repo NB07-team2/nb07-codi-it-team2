@@ -16,12 +16,12 @@ productRouter.get(
   authenticate,
   productController.getProductsListController,
 );
-// productRouter.patch(
-//   '/productId',
-//   authenticate,
-//   upload.single('image'),
-//   patchProduct,
-// );
+productRouter.patch(
+  '/:productId',
+  authenticate,
+  upload.single('image'),
+  productController.updateProductController,
+);
 productRouter.get('/:productId', productController.getProductDetailController);
 productRouter.delete(
   '/:productId',

@@ -1,7 +1,10 @@
 import { Prisma, ProductCategoryName } from '@prisma/client';
 import prisma from '../utils/prismaClient.util';
-import { CreateProductDTO } from '../structs/product.struct';
-import { GetProductsQuery } from '../structs/product.struct';
+import {
+  CreateProductDTO,
+  GetProductsQuery,
+  UpdateProductDTO,
+} from '../structs/product.struct';
 
 export const ProductRepository = {
   // 같은 스토어 내 중복 상품 이름 확인
@@ -132,6 +135,52 @@ export const ProductRepository = {
   findById: async (productId: string) => {
     return await prisma.product.findUnique({
       where: { id: productId },
+    });
+  },
+  // 상품 수정
+  update: async (
+    tx: Prisma.TransactionClient,
+    productId: string,
+    updateData: UpdateProductDTO & { categoryId?: string; image?: string },
+    stocksMap?: { sizeId: number; quantity: number }[],
+  ) => {
+    // 업데이트할 데이터만 추출
+    const data: Prisma.ProductUpdateInput = {};
+    if (updateData.name) data.name = updateData.name;
+    if (updateData.content !== undefined) data.content = updateData.content;
+    if (updateData.price !== undefined) data.price = updateData.price;
+    if (updateData.categoryId) {
+      data.category = { connect: { id: updateData.categoryId } };
+    }
+    if (updateData.image) data.image = updateData.image;
+    if (updateData.discountRate !== undefined)
+      data.discountRate = updateData.discountRate;
+
+    if (updateData.discountStartTime !== undefined) {
+      data.discountStartTime = updateData.discountStartTime
+        ? new Date(updateData.discountStartTime)
+        : null;
+    }
+    if (updateData.discountEndTime !== undefined) {
+      data.discountEndTime = updateData.discountEndTime
+        ? new Date(updateData.discountEndTime)
+        : null;
+    }
+
+    // 재고 변경
+    if (stocksMap) {
+      data.stocks = {
+        deleteMany: {}, // 기존 상품의 재고 기록 완전 삭제
+        create: stocksMap.map((s) => ({
+          sizeId: s.sizeId,
+          quantity: s.quantity,
+        })),
+      };
+    }
+
+    return await tx.product.update({
+      where: { id: productId },
+      data,
       include: {
         store: true,
         category: true,
@@ -165,6 +214,8 @@ export const ProductRepository = {
       await tx.stock.deleteMany({
         where: { productId },
       });
+
+      // 장바구니 아이템 삭제
       await tx.cartItem.deleteMany({ where: { productId } });
       return await tx.product.delete({
         where: { id: productId },
