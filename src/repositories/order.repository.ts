@@ -1,5 +1,6 @@
+import { Prisma } from "@prisma/client";
 import { NotFoundError } from "../errors/errors";
-import { CreateOrderRepoDto } from "../types/order.type";
+import { CreateOrderRepoDto, OrderMyPagingRepoParams } from "../types/order.type";
 import prisma from '../utils/prismaClient.util';
 import * as stockRepository from "./stock.repository";
 
@@ -162,4 +163,60 @@ export async function createOrder(orderData: CreateOrderRepoDto, userId: string)
     });
 
     return order;
+}
+
+export async function getOrderMyList(params:OrderMyPagingRepoParams, userId: string) {
+    const { page, limit,status } = params;
+    const skip = (page - 1) * limit;
+    const take = limit;
+
+    const whereCondition: Prisma.OrderWhereInput = {
+        userId: userId,
+    };
+
+    if (status) {
+        whereCondition.payments = {
+            is: {
+                status: status,
+            },
+        };
+    }
+
+    const [data, meta] = await prisma.$transaction([
+        prisma.order.findMany({
+            where: whereCondition,
+            skip: skip,
+            take: take,
+            orderBy: { createdAt: 'desc' },
+            include: {
+                orderItems: {
+                    include: {
+                        product: {
+                        include: {reviews: true}
+                        },
+                        size: {
+                            select: { id: true, enName: true, koName: true},
+                        },
+                        review: {
+                            select: { id: true, rating: true, content: true, createdAt: true },
+                        },
+                    },
+                },
+                payments: true,
+            },
+        }),
+        prisma.order.count({
+            where: whereCondition,
+        }),
+    ]);
+
+    return {
+        data,
+        meta: {
+            total: meta,
+            page: page,
+            limit: limit,
+            totalPages : Math.ceil(meta / limit),
+        },
+    };
 }

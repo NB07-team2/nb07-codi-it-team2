@@ -1,3 +1,15 @@
+import { PaymentStatus } from '@prisma/client';
+import {
+  object,
+  string,
+  defaulted,
+  coerce,
+  integer,
+  min,
+  optional,
+  enums
+} from 'superstruct';
+
 import {z} from 'zod';
 
 export const orderCreateSchema = z.object({
@@ -13,3 +25,11 @@ export const orderCreateSchema = z.object({
 });
 
 export type OrderCreateInput = z.infer<typeof orderCreateSchema>;
+
+const integerString = coerce(integer(), string(), (value) => parseInt(value));
+
+export const getOrdersMyListStruct = object({  
+  page: defaulted(min(integerString, 1), 1),
+  limit: defaulted(min(integerString, 1), 10),
+  status: optional(enums(Object.values(PaymentStatus))),
+});

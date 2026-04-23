@@ -1,3 +1,7 @@
+import { Infer } from "superstruct";
+import { getOrdersMyListStruct } from "../structs/order.struct";
+import { PaymentStatus } from "@prisma/client";
+
 export interface CreateOrderRepoDto {
     name: string;
     phone: string;
@@ -11,7 +15,7 @@ export interface CreateOrderRepoDto {
     usePoint?: number;
 }
 
-export interface OrderCreateItem {
+export interface OrderResponseItem {
     id: string;
     name: string;
     phone: string;
@@ -51,3 +55,8 @@ export interface OrderCreateItem {
         orderId: string;
     } | null;
 }
+
+export type PaginationMyListParams = Infer<typeof getOrdersMyListStruct>;
+export type OrderStatus = PaymentStatus;    
+
+export type OrderMyPagingRepoParams = PaginationMyListParams;
