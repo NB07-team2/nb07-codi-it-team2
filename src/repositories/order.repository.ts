@@ -166,9 +166,9 @@ export async function createOrder(orderData: CreateOrderRepoDto, userId: string)
 }
 
 export async function getOrderMyList(params:OrderMyPagingRepoParams, userId: string) {
-    const { page, pageSize,status } = params;
-    const skip = (page - 1) * pageSize;
-    const take = pageSize;
+    const { page, limit,status } = params;
+    const skip = (page - 1) * limit;
+    const take = limit;
 
     const whereCondition: Prisma.OrderWhereInput = {
         userId: userId,
@@ -197,6 +197,9 @@ export async function getOrderMyList(params:OrderMyPagingRepoParams, userId: str
                         size: {
                             select: { id: true, enName: true, koName: true},
                         },
+                        review: {
+                            select: { id: true, rating: true, content: true, createdAt: true },
+                        },
                     },
                 },
                 payments: true,
@@ -212,8 +215,8 @@ export async function getOrderMyList(params:OrderMyPagingRepoParams, userId: str
         meta: {
             total: meta,
             page: page,
-            limit: pageSize,
-            totalPages : Math.ceil(meta / pageSize),
+            limit: limit,
+            totalPages : Math.ceil(meta / limit),
         },
     };
 }

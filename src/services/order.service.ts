@@ -1,5 +1,5 @@
 import { UserType } from "@prisma/client";
-import { CreateOrderDto, OrderMyListResponseDto, OrderResponseDto } from "../models/order.model";
+import { CreateOrderDto, OrderResponseDto } from "../models/order.model";
 import * as orderRepository from "../repositories/order.repository";
 import { OrderCreateInput } from "../structs/order.struct";
 import { ForbiddenError, NotFoundError } from "../errors/errors";
@@ -37,14 +37,14 @@ export async function createOrder(orderData: OrderCreateInput, userId: string,us
     return new OrderResponseDto(createdOrder);
 }
 
-export async function getOrderMyList(params: { page: number; pageSize: number;status?: OrderStatus;}, userId: string, userType: UserType) {
+export async function getOrderMyList(params: { page: number; limit: number;status?: OrderStatus;}, userId: string, userType: UserType) {
     if(userType !== 'BUYER'){   
         throw new ForbiddenError('주문 조회는 구매자만 가능합니다.');
     }
-    const { page, pageSize, status } = params;
-    const orderListData = await orderRepository.getOrderMyList({ page, pageSize, status }, userId);
+    const { page, limit, status } = params;
+    const orderListData = await orderRepository.getOrderMyList({ page, limit, status }, userId);
     return {
-        data: orderListData.data.map(order => new OrderMyListResponseDto(order)),
+        data: orderListData.data.map(order => new OrderResponseDto(order)),
         meta: orderListData.meta,
     };
 } 

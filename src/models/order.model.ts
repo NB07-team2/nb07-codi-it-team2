@@ -1,5 +1,5 @@
 import { OrderCreateInput } from "../structs/order.struct";
-import { OrderCreateItem, OrderMyListItem } from "../types/order.type";
+import { OrderResponseItem } from "../types/order.type";
 
 export class CreateOrderDto{
     name: string;
@@ -67,7 +67,7 @@ export class OrderResponseDto {
         orderId: string;
     } | null;
 
-    constructor(data: OrderCreateItem) {
+    constructor(data: OrderResponseItem) {
         this.id = data.id;
         this.name = data.name;
         this.phoneNumber = data.phone; 
@@ -76,95 +76,6 @@ export class OrderResponseDto {
         this.totalQuantity = data.totalQuantity;
         this.usePoint = data.usePoint;
         this.createdAt = data.createdAt;        
-        this.orderItems = data.orderItems.map(item => ({
-            id: item.id,
-            price: item.price,
-            quantity: item.quantity,
-            productId: item.productId,
-            product: {
-                name: item.product.name,
-                image: item.product.image || '',
-                reviews: item.product.reviews?.map(review => ({
-                    id: review.id,
-                    rating: review.rating,
-                    content: review.content,
-                    createdAt: review.createdAt,
-                })) || [], 
-            },
-            size: {
-                id: item.size.id,
-                size: {
-                    en: item.size.enName || '',
-                    ko: item.size.koName || '',
-                },
-            },
-            isReviewed: item.isReviewed, 
-        }));
-
-        this.payments = data.payments ? {
-            id: data.payments.id,
-            price: data.payments.price,
-            status: data.payments.status,
-            createdAt: data.payments.createdAt,
-            updatedAt: data.payments.updatedAt,
-            orderId: data.payments.orderId,
-        } : null;
-    }
-}
-
-export class OrderMyListResponseDto {
-    id: string;
-    name: string;
-    phoneNumber: string; 
-    address: string;
-    subtotal: number;
-    totalQuantity: number;
-    usePoint: number;
-    createdAt: Date;
-    orderItems: {
-        id: string;
-        price: number;
-        quantity: number;
-        productId: string;
-        product: {
-            name: string;
-            image: string;
-            reviews: {
-                id: string;
-                rating: number;
-                content: string;
-                createdAt: Date;
-            }[];
-        };
-        size: {
-            id: number;
-            size: {
-                en: string | null;
-                ko: string | null;
-            };
-        };
-        isReviewed: boolean;
-    }[];
-    payments: {
-        id: string;
-        price: number;
-        status: string;
-        createdAt: Date;
-        updatedAt: Date;
-        orderId: string;
-    } | null;
-
-    constructor(data: OrderMyListItem) {
-        this.id = data.id;
-        this.name = data.name;
-        this.phoneNumber = data.phone;
-        this.address = data.address;
-        this.subtotal = data.subtotal;
-        this.totalQuantity = data.totalQuantity;
-        this.usePoint = data.usePoint;
-        this.createdAt = data.createdAt;
-        
-        // map 내부 수정
         this.orderItems = data.orderItems.map(item => ({
             id: item.id,
             price: item.price,

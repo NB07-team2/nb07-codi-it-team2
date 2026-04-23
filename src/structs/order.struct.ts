@@ -1,3 +1,4 @@
+import { PaymentStatus } from '@prisma/client';
 import {
   object,
   string,
@@ -6,7 +7,7 @@ import {
   integer,
   min,
   optional,
-  enums,
+  enums
 } from 'superstruct';
 
 import {z} from 'zod';
@@ -29,6 +30,6 @@ const integerString = coerce(integer(), string(), (value) => parseInt(value));
 
 export const getOrdersMyListStruct = object({  
   page: defaulted(min(integerString, 1), 1),
-  pageSize: defaulted(min(integerString, 1), 10),
-  status: optional(enums(["WaitingPayment", "CompletedPayment"])),
+  limit: defaulted(min(integerString, 1), 10),
+  status: optional(enums(Object.values(PaymentStatus))),
 });
