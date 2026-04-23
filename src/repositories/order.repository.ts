@@ -211,7 +211,7 @@ export async function getOrderMyList(params:OrderMyPagingRepoParams, userId: str
         data,
         meta: {
             total: meta,
-            page: Math.ceil(meta / pageSize),
+            page: page,
             limit: pageSize,
             totalPages : Math.ceil(meta / pageSize),
         },
