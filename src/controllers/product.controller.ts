@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
-import { createProductbody } from '../structs/product.struct'; // 팀원 제안 반영
+import { createProductbody, getProductsQuery } from '../structs/product.struct';
+import { ProductListResponseDto } from '../models/product.model';
 import * as productService from '../services/product.service';
 
+// 새 상품 등록
 export const createProductController = async (req: Request, res: Response) => {
-  // req.body와 req.file을 한 번에 검증 및 파싱
   const validatedData = createProductbody.parse({
     ...req.body,
     image: req.file,
@@ -17,4 +18,21 @@ export const createProductController = async (req: Request, res: Response) => {
   );
 
   res.status(201).json(result);
+};
+
+// 상품 목록 조회 컨트롤러
+export const getProductsListController = async (
+  req: Request,
+  res: Response,
+) => {
+  const query = getProductsQuery.parse(req.query);
+  const { list, totalCount } = await productService.getProducts(query);
+  const formattedList = list.map(
+    (product) => new ProductListResponseDto(product),
+  );
+
+  res.status(200).json({
+    list: formattedList,
+    totalCount,
+  });
 };

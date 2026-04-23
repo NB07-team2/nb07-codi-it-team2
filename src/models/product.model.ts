@@ -44,7 +44,7 @@ export class ProductResponseDto {
     this.discountStartTime = product.discountStartTime;
     this.discountEndTime = product.discountEndTime;
 
-    // 리뷰 통계 초기화 (타입 안전성 확보)
+    // 리뷰 통계 초기화
     this.reviewsCount = product.reviews.length;
     this.reviewsRating =
       this.reviewsCount > 0
@@ -65,7 +65,7 @@ export class ProductResponseDto {
       sumScore: product.reviews.reduce((acc, cur) => acc + cur.rating, 0),
     };
 
-    // 문의 정보 매핑 (ProductWithRelations 타입을 그대로 활용) - 문의 정보와 확인 필요
+    // 문의 정보 매핑 - 문의 정보와 확인 필요
     this.inquiries = product.inquiries;
     this.categoryId = product.categoryId;
     this.category = {
@@ -86,5 +86,83 @@ export class ProductResponseDto {
     // 모든 재고 수량이 0이면 true, 아니면 false
     this.isSoldOut =
       this.stocks.length > 0 && this.stocks.every((s) => s.quantity === 0);
+  }
+}
+
+export class ProductListResponseDto {
+  id: string;
+  storeId: string;
+  storeName: string;
+  name: string;
+  image: string;
+  price: number;
+  discountPrice: number;
+  discountRate: number;
+  discountStartTime: Date | null;
+  discountEndTime: Date | null;
+  reviewsCount: number;
+  reviewsRating: number;
+  createdAt: Date;
+  updatedAt: Date;
+  sales: number;
+  isSoldOut: boolean;
+  categoryId: string;
+
+  constructor(product: ProductWithRelations) {
+    this.id = product.id;
+    this.storeId = product.storeId;
+    this.storeName = product.store?.name || '';
+    this.name = product.name;
+    this.image = product.image || '';
+    this.price = product.price;
+    this.discountRate = product.discountRate || 0;
+    this.discountStartTime = product.discountStartTime;
+    this.discountEndTime = product.discountEndTime;
+    this.createdAt = product.createdAt;
+    this.updatedAt = product.updatedAt;
+    this.sales = product.sales || 0;
+    this.categoryId = product.categoryId;
+
+    // 현재 시간이 시작/종료 기간 내에 있을 때만 할인가 적용
+    const nowTime = Date.now();
+    const startTime = this.discountStartTime
+      ? new Date(this.discountStartTime).getTime()
+      : 0;
+    const endTime = this.discountEndTime
+      ? new Date(this.discountEndTime).getTime()
+      : 0;
+
+    const isDiscountActive =
+      startTime > 0 &&
+      endTime > 0 &&
+      nowTime >= startTime &&
+      nowTime <= endTime;
+
+    if (isDiscountActive && this.discountRate > 0) {
+      this.discountPrice = Math.floor(
+        this.price * (1 - this.discountRate / 100),
+      );
+    } else {
+      this.discountPrice = this.price; // 기간 아니면 정가
+    }
+
+    // 리뷰 데이터 가공
+    this.reviewsCount = product.reviews.length;
+    this.reviewsRating =
+      this.reviewsCount > 0
+        ? Number(
+            (
+              product.reviews.reduce((acc, cur) => acc + cur.rating, 0) /
+              this.reviewsCount
+            ).toFixed(1),
+          )
+        : 0;
+
+    // 품절 여부: 모든 사이즈 재고 합이 0이면 true
+    const totalQuantity = product.stocks.reduce(
+      (acc, cur) => acc + cur.quantity,
+      0,
+    );
+    this.isSoldOut = totalQuantity === 0;
   }
 }
