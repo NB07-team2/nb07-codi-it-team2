@@ -1,5 +1,9 @@
 import { Prisma } from '@prisma/client';
-import { CreateReviewType, OrderItemWithOrder } from '../types/review.type';
+import {
+  CreateReviewType,
+  OrderItemWithOrder,
+  UpdateReviewInput,
+} from '../types/review.type';
 import prisma from '../utils/prismaClient.util';
 
 export const reviewDetailInclude = Prisma.validator<Prisma.ReviewInclude>()({
@@ -87,6 +91,17 @@ export const reviewRepository = {
     return await prisma.review.findUnique({
       where: { id: reviewId },
       include: reviewDetailInclude,
+    });
+  },
+
+  findById: async (id: string) => {
+    return await prisma.review.findUnique({ where: { id } });
+  },
+  //리뷰 수정
+  updateReview: async (id: string, data: UpdateReviewInput) => {
+    return await prisma.review.update({
+      where: { id },
+      data,
     });
   },
 };

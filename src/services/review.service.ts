@@ -1,5 +1,5 @@
 import { UserType } from '@prisma/client';
-import { CreateReviewType } from '../types/review.type';
+import { CreateReviewType, UpdateReviewInput } from '../types/review.type';
 import {
   BadRequestError,
   ConflictError,
@@ -7,7 +7,7 @@ import {
   NotFoundError,
 } from '../errors/errors';
 import {
-  CreateReivewResponseDto,
+  ReivewResponseDto,
   ReviewDetailResponseDto,
   ReviewListResponseDto,
 } from '../models/review.model';
@@ -45,7 +45,7 @@ export const createReview = async (
     productId,
     data,
   );
-  return new CreateReivewResponseDto(newReview);
+  return new ReivewResponseDto(newReview);
 };
 
 //상품 리뷰 목록 조회
@@ -91,10 +91,32 @@ export const getReviewDetail = async (
   const review = await reviewRepository.findReviewDetailById(reviewId);
 
   if (!review) {
-    throw new NotFoundError('존재하지 않는 리뷰입니다.');
+    throw new NotFoundError('리뷰를 찾을 수 없습니다.');
   }
   if (review.userId !== userId) {
     throw new ForbiddenError('본인이 작성한 리뷰만 조회할 수 있습니다.');
   }
   return new ReviewDetailResponseDto(review);
+};
+
+//리뷰 수정
+export const updateReview = async (
+  reviewId: string,
+  userId: string,
+  userType: UserType,
+  data: UpdateReviewInput,
+) => {
+  if (userType !== 'BUYER') throw new ForbiddenError('구매자만 가능합니다.');
+
+  const review = await reviewRepository.findById(reviewId);
+
+  if (!review) throw new NotFoundError('리뷰를 찾을 수 없습니다.');
+
+  if (review.userId !== userId) {
+    throw new ForbiddenError('본인이 작성한 리뷰만 수정할 수 있습니다.');
+  }
+
+  const updatedReview = await reviewRepository.updateReview(reviewId, data);
+
+  return new ReivewResponseDto(updatedReview);
 };
