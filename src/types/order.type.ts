@@ -59,7 +59,6 @@ export type PaginationMyListParams = Infer<typeof getOrdersMyListStruct>;
 export type OrderStatus = 'WaitingPayment' | 'CompletedPayment';    
 
 export type OrderMyPagingRepoParams = PaginationMyListParams;
-export type OrderMyPagingServiceParams = PaginationMyListParams;
 
 export interface OrderMyListItem {
     id: string;
