@@ -109,8 +109,8 @@ export const getProductsQuery = z.object({
 });
 
 export const updateProductSchema = z.object({
-  name: z.string().optional(),
-  content: z.string().nullable().optional(),
+  name: z.string().min(1).max(50).optional(),
+  content: z.string().min(1).max(1000).nullable().optional(),
   price: z.coerce.number().int().min(0).optional(),
   categoryName: z.string().optional(),
   discountRate: z.coerce.number().int().min(0).max(100).optional(),

@@ -170,10 +170,22 @@ export const ProductRepository = {
     // 재고 변경
     if (stocksMap) {
       data.stocks = {
-        deleteMany: {}, // 기존 상품의 재고 기록 완전 삭제
-        create: stocksMap.map((s) => ({
-          sizeId: s.sizeId,
-          quantity: s.quantity,
+        upsert: stocksMap.map((s) => ({
+          where: {
+            productId_sizeId: {
+              productId: productId,
+              sizeId: s.sizeId,
+            },
+          },
+          // 이미 있으면 수량만 업데이트
+          update: {
+            quantity: s.quantity,
+          },
+          // 없으면 새로 생성
+          create: {
+            sizeId: s.sizeId,
+            quantity: s.quantity,
+          },
         })),
       };
     }

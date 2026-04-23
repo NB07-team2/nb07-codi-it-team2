@@ -131,6 +131,14 @@ export const updateProduct = async (
 
   // 이미지 변경
   if (file) {
+    if (product.image && product.image !== DEFAULT_IMAGE) {
+      try {
+        await imageService.deleteFromS3(product.image);
+        console.log(`기존 상품 이미지 S3 삭제 완료: ${product.image}`);
+      } catch (error) {
+        console.error('기존 상품 이미지 S3 삭제 중 오류 발생:', error);
+      }
+    }
     const uploadResult = await imageService.uploadImage(file);
     updateFields.image = uploadResult.url;
   }
