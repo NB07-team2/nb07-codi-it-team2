@@ -167,6 +167,7 @@ model Notification {
 
   content   String
   isChecked Boolean          @default(false) // 명세서의 isChecked 반영
+  isSent    Boolean          @default(false)
   type      NotificationType
 
   createdAt DateTime @default(now())

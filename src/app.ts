@@ -15,6 +15,7 @@ import metadataRouter from './routes/metadata.route';
 import dashboardRouter from './routes/dashboard.route';
 import productReviewRouter from './routes/productReview.route';
 import reviewRouter from './routes/review.route';
+import notificationRouter from './routes/notification.route';
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use('/api/metadata', metadataRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/product', productReviewRouter);
 app.use('/api/review', reviewRouter);
+app.use('/api/notifications', notificationRouter);
 //에러 핸들러
 app.use(errorHandler);
 
