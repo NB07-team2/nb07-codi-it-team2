@@ -192,7 +192,7 @@ export async function getOrderMyList(params:OrderMyPagingRepoParams, userId: str
                 orderItems: {
                     include: {
                         product: {
-                            select: { id: true, name: true, image: true },
+                        include: {reviews: true}
                         },
                         size: {
                             select: { id: true, enName: true, koName: true},
