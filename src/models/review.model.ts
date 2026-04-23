@@ -6,7 +6,7 @@ import {
 } from '../types/review.type';
 
 //리뷰 등록 dto
-export class CreateReivewResponseDto {
+export class ReivewResponseDto {
   id: string;
   userId: string;
   productId: string;
@@ -72,10 +72,9 @@ export class ReviewDetailResponseDto implements ReviewDetailResponse {
   constructor(data: ReviewDetailPayload) {
     this.reviewId = data.id;
     this.productName = data.product.name;
-    // 사이즈 다국어 처리 (만약 DB에 영어만 있다면 동일하게 세팅)
     this.size = {
-      en: data.orderItem?.size?.name || '',
-      ko: data.orderItem?.size?.name || '',
+      en: data.orderItem?.size?.enName || '',
+      ko: data.orderItem?.size?.koName || '',
     };
     this.price = data.product.price;
     this.quantity = data.orderItem?.quantity || 1;

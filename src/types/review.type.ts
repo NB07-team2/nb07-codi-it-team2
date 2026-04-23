@@ -59,3 +59,8 @@ export interface ReviewDetailResponse {
 export type ReviewDetailPayload = Prisma.ReviewGetPayload<{
   include: typeof reviewDetailInclude;
 }>;
+
+export interface UpdateReviewInput {
+  rating?: number;
+  content?: string;
+}
