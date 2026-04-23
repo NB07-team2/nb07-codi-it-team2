@@ -128,18 +128,14 @@ export const ProductRepository = {
       prisma.product.findMany({
         where,
         orderBy,
-        // highRating이 아닐 때만 DB에서 페이징을 처리
+        // highRating이 아닐 때만 DB에서 페이징 처리
         ...(isHighRating
           ? {}
           : { skip: (page - 1) * pageSize, take: pageSize }),
         include: {
           store: true,
-          category: true,
           stocks: { include: { size: true } },
           reviews: true,
-          inquiries: {
-            include: { reply: { include: { user: true } } },
-          },
         },
       }),
       prisma.product.count({ where }),

@@ -1,13 +1,10 @@
 import { Request, Response } from 'express';
 import { createProductbody, getProductsQuery } from '../structs/product.struct';
-import {
-  ProductListResponseDto,
-  ProductResponseDto,
-} from '../models/product.model';
+import { ProductListResponseDto } from '../models/product.model';
 import * as productService from '../services/product.service';
 
+// 새 상품 등록
 export const createProductController = async (req: Request, res: Response) => {
-  // req.body와 req.file을 한 번에 검증 및 파싱
   const validatedData = createProductbody.parse({
     ...req.body,
     image: req.file,
@@ -30,8 +27,6 @@ export const getProductsListController = async (
 ) => {
   const query = getProductsQuery.parse(req.query);
   const { list, totalCount } = await productService.getProducts(query);
-
-  // DTO 맵핑 (기존에 만든 DTO 재사용!)
   const formattedList = list.map(
     (product) => new ProductListResponseDto(product),
   );
