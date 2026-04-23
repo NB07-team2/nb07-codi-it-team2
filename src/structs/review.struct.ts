@@ -4,7 +4,6 @@ import {
   optional,
   partial,
   pattern,
-  refine,
   size,
   string,
 } from 'superstruct';
