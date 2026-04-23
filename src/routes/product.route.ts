@@ -11,11 +11,11 @@ productRouter.post(
   upload.single('image'),
   productController.createProductController,
 );
-// productRouter.get(
-//   '/',
-//   authenticate,
-//   getProductsList,
-// );
+productRouter.get(
+  '/',
+  authenticate,
+  productController.getProductsListController,
+);
 // productRouter.patch(
 //   '/productId',
 //   authenticate,
