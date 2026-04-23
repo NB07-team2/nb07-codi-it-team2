@@ -11,6 +11,11 @@ const isoDateString = z
     message: '유효한 ISO 날짜 문자열이 아닙니다.',
   });
 
+//  productId 파라미터 검증 스키마
+export const productIdParamSchema = z.object({
+  productId: z.string().cuid('유효하지 않은 상품 ID 형식입니다.'),
+});
+
 export const createProductbody = z
   .object({
     name: z

@@ -128,6 +128,7 @@ export const ProductRepository = {
     return { list, totalCount };
   },
 
+  // 상품 상세 조회
   findById: async (productId: string) => {
     return await prisma.product.findUnique({
       where: { id: productId },
@@ -140,6 +141,34 @@ export const ProductRepository = {
         },
         reviews: true,
       },
+    });
+  },
+
+  // 상품 삭제
+  delete: async (productId: string) => {
+    return await prisma.$transaction(async (tx) => {
+      // 문의에 달린 답변들을 먼저 삭제
+      await tx.reply.deleteMany({
+        where: {
+          inquiry: {
+            productId: productId,
+          },
+        },
+      });
+
+      // 문의 삭제
+      await tx.inquiry.deleteMany({
+        where: { productId },
+      });
+
+      // 재고 데이터 삭제
+      await tx.stock.deleteMany({
+        where: { productId },
+      });
+      await tx.cartItem.deleteMany({ where: { productId } });
+      return await tx.product.delete({
+        where: { id: productId },
+      });
     });
   },
 };

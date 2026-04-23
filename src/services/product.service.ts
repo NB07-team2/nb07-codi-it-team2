@@ -6,6 +6,7 @@ import { ProductResponseDto } from '../models/product.model';
 import { CreateProductDTO, GetProductsQuery } from '../structs/product.struct';
 import { UserType, ProductCategoryName } from '@prisma/client';
 import { ProductWithRelations } from '../types/product.type';
+import { DEFAULT_IMAGE } from '../utils/constants.util';
 
 export const createProduct = async (
   userId: string,
@@ -96,4 +97,38 @@ export const getProductDetail = async (productId: string) => {
   }
 
   return new ProductResponseDto(product as ProductWithRelations);
+};
+
+// 상품 삭제
+export const deleteProduct = async (
+  userId: string,
+  userType: UserType,
+  productId: string,
+) => {
+  if (userType !== 'SELLER') {
+    throw new ForbiddenError('판매자만 상품을 삭제할 수 있습니다.');
+  }
+  const product = await ProductRepository.findById(productId);
+
+  if (!product) {
+    throw new NotFoundError('요청하신 상품을 찾을 수 없습니다.');
+  }
+
+  if (product.store.userId !== userId) {
+    throw new ForbiddenError('자신의 스토어 상품만 삭제할 수 있습니다.');
+  }
+
+  const imageToDelete = product.image;
+
+  await ProductRepository.delete(productId);
+
+  if (imageToDelete && imageToDelete !== DEFAULT_IMAGE) {
+    try {
+      await imageService.deleteFromS3(imageToDelete);
+      console.log(`상품 삭제에 따른 S3 이미지 삭제 완료: ${imageToDelete}`);
+    } catch (error) {
+      console.error('상품 삭제 중 S3 이미지 삭제 오류 발생:', error);
+    }
+  }
+  return { message: '상품이 삭제되었습니다.' };
 };
