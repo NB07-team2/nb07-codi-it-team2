@@ -5,5 +5,7 @@ import { authenticate } from '../middlewares/auth.middlewares';
 const router = Router();
 
 router.post('/', authenticate, orderController.createOrder);
+router.get('/', authenticate, orderController.getOrderMyList);
+
 
 export default router;
