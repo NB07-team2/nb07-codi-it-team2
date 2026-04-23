@@ -11,22 +11,6 @@ export const ProductRepository = {
     });
   },
 
-  // 상품 상세 조회 - 수정/삭제 시 권한 확인용으로도 사용
-  findById: async (productId: string) => {
-    return await prisma.product.findUnique({
-      where: { id: productId },
-      include: {
-        store: true,
-        category: true,
-        stocks: { include: { size: true } },
-        inquiries: {
-          include: { reply: { include: { user: true } } },
-        },
-        reviews: true,
-      },
-    });
-  },
-
   // 상품 생성
   create: async (
     tx: Prisma.TransactionClient,
@@ -142,5 +126,20 @@ export const ProductRepository = {
     ]);
 
     return { list, totalCount };
+  },
+
+  findById: async (productId: string) => {
+    return await prisma.product.findUnique({
+      where: { id: productId },
+      include: {
+        store: true,
+        category: true,
+        stocks: { include: { size: true } },
+        inquiries: {
+          include: { reply: { include: { user: true } } },
+        },
+        reviews: true,
+      },
+    });
   },
 };

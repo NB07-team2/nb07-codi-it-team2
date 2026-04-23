@@ -36,3 +36,14 @@ export const getProductsListController = async (
     totalCount,
   });
 };
+
+// 상품 상세 조회
+export const getProductDetailController = async (
+  req: Request,
+  res: Response,
+) => {
+  const productId = req.params.productId as string;
+  const productDetail = await productService.getProductDetail(productId);
+
+  res.status(200).json(productDetail);
+};
