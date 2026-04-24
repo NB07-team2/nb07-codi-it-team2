@@ -2,7 +2,6 @@ import { SimpleUser } from "../types/cart.type";
 import * as notificationRepository from "../repositories/notification.repository";
 import { NotificationType, Notification as PrismaNotification } from "@prisma/client";
 import { GetNotificationsInput } from "../structs/notification.struct";
-import { NotFoundError } from "../errors/errors";
 
 type NotificationResponse = Omit<PrismaNotification, "type" | "isSent">;
 
