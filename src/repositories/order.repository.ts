@@ -248,19 +248,6 @@ export async function getOrderDetail(orderId: string, userId: string) {
 export async function getOrderById(orderId: string) {
     const order = await prisma.order.findUnique({
         where: { id: orderId },
-        include: {
-            orderItems: {
-                include: {
-                    product: true,
-                    size: true,
-                    review: {
-                        where: { userId: orderId },
-                        select: { id: true },
-                    },  
-                },
-            },
-            payments: true,
-        },
     });
     return order;
 }

@@ -61,7 +61,7 @@ export async function getOrderDetail(orderId: string, userId: string, userType: 
     }
 
     if (existingOrder.userId !== userId) {
-        throw new ForbiddenError('주문 작성자만 조회할 수 있습니다.');
+        throw new ForbiddenError('본인의 주문만 상세 조회할 수 있습니다');
     }
 
     const order = await orderRepository.getOrderDetail(orderId, userId);
