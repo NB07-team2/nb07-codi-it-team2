@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { NotFoundError } from "../errors/errors";
-import { CreateOrderRepoDto, OrderMyPagingRepoParams } from "../types/order.type";
+import { CreateOrderRepoDto, OrderMyPagingRepoParams, UpdateOrderRepoDto } from "../types/order.type";
 import prisma from '../utils/prismaClient.util';
 import * as stockRepository from "./stock.repository";
 
@@ -250,4 +250,41 @@ export async function getOrderById(orderId: string) {
         where: { id: orderId },
     });
     return order;
+}
+
+export async function updateOrder(orderId: string, updateData: UpdateOrderRepoDto, userId: string) {
+    
+    const existingOrder = await prisma.order.findFirst({
+        where: {
+            id: orderId,
+            userId: userId,
+        },
+    });
+    if (!existingOrder) {
+        return null; 
+    }
+    return await prisma.$transaction(async (tx) => {
+        const updatedOrder = await tx.order.update({
+            where: { id: orderId },
+            data: {
+                name: updateData.name,
+                phone: updateData.phone,
+                address: updateData.address,
+            },
+        });
+        return await tx.order.findUnique({
+            where: { id: updatedOrder.id },
+            include: {
+                orderItems: { include: { 
+                    product: 
+                    {
+                        include: {reviews: true}
+                    }, 
+                    size: true 
+                    } 
+                },
+                payments: true,
+            },
+        });
+    }); 
 }

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import * as orderService from '../services/order.service';
-import { getOrdersMyListStruct, orderCreateSchema, orderIdSchema } from '../structs/order.struct';
+import { getOrdersMyListStruct, orderCreateSchema, orderIdSchema, orderUpdateSchema } from '../structs/order.struct';
 import { create } from 'superstruct';
 
 export async function createOrder(req: Request, res: Response) {
@@ -25,3 +25,11 @@ export async function getOrderDetail(req: Request, res: Response) {
     const orderDetailData = await orderService.getOrderDetail(orderId, userId, userType);
     res.status(200).json(orderDetailData);
 }
+
+export async function updateOrder(req: Request, res: Response) {
+    const {id: userId, type: userType} = req.user!;
+    const {id: orderId } = orderIdSchema.parse(req.params);
+    const validatedData = orderUpdateSchema.parse(req.body);
+    const updatedOrder = await orderService.updateOrder(orderId, validatedData, userId, userType);
+    res.status(200).json(updatedOrder);
+} 

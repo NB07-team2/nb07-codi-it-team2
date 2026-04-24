@@ -15,6 +15,12 @@ export interface CreateOrderRepoDto {
     usePoint?: number;
 }
 
+export interface UpdateOrderRepoDto {
+    name?: string;
+    phone?: string;
+    address?: string;
+}
+
 export interface OrderResponseItem {
     id: string;
     name: string;
