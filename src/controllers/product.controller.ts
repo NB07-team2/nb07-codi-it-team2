@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { createProductbody, getProductsQuery } from '../structs/product.struct';
 import { ProductListResponseDto } from '../models/product.model';
 import * as productService from '../services/product.service';
+import { productIdParamSchema } from '../structs/product.struct';
 
 // 새 상품 등록
 export const createProductController = async (req: Request, res: Response) => {
@@ -46,4 +47,15 @@ export const getProductDetailController = async (
   const productDetail = await productService.getProductDetail(productId);
 
   res.status(200).json(productDetail);
+};
+
+// 상품 삭제
+export const deleteProductController = async (req: Request, res: Response) => {
+  const { productId } = productIdParamSchema.parse(req.params);
+  const userId = req.user!.id;
+  const userType = req.user!.type;
+
+  await productService.deleteProduct(userId, userType, productId);
+
+  res.status(204).json();
 };
