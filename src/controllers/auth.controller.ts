@@ -17,7 +17,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 
   const { response, refreshToken } = result;
-
   const isProduction = NODE_ENV === 'production';
 
   res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
