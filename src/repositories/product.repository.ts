@@ -135,8 +135,24 @@ export const ProductRepository = {
   findById: async (productId: string) => {
     return await prisma.product.findUnique({
       where: { id: productId },
+      include: {
+        store: true,
+        category: true,
+        stocks: {
+          include: { size: true },
+        },
+        reviews: true,
+        inquiries: {
+          include: {
+            reply: {
+              include: { user: true },
+            },
+          },
+        },
+      },
     });
   },
+
   // 상품 수정
   update: async (
     tx: Prisma.TransactionClient,
