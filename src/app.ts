@@ -21,20 +21,21 @@ import orderRouter from './routes/order.route';
 const app = express();
 
 app.set('trust proxy', 1); //AWS 환경을 신뢰하겠다는 설정
-app.use(
-  cors({
-    origin: true,
-    // [
-    //   'https://codiit.site', // 최종 프론트엔드 주소
-    //   'https://main.d3413g8a7ia3kb.amplifyapp.com', // 기존 프론트엔드 주소
-    //   'http://localhost:3001', //로컬 테스트용
-    //   'http://localhost:3000', //로컬 테스트용
-    // ]
-    credentials: true, // 쿠키나 인증 헤더(Authorization)를 주고받기 위해 필수
-    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-  }),
-);
+app.use(cors());
+// app.use(
+//   cors({
+//     origin:
+//     // [
+//     //   'https://codiit.site', // 최종 프론트엔드 주소
+//     //   'https://main.d3413g8a7ia3kb.amplifyapp.com', // 기존 프론트엔드 주소
+//     //   'http://localhost:3001', //로컬 테스트용
+//     //   'http://localhost:3000', //로컬 테스트용
+//     // ],
+//     credentials: true, // 쿠키나 인증 헤더(Authorization)를 주고받기 위해 필수
+//     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+//   }),
+// );
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
