@@ -6,5 +6,6 @@ const router = Router();
 
 router.get("/sse", authenticate, notificationController.streamNotifications);
 router.get("/", authenticate, notificationController.getNotifications);
+router.patch("/:alarmId/check", authenticate, notificationController.checkNotification);
 
 export default router;

@@ -100,3 +100,24 @@ export const findAllNotifications = async (params: {
     ]);
     return { list, totalCount };
 }
+
+export const getNotificationById = async(id:string) => {
+    return await prisma.notification.findUnique({
+        where: {id},
+    });
+};
+
+export const updateNotificationReadStatus = async(id:string, isChecked:boolean) => {
+    return await prisma.notification.update({
+        where: {id},
+        data: {isChecked},
+        select: {
+            id: true,
+            userId: true,
+            content: true,
+            isChecked: true,
+            createdAt: true,
+            updatedAt: true,
+        }
+    });
+};

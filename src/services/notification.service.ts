@@ -2,6 +2,7 @@ import { SimpleUser } from "../types/cart.type";
 import * as notificationRepository from "../repositories/notification.repository";
 import { NotificationType, Notification as PrismaNotification } from "@prisma/client";
 import { GetNotificationsInput } from "../structs/notification.struct";
+import { ForbiddenError, NotFoundError } from "../errors/errors";
 
 type NotificationResponse = Omit<PrismaNotification, "type" | "isSent">;
 
@@ -43,4 +44,18 @@ export const getNotifications = async(user: SimpleUser, query:GetNotificationsIn
     });
 
     return { list, totalCount};
+};
+
+export const markAsRead = async(userId:string, alarmId:string) => {
+    const notification = await notificationRepository.getNotificationById(alarmId);
+
+    if (!notification) {
+        throw new NotFoundError("요청한 리소스를 찾을 수 없습니다.");
+    }
+
+    if (notification.userId !== userId) {
+        throw new ForbiddenError("접근 권한이 없습니다.");
+    }
+
+    return await notificationRepository.updateNotificationReadStatus(alarmId, true);
 };
