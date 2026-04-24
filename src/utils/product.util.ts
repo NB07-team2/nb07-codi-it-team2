@@ -61,12 +61,25 @@ export const mapInquiriesWithSecret = (
   return inquiries.map((iq) => {
     const isSecret = iq.isSecret;
     return {
-      ...iq,
+      id: iq.id,
+      title: iq.title,
       content: isSecret ? '비밀글입니다.' : iq.content,
+      status: iq.status,
+      isSecret: iq.isSecret,
+      createdAt: iq.createdAt,
+      updatedAt: iq.updatedAt,
       reply: iq.reply
         ? {
-            ...iq.reply,
+            id: iq.reply.id,
             content: isSecret ? '비밀글입니다.' : iq.reply.content,
+            user: iq.reply.user
+              ? {
+                  id: iq.reply.user.id,
+                  name: iq.reply.user.name,
+                }
+              : null,
+            createdAt: iq.reply.createdAt,
+            updatedAt: iq.reply.updatedAt,
           }
         : null,
     };

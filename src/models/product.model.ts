@@ -9,6 +9,7 @@ import {
   checkIsSoldOut,
   mapInquiriesWithSecret,
 } from '../utils/product.util';
+import { InquiryStatus } from '@prisma/client';
 
 export class ProductResponseDto {
   id: string;
@@ -27,7 +28,25 @@ export class ProductResponseDto {
   discountEndTime: Date | null;
   reviewsCount: number;
   reviews: ReviewSummary;
-  inquiries: Array<ProductWithRelations['inquiries'][number]>;
+  inquiries: {
+    id: string;
+    title: string;
+    content: string;
+    status: InquiryStatus;
+    isSecret: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    reply: {
+      id: string;
+      content: string;
+      user: {
+        id: string;
+        name: string;
+      } | null;
+      createdAt: Date;
+      updatedAt: Date;
+    } | null;
+  }[];
   categoryId: string;
   category: { id: string; name: string };
   stocks: StockDetail[];
