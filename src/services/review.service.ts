@@ -120,3 +120,21 @@ export const updateReview = async (
 
   return new ReivewResponseDto(updatedReview);
 };
+
+//리뷰 삭제
+export const deleteReview = async (
+  reviewId: string,
+  userId: string,
+  userType: UserType,
+) => {
+  if (userType !== 'BUYER') throw new ForbiddenError('구매자만 가능합니다.');
+
+  const review = await reviewRepository.findById(reviewId);
+  if (!review) throw new NotFoundError('리뷰를 찾을 수 없습니다.');
+
+  if (review.userId !== userId) {
+    throw new ForbiddenError('본인이 작성한 리뷰만 삭제할 수 있습니다.');
+  }
+
+  await reviewRepository.deleteReview(reviewId);
+};

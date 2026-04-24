@@ -94,14 +94,22 @@ export const reviewRepository = {
     });
   },
 
-  findById: async (id: string) => {
-    return await prisma.review.findUnique({ where: { id } });
+  findById: async (reviewId: string) => {
+    return await prisma.review.findUnique({ where: { id: reviewId } });
   },
+
   //리뷰 수정
   updateReview: async (id: string, data: UpdateReviewInput) => {
     return await prisma.review.update({
       where: { id },
       data,
+    });
+  },
+
+  //리뷰 삭제
+  deleteReview: async (reviewId: string) => {
+    return await prisma.review.delete({
+      where: { id: reviewId },
     });
   },
 };
