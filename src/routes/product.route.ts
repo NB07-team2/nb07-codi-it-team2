@@ -22,11 +22,7 @@ productRouter.get(
 //   upload.single('image'),
 //   patchProduct,
 // );
-// productRouter.get(
-//   '/productId',
-//   authenticate,
-//   getProduct,
-// );
+productRouter.get('/:productId', productController.getProductDetailController);
 // productRouter.delete(
 //   '/productId',
 //   authenticate,

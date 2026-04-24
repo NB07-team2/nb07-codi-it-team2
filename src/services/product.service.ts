@@ -86,3 +86,14 @@ export const getProducts = async (query: GetProductsQuery) => {
 
   return { list: finalList, totalCount };
 };
+
+// 상품 상세 조회
+export const getProductDetail = async (productId: string) => {
+  const product = await ProductRepository.findById(productId);
+
+  if (!product) {
+    throw new NotFoundError('요청하신 상품을 찾을 수 없습니다.');
+  }
+
+  return new ProductResponseDto(product as ProductWithRelations);
+};
