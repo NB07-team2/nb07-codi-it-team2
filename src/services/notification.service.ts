@@ -1,6 +1,6 @@
 import { SimpleUser } from "../types/cart.type";
 import * as notificationRepository from "../repositories/notification.repository";
-import { Notification as PrismaNotification } from "@prisma/client";
+import { NotificationType, Notification as PrismaNotification } from "@prisma/client";
 import { GetNotificationsInput } from "../structs/notification.struct";
 import { NotFoundError } from "../errors/errors";
 
@@ -27,8 +27,8 @@ export const getNotifications = async(user: SimpleUser, query:GetNotificationsIn
     const skip = (page - 1) * pageSize;
 
     const notificationType = user.type === "BUYER"
-    ? ["SOLDOUT", "INQUIRY_ANSWER"]
-    : ["SOLDOUT", "NEW_INQUIRY"];
+    ? [NotificationType.SOLDOUT, NotificationType.INQUIRY_ANSWER]
+    : [NotificationType.SOLDOUT, NotificationType.NEW_INQUIRY];
 
     let isCheckedField: boolean | undefined;
     if (filter === "unChecked") isCheckedField = false;
@@ -42,10 +42,6 @@ export const getNotifications = async(user: SimpleUser, query:GetNotificationsIn
         take: pageSize,
         sort,
     });
-
-    if (totalCount === 0) {
-        throw new NotFoundError("요청한 리소스를 찾을 수 없습니다.");
-    }
 
     return { list, totalCount};
 };

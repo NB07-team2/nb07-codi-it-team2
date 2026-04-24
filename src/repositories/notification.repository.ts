@@ -67,7 +67,7 @@ export const markAsSent = async (ids: string[]) => {
 
 export const findAllNotifications = async (params: {
     userId: string,
-    types: string[];
+    types: NotificationType[];
     isChecked?: boolean;
     skip: number;
     take: number;
@@ -77,13 +77,21 @@ export const findAllNotifications = async (params: {
 
     const where = {
         userId,
-        type: { in: types as NotificationType[] },
+        type: { in: types },
         ...(isChecked !== undefined && { isChecked }),
     };
 
     const [list, totalCount] = await Promise.all([
         prisma.notification.findMany({
             where,
+            select: {
+                id: true,
+                userId: true,
+                content: true,
+                isChecked: true,
+                createdAt: true,
+                updatedAt: true,
+            },
             skip,
             take,
             orderBy: { createdAt: sort === 'recent' ? 'desc' : 'asc' },
