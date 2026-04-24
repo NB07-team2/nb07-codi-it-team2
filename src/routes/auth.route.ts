@@ -6,9 +6,27 @@ import { authenticate } from '../middlewares/auth.middlewares';
 
 const authRouter = Router();
 
+// const authLimiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15분
+//   max: 5, // 15분에 5번까지
+//   message: { message: '너무 많은 요청입니다. 잠시 후 다시 시도해주세요.' },
+//   standardHeaders: true,
+//   legacyHeaders: false,
+//   skipFailedRequests: true,
+// });
+
+// const refreshLimiter = rateLimit({
+//   windowMs: 1 * 60 * 1000, // 1분
+//   max: 10, // 1분에 10번까지
+//   message: { message: '너무 많은 요청입니다. 잠시 후 다시 시도해주세요.' },
+//   standardHeaders: true,
+//   legacyHeaders: false,
+//   skipFailedRequests: true,
+// });
+
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15분
-  max: 5, // 15분에 5번까지
+  windowMs: 1 * 60 * 1000, // 1분
+  max: 60, // 1분에 60번까지
   message: { message: '너무 많은 요청입니다. 잠시 후 다시 시도해주세요.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -17,7 +35,7 @@ const authLimiter = rateLimit({
 
 const refreshLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1분
-  max: 10, // 1분에 10번까지
+  max: 60, // 1분에 60번까지
   message: { message: '너무 많은 요청입니다. 잠시 후 다시 시도해주세요.' },
   standardHeaders: true,
   legacyHeaders: false,
