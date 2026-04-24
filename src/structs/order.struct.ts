@@ -39,9 +39,9 @@ export const orderIdSchema = z.object({
 });
 
 export const orderUpdateSchema = z.object({
-name: z.string().min(1, '주문자 이름은 필수입니다.').max(50, '주문자 이름은 최대 50자까지 입력 가능합니다.').optional(),
-phone: z.string().min(1, '전화번호는 필수입니다.').max(20, '전화번호는 최대 20자까지 입력 가능합니다.').optional(),
-address: z.string().min(1, '배송 주소는 필수입니다.').max(200, '배송 주소는 최대 200자까지 입력 가능합니다.').optional(),
+name: z.string().min(1, '빈 값은 허용되지 않습니다').max(50, '주문자 이름은 최대 50자까지 입력 가능합니다.').optional(),
+phone: z.string().min(1, '빈 값은 허용되지 않습니다').max(20, '전화번호는 최대 20자까지 입력 가능합니다.').optional(),
+address: z.string().min(1, '빈 값은 허용되지 않습니다').max(200, '배송 주소는 최대 200자까지 입력 가능합니다.').optional(),
 });
 
 export type OrderUpdateInput = z.infer<typeof orderUpdateSchema>;

@@ -80,9 +80,9 @@ export async function updateOrder(orderId: string, updateData: OrderUpdateInput,
     if (existingOrder.userId !== userId) {
         throw new ForbiddenError('본인의 주문만 수정할 수 있습니다.');
     }
-    const updatedOrder = await orderRepository.updateOrder(orderId, dto, userId);
+    const updatedOrder = await orderRepository.updateOrder(orderId, dto);
     if (!updatedOrder) {
         throw new NotFoundError('주문 수정에 실패했습니다.');
     }
-    return new OrderResponseDto(updatedOrder);
+    return new OrderResponseDto(updatedOrder!);
 } 

@@ -252,17 +252,8 @@ export async function getOrderById(orderId: string) {
     return order;
 }
 
-export async function updateOrder(orderId: string, updateData: UpdateOrderRepoDto, userId: string) {
+export async function updateOrder(orderId: string, updateData: UpdateOrderRepoDto) {
     
-    const existingOrder = await prisma.order.findFirst({
-        where: {
-            id: orderId,
-            userId: userId,
-        },
-    });
-    if (!existingOrder) {
-        return null; 
-    }
     return await prisma.$transaction(async (tx) => {
         const updatedOrder = await tx.order.update({
             where: { id: orderId },
