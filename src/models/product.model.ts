@@ -90,7 +90,6 @@ export class ProductResponseDto {
 
     this.stocks = product.stocks.map((stock) => ({
       id: stock.id,
-      productId: stock.productId,
       quantity: stock.quantity,
       size: {
         id: stock.size.id,
