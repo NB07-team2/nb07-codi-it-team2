@@ -193,7 +193,9 @@ export const deleteProduct = async (
   if (userType !== 'SELLER') {
     throw new ForbiddenError('판매자만 상품을 삭제할 수 있습니다.');
   }
-  const product = await ProductRepository.findById(productId);
+  const product = (await ProductRepository.findById(
+    productId,
+  )) as ProductWithRelations;
 
   if (!product) {
     throw new NotFoundError('요청하신 상품을 찾을 수 없습니다.');
