@@ -1,4 +1,4 @@
-import { OrderCreateInput } from "../structs/order.struct";
+import { OrderCreateInput, OrderUpdateInput } from "../structs/order.struct";
 import { OrderResponseItem } from "../types/order.type";
 
 export class CreateOrderDto{
@@ -24,6 +24,19 @@ export class CreateOrderDto{
         this.usePoint = data.usePoint || 0;
     }
 }
+
+export class UpdateOrderDto {
+    name?: string;
+    phone?: string;
+    address?: string;
+
+    constructor(data: OrderUpdateInput) {
+        this.name = data.name;
+        this.phone = data.phone;
+        this.address = data.address;
+    }
+}   
+
 
 export class OrderResponseDto {
     id: string;
