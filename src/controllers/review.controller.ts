@@ -78,3 +78,13 @@ export const updateReviewController = async (req: Request, res: Response) => {
 
   res.status(200).json(result);
 };
+
+//리뷰 삭제
+export const deleteReviewController = async (req: Request, res: Response) => {
+  const { reviewId } = create(req.params, ReviewIdParamStruct);
+  const { id: userId, type: userType } = req.user!;
+
+  await ReviewService.deleteReview(reviewId, userId, userType);
+
+  return res.status(204).send();
+};
