@@ -33,3 +33,7 @@ export const getOrdersMyListStruct = object({
   limit: defaulted(min(integerString, 1), 10),
   status: optional(enums(Object.values(PaymentStatus))),
 });
+
+export const orderIdSchema = z.object({
+  id: z.string().min(1, '올바른 주문 ID 형식이 아닙니다.'),
+});
