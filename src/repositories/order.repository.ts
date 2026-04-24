@@ -220,3 +220,34 @@ export async function getOrderMyList(params:OrderMyPagingRepoParams, userId: str
         },
     };
 }
+
+export async function getOrderDetail(orderId: string, userId: string) {
+    const order = await prisma.order.findFirst({
+        where: {
+            id: orderId,
+            userId: userId,
+        },
+        include: {
+            orderItems: {
+                include: {
+                    product: {
+                        include: {reviews: true}
+                    },
+                    size: {
+                        select: { id: true, enName: true, koName: true},
+                    },
+                },
+            },
+            payments: true,
+        },
+    });
+    return order;
+}
+
+
+export async function getOrderById(orderId: string) {
+    const order = await prisma.order.findUnique({
+        where: { id: orderId },
+    });
+    return order;
+}

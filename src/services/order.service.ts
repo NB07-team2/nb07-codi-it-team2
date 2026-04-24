@@ -48,3 +48,22 @@ export async function getOrderMyList(params: { page: number; limit: number;statu
         meta: orderListData.meta,
     };
 } 
+
+
+export async function getOrderDetail(orderId: string, userId: string, userType: UserType) {
+    if(userType !== 'BUYER'){   
+        throw new ForbiddenError('주문 상세 조회는 구매자만 가능합니다.');
+    }
+
+    const existingOrder = await orderRepository.getOrderById(orderId);
+    if (!existingOrder) {
+        throw new NotFoundError('주문을 찾을 수 없습니다.');
+    }
+
+    if (existingOrder.userId !== userId) {
+        throw new ForbiddenError('본인의 주문만 상세 조회할 수 있습니다');
+    }
+
+    const order = await orderRepository.getOrderDetail(orderId, userId);
+    return new OrderResponseDto(order!);
+}
