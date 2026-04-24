@@ -64,3 +64,39 @@ export const markAsSent = async (ids: string[]) => {
         },
     });
 };
+
+export const findAllNotifications = async (params: {
+    userId: string,
+    types: NotificationType[];
+    isChecked?: boolean;
+    skip: number;
+    take: number;
+    sort: 'recent' | 'oldest';
+}) => {
+    const { userId, types, isChecked, skip, take, sort } = params;
+
+    const where = {
+        userId,
+        type: { in: types },
+        ...(isChecked !== undefined && { isChecked }),
+    };
+
+    const [list, totalCount] = await Promise.all([
+        prisma.notification.findMany({
+            where,
+            select: {
+                id: true,
+                userId: true,
+                content: true,
+                isChecked: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+            skip,
+            take,
+            orderBy: { createdAt: sort === 'recent' ? 'desc' : 'asc' },
+        }),
+        prisma.notification.count({ where }),
+    ]);
+    return { list, totalCount };
+}

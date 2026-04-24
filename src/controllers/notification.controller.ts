@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler.util";
 import * as notificationService from "../services/notification.service";
+import { getNotificationsSchema } from "../structs/notification.struct";
 
 export const streamNotifications = asyncHandler(async (req: Request, res: Response) => {
     const user = req.user!;
@@ -32,3 +33,12 @@ export const streamNotifications = asyncHandler(async (req: Request, res: Respon
         res.end();
     })
 })
+
+export const getNotifications = asyncHandler(async (req: Request, res:Response) => {
+    const user = req.user!;
+    const query = getNotificationsSchema.parse(req.query);
+
+    const result = await notificationService.getNotifications(user, query);
+
+    return res.status(200).json(result);
+});
