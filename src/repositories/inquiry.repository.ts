@@ -1,8 +1,8 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, UserType } from '@prisma/client';
 import {CreateReplyRepoDto, InquiryMyPagingRepoParams,InquiryStatus, UpdateInquiryRepoDto, UpdateReplyRepoDto } from '../types/inquiry.type';
 import prisma from '../utils/prismaClient.util';
 
-export async function myInquiryList(params: InquiryMyPagingRepoParams, userId: string, userType: string) {
+export async function myInquiryList(params: InquiryMyPagingRepoParams, userId: string, userType: UserType) {
     const { page, pageSize, status} = params;
     const skip = (page - 1) * pageSize; 
 
@@ -52,7 +52,7 @@ export async function myInquiryList(params: InquiryMyPagingRepoParams, userId: s
     };      
 }
 
-export async function getInquiryDetail(inquiryId: string,userId:string,userType:string) { 
+export async function getInquiryDetail(inquiryId: string,userId:string,userType:UserType) { 
 
     const whereCondition: Prisma.InquiryWhereInput = {
         id: inquiryId,
@@ -130,6 +130,19 @@ export async function deleteInquiry (inquiryId: string,userId: string) {
             reply: { 
                 include: { user: true } 
             }
+        },
+    });
+}
+
+export async function getInquiryStore(inquiryId: string) {  
+    return await prisma.inquiry.findUnique({
+        where: { id: inquiryId },
+        include: {
+            product: {
+                include: {
+                    store: true,
+                },
+            },
         },
     });
 }
