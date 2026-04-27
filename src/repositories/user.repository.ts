@@ -52,3 +52,10 @@ export const deleteUser = async (id: string) => {
     where: { id },
   });
 };
+
+// 모든 등급 기준 조회
+export const findAllGrades = async () => {
+  return await prisma.grade.findMany({
+    orderBy: { minAmount: 'desc' },
+  });
+};
