@@ -3,10 +3,16 @@ import { ProductRepository } from '../repositories/product.repository';
 import * as imageService from './image.service';
 import { ConflictError, NotFoundError, ForbiddenError } from '../errors/errors';
 import { ProductResponseDto } from '../models/product.model';
-import { CreateProductDTO, GetProductsQuery } from '../structs/product.struct';
+import {
+  CreateProductDTO,
+  GetProductsQuery,
+  UpdateProductDTO,
+} from '../structs/product.struct';
 import { UserType, ProductCategoryName } from '@prisma/client';
 import { ProductWithRelations } from '../types/product.type';
+import { DEFAULT_IMAGE } from '../utils/constants.util';
 
+// 새 상품 등록
 export const createProduct = async (
   userId: string,
   userType: UserType,
@@ -85,4 +91,131 @@ export const getProducts = async (query: GetProductsQuery) => {
   }
 
   return { list: finalList, totalCount };
+};
+
+// 상품 수정
+export const updateProduct = async (
+  userId: string,
+  userType: UserType,
+  productId: string,
+  data: UpdateProductDTO,
+  file?: Express.Multer.File,
+) => {
+  // 권한 확인
+  if (userType !== 'SELLER')
+    throw new ForbiddenError('판매자만 상품을 수정할 수 있습니다.');
+
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    include: { store: true },
+  });
+
+  if (!product) throw new NotFoundError('상품을 찾을 수 없습니다.');
+  if (product.store.userId !== userId)
+    throw new ForbiddenError('자신의 스토어 상품만 수정할 수 있습니다.');
+
+  const updateFields: UpdateProductDTO & {
+    categoryId?: string;
+    image?: string;
+  } = { ...data };
+  let stocksMap: { sizeId: number; quantity: number }[] | undefined = undefined;
+
+  // 카테고리 변경
+  if (data.categoryName) {
+    const category = await prisma.productCategory.findUnique({
+      where: { name: data.categoryName as ProductCategoryName },
+    });
+    if (!category) throw new NotFoundError('해당 카테고리를 찾을 수 없습니다.');
+    updateFields.categoryId = category.id;
+  }
+
+  // 이미지 변경
+  if (file) {
+    if (product.image && product.image !== DEFAULT_IMAGE) {
+      try {
+        await imageService.deleteFromS3(product.image);
+        console.log(`기존 상품 이미지 S3 삭제 완료: ${product.image}`);
+      } catch (error) {
+        console.error('기존 상품 이미지 S3 삭제 중 오류 발생:', error);
+      }
+    }
+    const uploadResult = await imageService.uploadImage(file);
+    updateFields.image = uploadResult.url;
+  }
+
+  // 재고 변경
+  if (data.stocks) {
+    const sizes = await prisma.size.findMany();
+
+    stocksMap = data.stocks.map((stock) => {
+      const sizeRecord = sizes.find((s) => s.name === stock.size);
+
+      if (!sizeRecord) {
+        throw new NotFoundError(`사이즈(${stock.size}) 없음`);
+      }
+
+      return {
+        sizeId: sizeRecord.id,
+        quantity: stock.quantity,
+      };
+    });
+  }
+
+  const updatedProduct = await prisma.$transaction(async (tx) => {
+    return await ProductRepository.update(
+      tx,
+      productId,
+      updateFields,
+      stocksMap,
+    );
+  });
+
+  return new ProductResponseDto(updatedProduct as ProductWithRelations);
+};
+
+// 상품 상세 조회
+export const getProductDetail = async (productId: string) => {
+  const product = await ProductRepository.findById(productId);
+
+  if (!product) {
+    throw new NotFoundError('요청하신 상품을 찾을 수 없습니다.');
+  }
+
+  return new ProductResponseDto(product as ProductWithRelations);
+};
+
+// 상품 삭제
+export const deleteProduct = async (
+  userId: string,
+  userType: UserType,
+  productId: string,
+) => {
+  if (userType !== 'SELLER') {
+    throw new ForbiddenError('판매자만 상품을 삭제할 수 있습니다.');
+  }
+  const product = (await ProductRepository.findById(
+    productId,
+  )) as ProductWithRelations;
+
+  if (!product) {
+    throw new NotFoundError('요청하신 상품을 찾을 수 없습니다.');
+  }
+
+  if (product.store.userId !== userId) {
+    throw new ForbiddenError('자신의 스토어 상품만 삭제할 수 있습니다.');
+  }
+
+  const imageToDelete = product.image;
+
+  await ProductRepository.delete(productId);
+
+  if (imageToDelete && imageToDelete !== DEFAULT_IMAGE) {
+    try {
+      await imageService.deleteFromS3(imageToDelete);
+      console.log(`상품 삭제에 따른 S3 이미지 삭제 완료: ${imageToDelete}`);
+    } catch (error) {
+      console.error('상품 삭제 중 S3 이미지 삭제 오류 발생:', error);
+    }
+  }
+  return { message: '상품이 삭제되었습니다.' };
 };

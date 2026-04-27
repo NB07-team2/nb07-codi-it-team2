@@ -1,8 +1,8 @@
 import { UserType } from "@prisma/client";
-import { CreateOrderDto, OrderResponseDto } from "../models/order.model";
+import { CreateOrderDto, OrderResponseDto, UpdateOrderDto } from "../models/order.model";
 import * as orderRepository from "../repositories/order.repository";
 import { OrderCreateInput } from "../structs/order.struct";
-import { ForbiddenError, NotFoundError } from "../errors/errors";
+import { BadRequestError, ForbiddenError, NotFoundError } from "../errors/errors";
 import * as pointRepository from "../repositories/point.repository";
 import { OrderStatus } from "../types/order.type";
 export async function createOrder(orderData: OrderCreateInput, userId: string,userType: UserType) {
@@ -47,4 +47,41 @@ export async function getOrderMyList(params: { page: number; limit: number;statu
         data: orderListData.data.map(order => new OrderResponseDto(order)),
         meta: orderListData.meta,
     };
+} 
+
+
+export async function getOrderDetail(orderId: string, userId: string, userType: UserType) {
+    if(userType !== 'BUYER'){   
+        throw new ForbiddenError('주문 상세 조회는 구매자만 가능합니다.');
+    }
+
+    const existingOrder = await orderRepository.getOrderById(orderId);
+    if (!existingOrder) {
+        throw new NotFoundError('주문을 찾을 수 없습니다.');
+    }
+
+    if (existingOrder.userId !== userId) {
+        throw new ForbiddenError('본인의 주문만 상세 조회할 수 있습니다');
+    }
+
+    const order = await orderRepository.getOrderDetail(orderId, userId);
+    return new OrderResponseDto(order!);
+}
+
+export async function updateOrder(orderId: string, updateData: UpdateOrderDto, userId: string, userType: UserType) {
+    if(userType !== 'BUYER'){   
+        throw new ForbiddenError('주문 수정은 구매자만 가능합니다.');
+    }
+    const existingOrder = await orderRepository.getOrderById(orderId);
+    if (!existingOrder) {
+        throw new NotFoundError('주문을 찾을 수 없습니다.');
+    }
+    if (existingOrder.userId !== userId) {
+        throw new ForbiddenError('본인의 주문만 수정할 수 있습니다.');
+    }
+    const updatedOrder = await orderRepository.updateOrder(orderId, updateData);
+    if (!updatedOrder) {
+        throw new BadRequestError('주문 수정에 실패했습니다.');
+    }
+    return new OrderResponseDto(updatedOrder!);
 } 

@@ -29,7 +29,6 @@ app.use(
       'http://localhost:3001', //로컬 테스트용
       'http://localhost:3000', //로컬 테스트용
     ],
-
     credentials: true, // 쿠키나 인증 헤더(Authorization)를 주고받기 위해 필수
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],

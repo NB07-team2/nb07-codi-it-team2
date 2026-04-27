@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { NotFoundError } from "../errors/errors";
-import { CreateOrderRepoDto, OrderMyPagingRepoParams } from "../types/order.type";
+import { CreateOrderRepoDto, OrderMyPagingRepoParams, UpdateOrderRepoDto } from "../types/order.type";
 import prisma from '../utils/prismaClient.util';
 import * as stockRepository from "./stock.repository";
 
@@ -219,4 +219,63 @@ export async function getOrderMyList(params:OrderMyPagingRepoParams, userId: str
             totalPages : Math.ceil(meta / limit),
         },
     };
+}
+
+export async function getOrderDetail(orderId: string, userId: string) {
+    const order = await prisma.order.findFirst({
+        where: {
+            id: orderId,
+            userId: userId,
+        },
+        include: {
+            orderItems: {
+                include: {
+                    product: {
+                        include: {reviews: true}
+                    },
+                    size: {
+                        select: { id: true, enName: true, koName: true},
+                    },
+                },
+            },
+            payments: true,
+        },
+    });
+    return order;
+}
+
+
+export async function getOrderById(orderId: string) {
+    const order = await prisma.order.findUnique({
+        where: { id: orderId },
+    });
+    return order;
+}
+
+export async function updateOrder(orderId: string, updateData: UpdateOrderRepoDto) {
+    
+    return await prisma.$transaction(async (tx) => {
+        const updatedOrder = await tx.order.update({
+            where: { id: orderId },
+            data: {
+                name: updateData.name,
+                phone: updateData.phone,
+                address: updateData.address,
+            },
+        });
+        return await tx.order.findUnique({
+            where: { id: updatedOrder.id },
+            include: {
+                orderItems: { include: { 
+                    product: 
+                    {
+                        include: {reviews: true}
+                    }, 
+                    size: true 
+                    } 
+                },
+                payments: true,
+            },
+        });
+    }); 
 }

@@ -11,6 +11,11 @@ const isoDateString = z
     message: '유효한 ISO 날짜 문자열이 아닙니다.',
   });
 
+//  productId 파라미터 검증 스키마
+export const productIdParamSchema = z.object({
+  productId: z.string().cuid('유효하지 않은 상품 ID 형식입니다.'),
+});
+
 export const createProductbody = z
   .object({
     name: z
@@ -81,6 +86,7 @@ export const createProductbody = z
       }
     }
   });
+
 export const getProductsQuery = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).default(16),
@@ -102,5 +108,45 @@ export const getProductsQuery = z.object({
   categoryName: z.string().optional(),
 });
 
+export const updateProductSchema = z.object({
+  name: z.string().min(1).max(50).optional(),
+  content: z.string().min(1).max(1000).nullable().optional(),
+  price: z.coerce.number().int().min(0).optional(),
+  categoryName: z.string().optional(),
+  discountRate: z.coerce.number().int().min(0).max(100).optional(),
+  discountStartTime: z.string().datetime().nullable().optional(),
+  discountEndTime: z.string().datetime().nullable().optional(),
+  stocks: z.preprocess(
+    (val) => {
+      if (!val || val === '') return undefined;
+
+      if (Array.isArray(val) || typeof val !== 'string') return val;
+
+      let cleanVal = val
+        .trim()
+        .replace(/^["']|["']$/g, '')
+        .replace(/,+$/, '');
+
+      if (cleanVal.startsWith('"') && cleanVal.endsWith('"')) {
+        cleanVal = cleanVal.slice(1, -1);
+      }
+
+      if (cleanVal.startsWith('[')) {
+        return JSON.parse(cleanVal);
+      }
+      return cleanVal;
+    },
+    z
+      .array(
+        z.object({
+          size: z.string(),
+          quantity: z.number().int().min(0),
+        }),
+      )
+      .optional(),
+  ),
+});
+
 export type GetProductsQuery = z.infer<typeof getProductsQuery>;
 export type CreateProductDTO = z.infer<typeof createProductbody>;
+export type UpdateProductDTO = z.infer<typeof updateProductSchema>;

@@ -17,7 +17,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 
   const { response, refreshToken } = result;
-
   const isProduction = NODE_ENV === 'production';
 
   res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
@@ -41,8 +40,16 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
     return;
   }
   const tokens = await authService.refreshTokens(refreshToken);
+  const isProduction = NODE_ENV === 'production';
 
-  res.status(200).json(tokens);
+  res.cookie(REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+    domain: isProduction ? '.codiit.site' : undefined,
+  });
+
+  res.status(200).json({ accessToken: tokens.accessToken });
 };
 
 // 로그아웃

@@ -37,7 +37,6 @@ export interface ReviewSummary {
 // 재고 상세 정보 인터페이스
 export interface StockDetail {
   id: string;
-  productId: string;
   quantity: number;
   size: {
     id: number;
