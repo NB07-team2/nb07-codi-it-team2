@@ -7,4 +7,11 @@ export const getNotificationsSchema = z.object({
   filter: z.enum(['all', 'unChecked', 'checked']).default('all'),
 });
 
+export const checkNotificationSchema = z.object({
+  params: z.object({
+    alarmId: z.string().cuid({ message: "올바르지 않은 알람 ID 형식입니다." }),
+  }),
+});
+
 export type GetNotificationsInput = z.infer<typeof getNotificationsSchema>;
+export type CheckNotificationInput = z.infer<typeof checkNotificationSchema>;
