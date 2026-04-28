@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, NotificationType } from '@prisma/client';
 import { NotFoundError } from '../errors/errors';
 import {
   CreateOrderRepoDto,
@@ -114,7 +114,7 @@ export async function createOrder(
         );
       }
       // 재고 차감
-      await tx.stock.update({
+      const updatedStock = await tx.stock.update({
         where: {
           productId_sizeId: {
             productId: item.productId,
@@ -122,8 +122,40 @@ export async function createOrder(
           },
         },
         data: { quantity: { decrement: item.quantity } },
+        include: {
+          product: { include: { store: true } },
+        },
       });
+      // 품절 알림 로직 추가
+      if (updatedStock.quantity === 0) {
+        // [판매자 알림] 내 상품이 품절됨
+        await tx.notification.create({
+          data: {
+            userId: updatedStock.product.store.userId,
+            content: `[${item.name}] 상품이 품절되었습니다.`,
+            type: NotificationType.SOLDOUT,
+          },
+        });
+        // [구매자 알림] 다른 유저들의 장바구니 조회
+        const affectedCartItems = await tx.cartItem.findMany({
+          where: {
+            productId: item.productId,
+            // 지금 결제 중인 유저는 제외
+            cart: { buyerId: { not: userId } },
+          },
+          include: { cart: true },
+        });
 
+        if (affectedCartItems.length > 0) {
+          await tx.notification.createMany({
+            data: affectedCartItems.map((cartItem) => ({
+              userId: cartItem.cart.buyerId,
+              content: `장바구니에 담으신 [${item.name}] 상품이 품절되었습니다.`,
+              type: NotificationType.SOLDOUT,
+            })),
+          });
+        }
+      }
       // 장바구니에 해당 상품이 있다면 삭제 (선택 구매/바로 구매 공통 적용)
       // 장바구니를 거치지 않은 '바로 구매'여도 삭제 쿼리는 에러 없이 실행됩니다.
       const userCart = await tx.cart.findFirst({ where: { buyerId: userId } });
