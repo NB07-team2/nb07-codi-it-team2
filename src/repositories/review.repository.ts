@@ -62,7 +62,7 @@ export const reviewRepository = {
       where: { id: productId },
       select: { id: true },
     });
-    return !!product; //존재하면 true, 없으면 null이라 false 반환
+    return !!product;
   },
 
   //상품 아이디로 리뷰 목록 조회
