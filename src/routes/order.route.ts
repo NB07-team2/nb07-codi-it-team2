@@ -8,6 +8,7 @@ router.post('/', authenticate, orderController.createOrder);
 router.get('/', authenticate, orderController.getOrderMyList);
 router.get('/:id', authenticate, orderController.getOrderDetail);
 router.patch('/:id', authenticate, orderController.updateOrder);
+router.delete('/:id', authenticate, orderController.cancelOrder);   
 
 
 export default router;

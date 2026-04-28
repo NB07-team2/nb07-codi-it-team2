@@ -85,3 +85,21 @@ export async function updateOrder(orderId: string, updateData: UpdateOrderDto, u
     }
     return new OrderResponseDto(updatedOrder!);
 } 
+
+export async function cancelOrder(orderId: string, userId: string, userType: UserType) {
+    if(userType !== 'BUYER'){   
+        throw new ForbiddenError('주문 취소는 구매자만 가능합니다.');
+    }
+    const existingOrder = await orderRepository.getOrderById(orderId);
+    if (!existingOrder) {
+        throw new NotFoundError('주문을 찾을 수 없습니다.');
+    }
+    if (existingOrder.userId !== userId) {
+        throw new ForbiddenError('본인의 주문만 취소할 수 있습니다.');
+    }
+    const cancelledOrder = await orderRepository.cancelOrder(orderId, userId);
+    if(!cancelledOrder) {
+        throw new BadRequestError('주문 취소에 실패했습니다.');
+    }
+    return cancelledOrder;
+}

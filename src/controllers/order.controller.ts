@@ -33,3 +33,10 @@ export async function updateOrder(req: Request, res: Response) {
     const updatedOrder = await orderService.updateOrder(orderId, validatedData, userId, userType);
     res.status(200).json(updatedOrder);
 } 
+
+export async function cancelOrder(req: Request, res: Response) {
+    const {id: userId, type: userType} = req.user!;
+    const {id: orderId } = orderIdSchema.parse(req.params);
+    await orderService.cancelOrder(orderId, userId, userType);
+    res.status(200).json({ message: '주문이 성공적으로 취소되고 포인트가 복구되었습니다.' });
+}
