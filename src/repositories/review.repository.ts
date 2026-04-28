@@ -58,10 +58,11 @@ export const reviewRepository = {
 
   //상품 존재 확인
   checkProductExists: async (productId: string): Promise<boolean> => {
-    const count = await prisma.product.count({
+    const product = await prisma.product.findUnique({
       where: { id: productId },
+      select: { id: true },
     });
-    return count > 0;
+    return !!product; //존재하면 true, 없으면 null이라 false 반환
   },
 
   //상품 아이디로 리뷰 목록 조회
