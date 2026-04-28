@@ -140,7 +140,11 @@ export async function getInquiryStore(inquiryId: string) {
         include: {
             product: {
                 include: {
-                    store: true,
+                    store: {
+                        select: {
+                            userId: true,
+                        },  
+                    }     
                 },
             },
         },
@@ -148,22 +152,7 @@ export async function getInquiryStore(inquiryId: string) {
 }
 
 export async function createReply(replyData: CreateReplyRepoDto, userId: string) {
-    const {inquiryId} = replyData;
 
-    const whereCondition: Prisma.InquiryWhereInput = {
-        id: inquiryId,
-    };
-    whereCondition.product = {
-        store: {
-            userId: userId,
-        },
-    }; 
-    const existingInquiry = await prisma.inquiry.findFirst({
-        where: whereCondition,
-    });
-    if (!existingInquiry) {
-        return null;
-    }
     return await prisma.$transaction(async (tx) => {
         const createdReply = await tx.reply.create({
         data: {

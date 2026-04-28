@@ -75,13 +75,7 @@ export async function createReply(insertData: ReplyCreateInput,userType: UserTyp
     if (inquiryStore.product.store.userId !== userId) {
         throw new ForbiddenError('해당 문의는 판매자의 스토어에 속하지 않습니다.');
     }
-
-
-    const existingInquiry = await inquiryRepository.getInquiryById(insertData.inquiryId);
-    if (!existingInquiry) {
-        throw new NotFoundError('문의가 존재하지 않습니다.');
-    }
-    if (existingInquiry.status === 'CompletedAnswer') {
+    if (inquiryStore.status === 'CompletedAnswer') {
         throw new ConflictError('이미 답변이 등록된 문의입니다.');
     }
     const createdReply = await inquiryRepository.createReply(insertData, userId);
