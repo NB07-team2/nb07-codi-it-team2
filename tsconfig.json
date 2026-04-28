@@ -1,18 +1,14 @@
 {
   "compilerOptions": {
-    "rootDir": "./src",
+    "rootDir": "./",
     "outDir": "./dist",
 
-    // Environment Settings
-    "module": "CommonJS",
+    //모듈 및 환경 설정
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "target": "esnext",
-    "moduleResolution": "Node",
-    //"types": ["node", "jest", "express"],
+    "types": ["node", "jest", "express"],
     "typeRoots": ["./node_modules/@types", "./src/types"],
-    // For nodejs:
-    // "lib": ["esnext"],
-    // "types": ["node"],
-    // and npm install -D @types/node
 
     // Other Outputs
     "sourceMap": true,
@@ -21,16 +17,12 @@
 
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
-    //"exactOptionalPropertyTypes": true,
 
     // Style Options
     "noImplicitReturns": true,
-    // "noImplicitOverride": true,
     "noUnusedLocals": true,
-    // "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
-    // "noPropertyAccessFromIndexSignature": true,
 
     // Recommended Options
     "strict": true,
@@ -42,6 +34,6 @@
     "moduleDetection": "force",
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "src/types/*.d.ts"],
+  "include": ["src/**/*", "src/types/*.d.ts", "tests/**/*", "prisma/**/*.ts"],
   "exclude": ["node_modules", "dist", "prisma.config.ts"]
 }
