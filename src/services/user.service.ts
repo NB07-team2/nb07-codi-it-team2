@@ -118,31 +118,49 @@ export const deleteMe = async (userId: string) => {
 /**
  * 주문 완료 후 유저의 누적 금액, 등급, 포인트를 업데이트하는 로직
  * @param userId 업데이트할 유저 ID
- * @param paymentAmount 이번에 결제한 금액
+ * @param paymentAmount 이번에 실 결제한 금액 (totalSales)
+ * @param usedPoints 이번 결제에 사용한 포인트
+ * @param tx (선택) Prisma Transaction 클라이언트 (주문 트랜잭션과 묶기 위함)
  */
-// export const updateUserStatusAfterOrder = async (
-//   userId: string,
-//   paymentAmount: number,
-// ) => {
-//   // 유저 및 등급 정보 조회
-//   const user = await userRepository.findById(userId);
-//   if (!user) throw new NotFoundError('유저를 찾을 수 없습니다.');
 
-//   // 누적 금액 계산
-//   const newTotalPurchase = user.totalPurchase + paymentAmount;
+export const updateUserStatsAfterOrder = async (
+  userId: string,
+  paymentAmount: number,
+  usedPoints: number = 0,
+  tx?: Prisma.TransactionClient, 
+) => {
+  // 유저 정보 조회
+  const user = await userRepository.findById(userId);
+  if (!user) throw new NotFoundError('유저를 찾을 수 없습니다.');
 
-//   // 승급 되는지 체크 (Grade 테이블 조회 로직 필요)
-//   // TODO: Grade 테이블의 minAmount와 비교하여 등급 상향 로직 추가 예정
-//   let newGradeId = user.gradeId;
+  // 누적 금액 합산
+  const newTotalPurchase = user.totalPurchase + paymentAmount;
 
-//   // 포인트 계산
-//   // 현재 등급의 rate를 가져와서 포인트 적립액 계산 (창민님과 논의 예정)
-//   const earnedPoints = Math.floor(paymentAmount * (user.grade.rate / 100));
-//   const newPoints = user.points + earnedPoints;
+  // 등급 승급 체크
+  const allGrades = await userRepository.findAllGrades();
+  const targetGrade = allGrades.find(grade => newTotalPurchase >= grade.minAmount);
+  const newGradeId = targetGrade ? targetGrade.id : user.gradeId;
 
-//   return await userRepository.update(userId, {
-//     totalPurchase: newTotalPurchase,
-//     points: newPoints,
-//     gradeId: newGradeId,
-//   });
-// };
+  // 포인트 계산
+  // 현재 등급의 rate를 기준으로 획득할 포인트 계산
+  const earnedPoints = Math.floor(paymentAmount * (user.grade.rate / 100));
+  // 최종 포인트 = 기존 포인트 - 사용한 포인트 + 새로 획득한 포인트
+  const newPoints = user.points - usedPoints + earnedPoints;
+
+  // DB 업데이트 데이터 준비
+  const updateData = {
+    totalPurchase: newTotalPurchase,
+    points: newPoints,
+    gradeId: newGradeId,
+  };
+
+  // 트랜잭션이 전달되었다면 tx를 사용하고, 아니면 일반 업데이트 사용
+  if (tx) {
+    return await tx.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
+  }
+
+  return await userRepository.update(userId, updateData);
+};
