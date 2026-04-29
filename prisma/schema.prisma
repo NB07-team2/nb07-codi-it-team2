@@ -337,6 +337,7 @@ model Review {
 enum PaymentStatus {
   WaitingPayment
   CompletedPayment
+  Cancelled
 }
 
 model Payment {
