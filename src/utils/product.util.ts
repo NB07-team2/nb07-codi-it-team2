@@ -57,13 +57,18 @@ export const checkIsSoldOut = (stocks: ProductWithRelations['stocks']) => {
 // 상품 문의 내역 비밀글 매핑
 export const mapInquiriesWithSecret = (
   inquiries: ProductWithRelations['inquiries'],
+  currentUserId?: string,
+  sellerId?: string,
 ) => {
   return inquiries.map((iq) => {
     const isSecret = iq.isSecret;
+    const hasPermission =
+      !isSecret || iq.userId === currentUserId || sellerId === currentUserId;
+
     return {
       id: iq.id,
       title: iq.title,
-      content: isSecret ? '비밀글입니다.' : iq.content,
+      content: hasPermission ? iq.content : '비밀글입니다.',
       status: iq.status,
       isSecret: iq.isSecret,
       createdAt: iq.createdAt,
@@ -71,7 +76,7 @@ export const mapInquiriesWithSecret = (
       reply: iq.reply
         ? {
             id: iq.reply.id,
-            content: isSecret ? '비밀글입니다.' : iq.reply.content,
+            content: hasPermission ? iq.reply.content : '비밀글입니다.',
             user: iq.reply.user
               ? {
                   id: iq.reply.user.id,
