@@ -319,29 +319,25 @@ export async function updateOrder(
   });
 }
 
-export async function cancelOrder(orderId: string, userId: string) {
+export async function cancelOrder(orderId: string, userId: string,usePoint: number) {
 
     //주문이 성공적으로 취소되고 포인트가 복구되도록 하는 트랜잭션 로직을 구현합니다.
     const cancelledOrder = await prisma.$transaction(async (tx) => {
-        // 1. 주문 정보 조회 (포인트 복구를 위해 usePoint 정보 필요)
-        const order = await tx.order.findFirst({
-            where: { id: orderId, userId: userId },
-        });
-        // 2. 주문 취소
+        // 1. 주문 취소
         await tx.payment.updateMany({
             where: { orderId: orderId },
             data: { status: 'Cancelled' },
         });
-        // 3. 포인트 복구 (사용한 포인트만큼 유저에게 돌려줌)
+        // 2. 포인트 복구 (사용한 포인트만큼 유저에게 돌려줌)
         await tx.user.update({
             where: { id: userId },
             data: {
                 points: {
-                    increment: order!.usePoint, // 사용한 포인트만큼 복구
+                    increment: usePoint, // 사용한 포인트만큼 복구
                 },
             },
         });
-        //취소된 상품의 재고를 다시 원복하는 로직도 필요합니다.
+        // 3. 취소된 상품의 재고를 다시 원복하는 로직도 필요합니다.
         const orderItems = await tx.orderItem.findMany({
             where: { orderId: orderId },
         });
@@ -356,8 +352,14 @@ export async function cancelOrder(orderId: string, userId: string) {
                 data: { quantity: { increment: item.quantity } }, // 재고 원복
             });
         }   
-        return order;
     }
     );
     return cancelledOrder;
-}   
+}
+
+export async function getPaymentInfo(orderId: string) {
+    const paymentInfo = await prisma.payment.findFirst({
+        where: { orderId: orderId },
+    });
+    return paymentInfo;
+} 

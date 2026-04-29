@@ -97,9 +97,15 @@ export async function cancelOrder(orderId: string, userId: string, userType: Use
     if (existingOrder.userId !== userId) {
         throw new ForbiddenError('본인의 주문만 취소할 수 있습니다.');
     }
-    const cancelledOrder = await orderRepository.cancelOrder(orderId, userId);
-    if(!cancelledOrder) {
-        throw new BadRequestError('주문 취소에 실패했습니다.');
+    
+    const existingPayment = await orderRepository.getPaymentInfo(orderId);
+    if (!existingPayment) {
+        throw new NotFoundError('결제 정보를 찾을 수 없습니다.');
     }
+    if (existingPayment.status !== 'WaitingPayment') {
+        throw new BadRequestError('주문 취소는 결제 대기 상태에서만 가능합니다.');
+    }   
+
+    const cancelledOrder = await orderRepository.cancelOrder(orderId, userId, existingOrder.usePoint);
     return cancelledOrder;
 }
