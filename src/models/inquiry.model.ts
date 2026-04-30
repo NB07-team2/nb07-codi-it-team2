@@ -244,11 +244,12 @@ export class InquiryUpdateResponseDto {
     }
     reply: {
       id: string;
+      inquiryId: string;
+      userId: string;
       content: string;
       createdAt: Date;
       updatedAt: Date;
       user: {
-        id:string;
         name: string;
       };
     } | null;
@@ -267,11 +268,12 @@ export class InquiryUpdateResponseDto {
       };      
       this.reply = data.reply ? {
         id: data.reply.id,
+        inquiryId: data.reply.inquiryId,
+        userId: data.reply.userId,
         content: data.reply.content,
         createdAt: data.reply.createdAt,
         updatedAt: data.reply.updatedAt,
         user: {
-          id:data.reply.user.id,
           name: data.reply.user.name,
         },
       } : null;

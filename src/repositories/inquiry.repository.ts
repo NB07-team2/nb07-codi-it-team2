@@ -37,16 +37,18 @@ const { page, pageSize, status, sort } = params;
       prisma.inquiry.findMany({
         where,
         skip: (page - 1) * pageSize,
-        orderBy: sort === 'recent' ? { createdAt: 'asc' } : { createdAt: 'desc' },
+        orderBy: { 
+            createdAt: sort === 'oldest' ? 'asc' : 'desc' 
+        },
         take: pageSize,
         include: {
             user: {
-                select: { id: true, name: true },
+                select: {name: true },
             },
             reply: {
-                select: { id: true, content: true, createdAt: true, updatedAt: true,
+                select: { id: true,inquiryId: true, userId: true, content: true, createdAt: true, updatedAt: true,
                 user: {
-                        select: { id: true, name: true },
+                        select: { name: true },
                     },
                 },
             },

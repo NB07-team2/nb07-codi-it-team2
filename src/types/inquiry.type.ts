@@ -90,11 +90,12 @@ export interface InquiryListItem {
     }
     reply: {
       id: string;
+      inquiryId: string;
+      userId: string;
       content: string;
       createdAt: Date;
       updatedAt: Date;
       user: {
-        id:string;
         name: string;
       };
     } | null;

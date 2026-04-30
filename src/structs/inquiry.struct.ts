@@ -35,7 +35,7 @@ export const getInquiriesProductListStruct = object({
   page: defaulted(min(integerString, 1), 1),
   pageSize: defaulted(min(integerString, 1), 10),
   status: optional(enums(["WaitingAnswer", "CompletedAnswer"])),
-  sort : optional(enums(["recent", "oldest"])),
+  sort : defaulted(enums(["recent", "oldest"]), "recent"),
 });
 
 export const inquiryUpdateSchema = z.object({
