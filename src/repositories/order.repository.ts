@@ -356,10 +356,3 @@ export async function cancelOrder(orderId: string, userId: string,usePoint: numb
     );
     return cancelledOrder;
 }
-
-export async function getPaymentInfo(orderId: string) {
-    const paymentInfo = await prisma.payment.findFirst({
-        where: { orderId: orderId },
-    });
-    return paymentInfo;
-} 
