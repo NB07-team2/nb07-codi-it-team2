@@ -1,7 +1,29 @@
 import { Request, Response } from 'express';
 import * as inquiryService from '../services/inquiry.service';
 import { create } from 'superstruct';
-import { getInquiriesMyListStruct, inquiryIdSchema, inquiryUpdateSchema, replyCreateSchema, replyIdSchema, replyUpdateSchema } from '../structs/inquiry.struct';
+import { getInquiriesMyListStruct, getInquiriesProductListStruct, inquiryCreateSchema, inquiryIdSchema, inquiryUpdateSchema, replyCreateSchema, replyIdSchema, replyUpdateSchema } from '../structs/inquiry.struct';
+import { productIdParamSchema } from '../structs/product.struct';
+
+export async function createInquiry(req:Request, res: Response) {
+   const productId = req.params.productId;
+   const { id: userId } = req.user!; 
+
+   const dateToValidata = {
+    ...req.body,
+    productId: productId, 
+    userId: userId    
+   };
+   const validatedData = inquiryCreateSchema.parse(dateToValidata); 
+   const newInquiry = await inquiryService.createInquiry(validatedData); 
+   res.status(201).json(newInquiry);
+}  
+
+export async function getInquiryList(req: Request, res: Response) {
+    const { productId } = productIdParamSchema.parse(req.params);
+    const inquiriesListParams = create(req.query, getInquiriesProductListStruct);
+    const inquiriesData = await inquiryService.getInquiryList(productId, inquiriesListParams);
+    res.status(200).json(inquiriesData);
+}   
 
 export async function myInquiryList(req: Request, res: Response) {
   const { id: userId , type: userType } = req.user!

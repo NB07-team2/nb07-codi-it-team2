@@ -1,8 +1,39 @@
 import * as inquiryRepository from '../repositories/inquiry.repository';
-import {InquiriesMyListResponseDto, InquiryDeleteResponseDto, InquiryDetailResponseDto, InquiryUpdateResponseDto, ReplyResponseDto, UpdateInquiryDto } from '../models/inquiry.model';
+import {CreateInquiryDto, InquiriesMyListResponseDto, InquiryDeleteResponseDto, InquiryDetailResponseDto, InquiryListResponseDto, InquiryResponseDto, InquiryUpdateResponseDto, ReplyResponseDto, UpdateInquiryDto } from '../models/inquiry.model';
 import { ConflictError, ForbiddenError, NotFoundError } from '../errors/errors';
-import { InquiryUpdateInput, ReplyCreateInput, ReplyUpdateInput } from '../structs/inquiry.struct';
+import { InquiryCreateInput, InquiryUpdateInput, ReplyCreateInput, ReplyUpdateInput } from '../structs/inquiry.struct';
 import { InquiryStatus, UserType } from '@prisma/client';
+import { InquiryProductPagingRepoParams } from '../types/inquiry.type';
+
+
+export async function createInquiry(data: InquiryCreateInput) {
+    const dto = new CreateInquiryDto(data);
+    const existingProduct = await inquiryRepository.getProductById(dto.productId); 
+    if(!existingProduct) {
+        throw new NotFoundError('상품을 찾을 수 없습니다');
+    }    
+    const createdInquiry = await inquiryRepository.createInquiry(
+        {
+            title: dto.title,
+            content: dto.content,
+            isSecret: dto.isSecret,
+            userId: dto.userId, 
+            productId: existingProduct.id
+        },
+    );
+    return new InquiryResponseDto(createdInquiry);
+}   
+
+export async function getInquiryList(productId: string, params: InquiryProductPagingRepoParams){
+    const existingProduct = await inquiryRepository.getProductById(productId); 
+    if(!existingProduct) {
+        throw new NotFoundError('상품을 찾을 수 없습니다');
+    }    
+    const { list, totalCount } = await inquiryRepository.getInquiryList(productId, params);
+    return { list: list.map(inquiry => new InquiryListResponseDto(inquiry)), totalCount };
+}
+
+
 export async function myInquiryList(params: { page: number; pageSize: number; status?: InquiryStatus }, userId: string, userType: UserType) {
     const { page, pageSize, status } = params;
     const inquiriesData = await inquiryRepository.myInquiryList({ page, pageSize, status }, userId,userType);

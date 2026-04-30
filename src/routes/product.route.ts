@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as productController from '../controllers/product.controller';
+import * as inquiryController from '../controllers/inquiry.controller';
 import { authenticate } from '../middlewares/auth.middlewares';
 import { upload } from '../services/image.service';
 
@@ -25,4 +26,6 @@ productRouter.delete(
   productController.deleteProductController,
 );
 
+productRouter.post('/:productId/inquiries',authenticate,inquiryController.createInquiry);
+productRouter.get('/:productId/inquiries', inquiryController.getInquiryList);
 export default productRouter;

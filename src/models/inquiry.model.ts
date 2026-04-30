@@ -1,6 +1,6 @@
 import { Inquiry, Reply } from '@prisma/client';
 import { InquiryCreateInput, InquiryUpdateInput} from '../structs/inquiry.struct';
-import { InquiryDeleteItem, InquiryDetailItem, InquiryMyListItem } from '../types/inquiry.type';
+import { InquiryDeleteItem, InquiryDetailItem, InquiryListItem, InquiryMyListItem } from '../types/inquiry.type';
 
 export class CreateInquiryDto {
     title: string;
@@ -228,3 +228,54 @@ export class InquiryUpdateResponseDto {
         this.updatedAt = data.updatedAt;
     }
   }
+
+  export class InquiryListResponseDto {
+    id: string;
+    userId: string;
+    productId: string;
+    title: string;
+    content: string;
+    status: string;
+    isSecret: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    user: {
+      name: string;
+    }
+    reply: {
+      id: string;
+      inquiryId: string;
+      userId: string;
+      content: string;
+      createdAt: Date;
+      updatedAt: Date;
+      user: {
+        name: string;
+      };
+    } | null;
+    constructor(data: InquiryListItem)  {
+      this.id = data.id;
+      this.userId = data.userId;
+      this.productId = data.productId;
+      this.title = data.title;
+      this.content = data.content;      
+      this.isSecret = data.isSecret;
+      this.status = data.status;
+      this.createdAt = data.createdAt;
+      this.updatedAt = data.updatedAt;
+      this.user = {
+        name: data.user.name,
+      };      
+      this.reply = data.reply ? {
+        id: data.reply.id,
+        inquiryId: data.reply.inquiryId,
+        userId: data.reply.userId,
+        content: data.reply.content,
+        createdAt: data.reply.createdAt,
+        updatedAt: data.reply.updatedAt,
+        user: {
+          name: data.reply.user.name,
+        },
+      } : null;
+    }
+}

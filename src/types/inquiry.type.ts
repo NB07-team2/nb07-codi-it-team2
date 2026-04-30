@@ -1,5 +1,6 @@
 import {
   getInquiriesMyListStruct,
+  getInquiriesProductListStruct,
 } from '../structs/inquiry.struct';
 
 import { Infer } from 'superstruct';
@@ -24,6 +25,9 @@ export type InquiryStatus = 'WaitingAnswer' | 'CompletedAnswer';
 
 export type InquiryMyPagingRepoParams = PaginationMyListParams;
 export type InquiryMyPagingServiceParams = PaginationMyListParams;
+
+export type PaginationProductListParams = Infer<typeof getInquiriesProductListStruct>;
+export type InquiryProductPagingRepoParams = PaginationProductListParams;
 
 export interface InquiryMyListItem {
     id: string;
@@ -65,6 +69,33 @@ export interface InquiryDetailItem {
       updatedAt: Date;
       user: {
         id:string;
+        name: string;
+      };
+    } | null;
+} 
+
+
+export interface InquiryListItem {
+    id: string;
+    userId: string;
+    productId: string;
+    title: string;
+    content: string;
+    status: string;
+    isSecret: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    user:{
+        name: string;
+    }
+    reply: {
+      id: string;
+      inquiryId: string;
+      userId: string;
+      content: string;
+      createdAt: Date;
+      updatedAt: Date;
+      user: {
         name: string;
       };
     } | null;
