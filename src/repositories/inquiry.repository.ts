@@ -1,4 +1,4 @@
-import { Prisma, UserType } from '@prisma/client';
+import { NotificationType, Prisma, UserType } from '@prisma/client';
 import {CreateInquiryRepoDto, CreateReplyRepoDto, InquiryMyPagingRepoParams,InquiryProductPagingRepoParams,InquiryStatus, UpdateInquiryRepoDto, UpdateReplyRepoDto } from '../types/inquiry.type';
 import prisma from '../utils/prismaClient.util';
 
@@ -13,8 +13,18 @@ export async function createInquiry(inquiryData : CreateInquiryRepoDto) {
             user: { connect: { id: inquiryData.userId } },
             product: { connect: { id: inquiryData.productId } },
         },   
+    });
+    //[판매자 알림] 문의가 생성되면 판매자에게 알림을 보내는 로직을 여기에 추가할 수 있습니다.
+    await prisma.notification.create({
+        data: {
+            type: NotificationType.NEW_INQUIRY,
+            content: `새로운 문의가 등록되었습니다: ${newInquiry.title}`,
+            userId: (await prisma.product.findUnique({
+                where: { id: inquiryData.productId },
+                select: { store: { select: { userId: true } } },
+            }))?.store.userId || '',
+        },
     }); 
-  
   return newInquiry; 
 }
 
@@ -223,6 +233,26 @@ export async function createReply(replyData: CreateReplyRepoDto, userId: string)
         where: { id: replyData.inquiryId },
         data: { status: 'CompletedAnswer' },
     });
+    
+    //[구매자 알림] 답변이 생성되면 구매자에게 알림을 보내는 로직을 여기에 추가할 수 있습니다.
+    const inquiry = await tx.inquiry.findUnique({
+        where: { id: replyData.inquiryId },
+        include: {
+            user: {
+                select: { id: true },
+            },
+        },
+    });
+
+    if (inquiry?.user) {
+        await tx.notification.create({
+            data: {
+                type: NotificationType.INQUIRY_ANSWER,
+                content: `문의에 대한 새로운 답변이 등록되었습니다.`,
+                userId: inquiry.user.id,
+            },
+        });
+    }   
     return createdReply;
     })       
 }
