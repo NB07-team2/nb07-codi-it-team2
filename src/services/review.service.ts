@@ -30,6 +30,11 @@ export const createReview = async (
   if (orderItem.order.userId !== userId) {
     throw new ForbiddenError('본인이 구매한 상품만 작성 가능합니다.');
   }
+  if (orderItem.order.payments?.status !== 'CompletedPayment') {
+    throw new ForbiddenError(
+      '결제가 완료된 상품에 대해서만 리뷰를 작성할 수 있습니다.',
+    );
+  }
   if (orderItem.productId !== productId) {
     throw new BadRequestError(
       '주문한 상품과 리뷰를 작성하려는 상품이 일치하지 않습니다.',

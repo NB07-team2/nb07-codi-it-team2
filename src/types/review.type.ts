@@ -20,7 +20,12 @@ export type ReviewResponse = {
 export type OrderItemWithOrder = {
   id: string;
   productId: string;
-  order: { userId: string };
+  order: {
+    userId: string;
+    payments: {
+      status: string;
+    } | null;
+  };
 };
 
 //리뷰 아이템 리스트 타입
