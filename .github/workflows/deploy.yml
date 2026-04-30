@@ -22,18 +22,20 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ec2-user/nb07-codi-it-team2
-            
-            # 1. 현재 브랜치에 맞는 최신 코드 가져오기
+
+            # 1. 원격 저장소 최신화 및 서버 상태 강제 동기화
             git fetch origin
-            git checkout ${{ github.ref_name }}
-            git pull origin ${{ github.ref_name }}
-            
-            # 2. 패키지 설치 및 빌드
+            git fetch origin
+            git reset --hard origin/${{ github.ref_name }}
+
+            # 2. 의존성 설치
             npm install
-            npm run build
-            
+
             # 3. Prisma 클라이언트 갱신 및 DB 동기화
             npx prisma generate
-            
-            # 4. PM2를 사용한 무중단 재시작 다)
-            pm2 reload ecosystem.config.js --env production
+
+            # 4. 빌드 실행
+            npm run build
+
+            # 5. PM2 프로세스 재시작
+            pm2 restart ecosystem.config.js --env production
