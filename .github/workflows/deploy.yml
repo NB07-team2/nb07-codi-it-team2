@@ -37,5 +37,5 @@ jobs:
             # 4. 빌드 실행
             npm run build
 
-            # 5. PM2 프로세스 재시작
-            pm2 restart ecosystem.config.js --env production
+            # 5. PM2 무중단 재시작 
+            pm2 reload ecosystem.config.js --env production
