@@ -1,6 +1,62 @@
 import { Prisma, UserType } from '@prisma/client';
-import {CreateReplyRepoDto, InquiryMyPagingRepoParams,InquiryStatus, UpdateInquiryRepoDto, UpdateReplyRepoDto } from '../types/inquiry.type';
+import {CreateInquiryRepoDto, CreateReplyRepoDto, InquiryMyPagingRepoParams,InquiryProductPagingRepoParams,InquiryStatus, UpdateInquiryRepoDto, UpdateReplyRepoDto } from '../types/inquiry.type';
 import prisma from '../utils/prismaClient.util';
+
+
+export async function createInquiry(inquiryData : CreateInquiryRepoDto) {
+    // 문의 생성
+    const newInquiry = await prisma.inquiry.create({
+        data: {
+            title: inquiryData.title,
+            content: inquiryData.content,
+            isSecret: inquiryData.isSecret,
+            user: { connect: { id: inquiryData.userId } },
+            product: { connect: { id: inquiryData.productId } },
+        },   
+    }); 
+  
+  return newInquiry; 
+}
+
+export async function getProductById(productId: string) {
+    const product = await prisma.product.findUnique({
+        where: {
+            id: productId,
+        },   
+    });
+    return product;
+} 
+
+export async function getInquiryList(productId: string, params: InquiryProductPagingRepoParams){
+const { page, pageSize, status, sort } = params;
+    const where: Prisma.InquiryWhereInput = {
+      productId,
+      ...(status && { status }),
+    };
+    const [list, totalCount] = await Promise.all([
+      prisma.inquiry.findMany({
+        where,
+        skip: (page - 1) * pageSize,
+        orderBy: sort === 'recent' ? { createdAt: 'asc' } : { createdAt: 'desc' },
+        take: pageSize,
+        include: {
+            user: {
+                select: { id: true, name: true },
+            },
+            reply: {
+                select: { id: true, content: true, createdAt: true, updatedAt: true,
+                user: {
+                        select: { id: true, name: true },
+                    },
+                },
+            },
+        },
+      }),
+      prisma.inquiry.count({ where }),
+    ]);
+
+    return { list:list, totalCount: totalCount };
+}
 
 export async function myInquiryList(params: InquiryMyPagingRepoParams, userId: string, userType: UserType) {
     const { page, pageSize, status} = params;
