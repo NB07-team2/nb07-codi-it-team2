@@ -6,16 +6,29 @@ import {
   REFRESH_TOKEN_COOKIE_NAME,
   ACCESS_TOKEN_COOKIE_NAME,
 } from '../utils/constants.util';
+import { BadRequestError, EmailLowerCaseError } from '../errors/errors';
 
 // 로그인
 export const login = async (req: Request, res: Response): Promise<void> => {
-  const validatedData = loginSchema.parse(req.body);
-  const result = await authService.login(validatedData);
+  const validatedData = loginSchema.safeParse(req.body);
+
+  if (!validatedData.success) {
+    const { issues } = validatedData.error;
+    const isUpperCaseError = issues.some(
+      (issue) => issue.message === '이메일은 소문자만 입력 가능합니다',
+    );
+
+    if (isUpperCaseError) {
+      throw new EmailLowerCaseError();
+    }
+    throw new BadRequestError();
+  }
+
+  const result = await authService.login(validatedData.data);
 
   if (!result) {
     throw new Error('Service returned undefined or null');
   }
-
   const { response, refreshToken } = result;
   const isProduction = NODE_ENV === 'production';
 

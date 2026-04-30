@@ -20,6 +20,7 @@ import {
 } from '../models/auth.model';
 import { TokenPayload } from '../types/jwt.type';
 
+// 로그인
 export const login = async (
   data: LoginInput,
 ): Promise<{ response: LoginResponseDto; refreshToken: string }> => {
