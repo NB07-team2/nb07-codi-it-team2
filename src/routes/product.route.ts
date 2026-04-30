@@ -11,11 +11,7 @@ productRouter.post(
   upload.single('image'),
   productController.createProductController,
 );
-productRouter.get(
-  '/',
-  authenticate,
-  productController.getProductsListController,
-);
+productRouter.get('/', productController.getProductsListController);
 productRouter.patch(
   '/:productId',
   authenticate,
