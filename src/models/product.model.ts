@@ -52,7 +52,7 @@ export class ProductResponseDto {
   stocks: StockDetail[];
   isSoldOut: boolean;
 
-  constructor(product: ProductWithRelations) {
+  constructor(product: ProductWithRelations, currentUserId?: string) {
     this.id = product.id;
     this.name = product.name;
     this.image = product.image || '';
@@ -80,7 +80,11 @@ export class ProductResponseDto {
     this.reviewsCount = reviewsCount;
     this.reviewsRating = reviewsRating;
 
-    this.inquiries = mapInquiriesWithSecret(product.inquiries);
+    this.inquiries = mapInquiriesWithSecret(
+      product.inquiries,
+      currentUserId,
+      product.store?.userId,
+    );
 
     this.categoryId = product.categoryId;
     this.category = {

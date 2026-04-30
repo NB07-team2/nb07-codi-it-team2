@@ -70,7 +70,11 @@ export const getProductDetailController = async (
   res: Response,
 ) => {
   const productId = req.params.productId as string;
-  const productDetail = await productService.getProductDetail(productId);
+  const currentUserId = req.user?.id;
+  const productDetail = await productService.getProductDetail(
+    productId,
+    currentUserId,
+  );
 
   res.status(200).json(productDetail);
 };

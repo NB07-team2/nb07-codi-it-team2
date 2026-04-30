@@ -1,4 +1,4 @@
-import * as productService from '../../services/product.service'; // 경로에 맞게 수정하세요
+import * as productService from '../../services/product.service';
 import { ProductRepository } from '../../repositories/product.repository';
 import prisma from '../../utils/prismaClient.util';
 import * as imageService from '../../services/image.service';
@@ -8,6 +8,7 @@ import {
   ConflictError,
 } from '../../errors/errors';
 import { GetProductsQuery } from '../../structs/product.struct';
+import { ProductWithRelations } from '../../types/product.type';
 
 jest.mock('../../repositories/product.repository');
 jest.mock('../../services/image.service');
@@ -323,6 +324,78 @@ describe('Product Service Unit Test', () => {
       const result = await productService.getProductDetail('prod-1');
       expect(result.id).toBe('prod-1');
       expect(result.name).toBe('Test Product');
+    });
+
+    describe('문의 권한 체크 (비밀글 필터링)', () => {
+      const mockProductWithSecret = {
+        id: 'prod-1',
+        name: 'Secret Product',
+        price: 10000,
+        storeId: 'store-1',
+        categoryId: 'cat-1',
+        image: 'test.png',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        store: { userId: 'seller-id', name: 'Store' },
+        category: { name: 'top' },
+        reviews: [],
+        stocks: [],
+        inquiries: [
+          {
+            id: 'inq-1',
+            userId: 'buyer-id',
+            title: '비밀 문의',
+            content: '원본 내용',
+            isSecret: true,
+            status: 'WaitingAnswer',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            reply: {
+              id: 'reply-1',
+              content: '원본 답변',
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              user: { id: 'seller-id', name: '판매자' },
+            },
+          },
+        ],
+      } as unknown as ProductWithRelations;
+
+      it('비밀글일 때, 제3자는 "비밀글입니다."라고 보여야 한다', async () => {
+        (ProductRepository.findById as jest.Mock).mockResolvedValue(
+          mockProductWithSecret,
+        );
+        const result = await productService.getProductDetail('prod-1');
+
+        expect(result.inquiries[0]!.content).toBe('비밀글입니다.');
+        expect(result.inquiries[0]!.reply?.content).toBe('비밀글입니다.');
+      });
+
+      it('비밀글이라도 작성자 본인에게는 원본이 보여야 한다', async () => {
+        (ProductRepository.findById as jest.Mock).mockResolvedValue(
+          mockProductWithSecret,
+        );
+        const result = await productService.getProductDetail(
+          'prod-1',
+          'buyer-id',
+        );
+
+        expect(result.inquiries[0]!.content).toBe('원본 내용');
+        expect(result.inquiries[0]!.reply?.content).toBe('원본 답변');
+      });
+
+      it('비밀글이라도 판매자에게는 원본이 보여야 한다', async () => {
+        (ProductRepository.findById as jest.Mock).mockResolvedValue(
+          mockProductWithSecret,
+        );
+        const result = await productService.getProductDetail(
+          'prod-1',
+          'seller-id',
+        ); // 판매자
+
+        expect(result.inquiries[0]!.content).toBe('원본 내용');
+        expect(result.inquiries[0]!.reply?.content).toBe('원본 답변');
+      });
     });
   });
 

@@ -174,14 +174,17 @@ export const updateProduct = async (
 };
 
 // 상품 상세 조회
-export const getProductDetail = async (productId: string) => {
+export const getProductDetail = async (
+  productId: string,
+  currentUserId?: string,
+) => {
   const product = await ProductRepository.findById(productId);
 
   if (!product) {
     throw new NotFoundError('요청하신 상품을 찾을 수 없습니다.');
   }
 
-  return new ProductResponseDto(product as ProductWithRelations);
+  return new ProductResponseDto(product as ProductWithRelations, currentUserId);
 };
 
 // 상품 삭제
