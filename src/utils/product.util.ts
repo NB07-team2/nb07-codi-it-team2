@@ -67,7 +67,7 @@ export const mapInquiriesWithSecret = (
 
     return {
       id: iq.id,
-      title: iq.title,
+      title: hasPermission ? iq.title : '비밀글입니다.',
       content: hasPermission ? iq.content : '비밀글입니다.',
       status: iq.status,
       isSecret: iq.isSecret,
