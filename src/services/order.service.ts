@@ -102,8 +102,8 @@ export async function cancelOrder(orderId: string, userId: string, userType: Use
     if (!existingPayment) {
         throw new NotFoundError('결제 정보를 찾을 수 없습니다.');
     }
-    if (existingPayment.status !== 'WaitingPayment') {
-        throw new BadRequestError('주문 취소는 결제 대기 상태에서만 가능합니다.');
+    if (existingPayment.status !== 'CompletedPayment') {
+        throw new BadRequestError('주문 취소는 결제 완료 상태에서만 가능합니다.');
     }   
 
     const cancelledOrder = await orderRepository.cancelOrder(orderId, userId, existingOrder.usePoint);
