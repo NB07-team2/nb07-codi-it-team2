@@ -5,7 +5,9 @@ import prisma from '../utils/prismaClient.util';
 
 export async function createInquiry(inquiryData : CreateInquiryRepoDto) {
     // 문의 생성
-    const newInquiry = await prisma.inquiry.create({
+
+    return await prisma.$transaction(async (tx) => {
+        const newInquiry = await tx.inquiry.create({
         data: {
             title: inquiryData.title,
             content: inquiryData.content,
@@ -13,9 +15,9 @@ export async function createInquiry(inquiryData : CreateInquiryRepoDto) {
             user: { connect: { id: inquiryData.userId } },
             product: { connect: { id: inquiryData.productId } },
         },   
-    });
-    //[판매자 알림] 문의가 생성되면 판매자에게 알림을 보내는 로직을 여기에 추가할 수 있습니다.
-    await prisma.notification.create({
+      });
+          //[판매자 알림] 문의가 생성되면 판매자에게 알림을 보내는 로직을 여기에 추가할 수 있습니다.
+        await prisma.notification.create({
         data: {
             type: NotificationType.NEW_INQUIRY,
             content: `새로운 문의가 등록되었습니다: ${newInquiry.title}`,
@@ -24,8 +26,9 @@ export async function createInquiry(inquiryData : CreateInquiryRepoDto) {
                 select: { store: { select: { userId: true } } },
             }))?.store.userId || '',
         },
-    }); 
-  return newInquiry; 
+        });
+        return newInquiry; 
+    })
 }
 
 export async function getProductById(productId: string) {
@@ -248,7 +251,7 @@ export async function createReply(replyData: CreateReplyRepoDto, userId: string)
         await tx.notification.create({
             data: {
                 type: NotificationType.INQUIRY_ANSWER,
-                content: `문의에 대한 새로운 답변이 등록되었습니다.`,
+                content: `${inquiry.title} 문의에 대한 새로운 답변이 등록되었습니다.`,
                 userId: inquiry.user.id,
             },
         });
