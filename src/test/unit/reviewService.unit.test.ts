@@ -34,6 +34,14 @@ describe('리뷰 서비스 유닛 테스트', () => {
       content: '너무 마음에 듭니다!',
       orderItemId: 'orderItem-777',
     };
+    const mockValidOrderItem = {
+      id: mockReviewData.orderItemId,
+      productId: mockProductId,
+      order: {
+        userId: mockUserId,
+        payments: { status: 'CompletedPayment' },
+      },
+    };
 
     it(' 구매자가 아니면 ForbiddenError를 던져야 한다', async () => {
       await expect(
@@ -64,11 +72,21 @@ describe('리뷰 서비스 유닛 테스트', () => {
       ).rejects.toThrow(ForbiddenError);
     });
 
+    it('결제가 완료된 상품이 아니면 ForbiddenError를 던져야 한다', async () => {
+      (reviewRepository.findOrderItemForReview as jest.Mock).mockResolvedValue({
+        ...mockValidOrderItem,
+        order: { userId: mockUserId, payments: { status: 'WaitingPayment' } },
+      });
+      await expect(
+        createReview(mockUserId, 'BUYER', mockProductId, mockReviewData),
+      ).rejects.toThrow(ForbiddenError);
+    });
+
     it('리뷰하려는 상품과 주문한 상품이 다르면 BadRequestError를 던져야 한다', async () => {
       (reviewRepository.findOrderItemForReview as jest.Mock).mockResolvedValue({
         id: mockReviewData.orderItemId,
         productId: 'wrong-product', // 요청한 mockProductId와 다름
-        order: { userId: mockUserId },
+        order: { userId: mockUserId, payments: { status: 'CompletedPayment' } },
       });
 
       await expect(
@@ -80,7 +98,7 @@ describe('리뷰 서비스 유닛 테스트', () => {
       (reviewRepository.findOrderItemForReview as jest.Mock).mockResolvedValue({
         id: mockReviewData.orderItemId,
         productId: mockProductId,
-        order: { userId: mockUserId },
+        order: { userId: mockUserId, payments: { status: 'CompletedPayment' } },
       });
       (reviewRepository.findReviewByOrderItemId as jest.Mock).mockResolvedValue(
         {
@@ -97,7 +115,7 @@ describe('리뷰 서비스 유닛 테스트', () => {
       (reviewRepository.findOrderItemForReview as jest.Mock).mockResolvedValue({
         id: mockReviewData.orderItemId,
         productId: mockProductId,
-        order: { userId: mockUserId },
+        order: { userId: mockUserId, payments: { status: 'CompletedPayment' } },
       });
 
       (reviewRepository.findReviewByOrderItemId as jest.Mock).mockResolvedValue(
