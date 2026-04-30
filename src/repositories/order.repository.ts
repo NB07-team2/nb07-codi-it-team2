@@ -92,11 +92,11 @@ export async function createOrder(
       })),
     });
 
-    // [C] 결제 대기 데이터 생성
+    // [C] 결제 완료 데이터 생성
     await tx.payment.create({
       data: {
         price: totalSales,
-        status: 'WaitingPayment',
+        status: 'CompletedPayment',
         createdAt: new Date(),
         updatedAt: new Date(),
         orderId: currentOrder.id,
@@ -356,10 +356,3 @@ export async function cancelOrder(orderId: string, userId: string,usePoint: numb
     );
     return cancelledOrder;
 }
-
-export async function getPaymentInfo(orderId: string) {
-    const paymentInfo = await prisma.payment.findFirst({
-        where: { orderId: orderId },
-    });
-    return paymentInfo;
-} 
