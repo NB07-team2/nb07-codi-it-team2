@@ -2,25 +2,31 @@ import { z } from 'zod';
 import { UserType } from '@prisma/client';
 
 export const registerSchema = z.object({
-  email: z.string().email({ message: '올바른 이메일 형식이 아닙니다' }),
+  email: z
+    .string()
+    .email({ message: '올바른 이메일 형식이 아닙니다' })
+    .regex(/^[^A-Z]*$/, { message: '이메일은 소문자만 입력 가능합니다' }),
   password: z
     .string()
-    .min(8, { message: '비밀번호는 최소 8자 이상이어야 합니다' })
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
-      message: '비밀번호는 영문 대소문자와 숫자를 포함해야 합니다',
-    }),
+    .min(8, { message: '비밀번호는 최소 8자 이상이어야 합니다' }),
   name: z
     .string()
     .min(2, { message: '이름은 최소 2자 이상이어야 합니다' })
     .max(50, { message: '이름은 최대 50자까지 입력 가능합니다' }),
-  image: z.string().nullable().optional(),
+  image: z
+    .string()
+    .nullish()
+    .transform((val) => val ?? undefined),
   type: z.nativeEnum(UserType).describe('회원 유형을 입력해주세요'),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 
 export const loginSchema = z.object({
-  email: z.string().email({ message: '올바른 이메일 형식이 아닙니다' }),
+  email: z
+    .string()
+    .email({ message: '올바른 이메일 형식이 아닙니다' })
+    .regex(/^[^A-Z]*$/, { message: '이메일은 소문자만 입력 가능합니다' }),
   password: z.string().min(1, { message: '비밀번호를 입력해주세요' }),
 });
 

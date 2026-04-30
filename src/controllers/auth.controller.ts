@@ -6,11 +6,24 @@ import {
   REFRESH_TOKEN_COOKIE_NAME,
   ACCESS_TOKEN_COOKIE_NAME,
 } from '../utils/constants.util';
+import { BadRequestError, EmailLowerCaseError } from '../errors/errors';
 
 // 로그인
 export const login = async (req: Request, res: Response): Promise<void> => {
-  const validatedData = loginSchema.parse(req.body);
-  const result = await authService.login(validatedData);
+  const validatedData = loginSchema.safeParse(req.body);
+  // 2. 검증 실패 시 커스텀 에러 던지기 (회원가입과 동일한 로직)
+  if (!validatedData.success) {
+    const { issues } = validatedData.error;
+    const hasEmailError = issues.some((issue) => issue.path.includes('email'));
+
+    if (hasEmailError) {
+      throw new EmailLowerCaseError();
+    }
+
+    throw new BadRequestError(issues[0]?.message || '잘못된 요청입니다.');
+  }
+
+  const result = await authService.login(validatedData.data);
 
   if (!result) {
     throw new Error('Service returned undefined or null');

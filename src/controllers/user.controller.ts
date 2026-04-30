@@ -1,12 +1,30 @@
 import { Request, Response } from 'express';
+import { registerSchema } from '../structs/auth.struct';
 import * as userService from '../services/user.service';
 import * as imageService from '../services/image.service';
 import { asyncHandler } from '../utils/asyncHandler.util';
 import { AuthenticatedRequest } from '../types/user.type';
+import { BadRequestError, EmailLowerCaseError } from '../errors/errors';
 
 // 회원가입
 export const register = asyncHandler(async (req: Request, res: Response) => {
-  const user = await userService.register(req.body);
+  const result = registerSchema.safeParse(req.body);
+
+  if (!result.success) {
+    // 💡 result.error.issues 를 사용하여 에러 목록을 가져옵니다.
+    const { issues } = result.error;
+
+    // 이메일 필드에 에러가 있는지 확인합니다.
+    const hasEmailError = issues.some((issue) => issue.path.includes('email'));
+
+    if (hasEmailError) {
+      throw new EmailLowerCaseError();
+    }
+    throw new BadRequestError(issues[0]?.message);
+  }
+
+  // 성공 시 result.data 사용
+  const user = await userService.register(result.data);
   res.status(201).json(user);
 });
 

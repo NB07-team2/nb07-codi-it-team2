@@ -60,3 +60,10 @@ export class InvalidCredentialsError extends UnauthorizedError {
     super('이메일 또는 비밀번호가 올바르지 않습니다.');
   }
 }
+
+export class EmailLowerCaseError extends BadRequestError {
+  constructor() {
+    super('이메일은 소문자로만 입력해야 합니다.');
+    Object.setPrototypeOf(this, EmailLowerCaseError.prototype);
+  }
+}
