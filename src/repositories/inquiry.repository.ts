@@ -251,7 +251,7 @@ export async function createReply(replyData: CreateReplyRepoDto, userId: string)
         await tx.notification.create({
             data: {
                 type: NotificationType.INQUIRY_ANSWER,
-                content: `${inquiry.title} 문의에 대한 새로운 답변이 등록되었습니다.`,
+                content: `'${inquiry.title}' 문의에 대한 새로운 답변이 등록되었습니다.`,
                 userId: inquiry.user.id,
             },
         });
