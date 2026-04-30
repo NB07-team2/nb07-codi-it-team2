@@ -11,19 +11,17 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   const result = registerSchema.safeParse(req.body);
 
   if (!result.success) {
-    // 💡 result.error.issues 를 사용하여 에러 목록을 가져옵니다.
+    // 에러 목록을 가져오기
     const { issues } = result.error;
+    const isUpperCaseError = issues.some(
+      (issue) => issue.message === '이메일은 소문자만 입력 가능합니다',
+    );
 
-    // 이메일 필드에 에러가 있는지 확인합니다.
-    const hasEmailError = issues.some((issue) => issue.path.includes('email'));
-
-    if (hasEmailError) {
+    if (isUpperCaseError) {
       throw new EmailLowerCaseError();
     }
-    throw new BadRequestError(issues[0]?.message);
+    throw new BadRequestError();
   }
-
-  // 성공 시 result.data 사용
   const user = await userService.register(result.data);
   res.status(201).json(user);
 });

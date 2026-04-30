@@ -11,16 +11,17 @@ import { BadRequestError, EmailLowerCaseError } from '../errors/errors';
 // 로그인
 export const login = async (req: Request, res: Response): Promise<void> => {
   const validatedData = loginSchema.safeParse(req.body);
-  // 2. 검증 실패 시 커스텀 에러 던지기 (회원가입과 동일한 로직)
+
   if (!validatedData.success) {
     const { issues } = validatedData.error;
-    const hasEmailError = issues.some((issue) => issue.path.includes('email'));
+    const isUpperCaseError = issues.some(
+      (issue) => issue.message === '이메일은 소문자만 입력 가능합니다',
+    );
 
-    if (hasEmailError) {
+    if (isUpperCaseError) {
       throw new EmailLowerCaseError();
     }
-
-    throw new BadRequestError(issues[0]?.message || '잘못된 요청입니다.');
+    throw new BadRequestError();
   }
 
   const result = await authService.login(validatedData.data);
@@ -28,7 +29,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   if (!result) {
     throw new Error('Service returned undefined or null');
   }
-
   const { response, refreshToken } = result;
   const isProduction = NODE_ENV === 'production';
 
