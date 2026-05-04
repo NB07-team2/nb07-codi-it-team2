@@ -23,7 +23,7 @@ export const createProductController = async (req: Request, res: Response) => {
     req.file,
   );
 
-  res.status(201).json(result);
+  return res.status(201).json(result);
 };
 
 // 상품 목록 조회
@@ -37,7 +37,7 @@ export const getProductsListController = async (
     (product) => new ProductListResponseDto(product),
   );
 
-  res.status(200).json({
+  return res.status(200).json({
     list: formattedList,
     totalCount,
   });
@@ -61,7 +61,7 @@ export const updateProductController = async (req: Request, res: Response) => {
     validatedData,
     req.file,
   );
-  res.status(200).json(updatedProduct);
+  return res.status(200).json(updatedProduct);
 };
 
 // 상품 상세 조회
@@ -76,7 +76,7 @@ export const getProductDetailController = async (
     currentUserId,
   );
 
-  res.status(200).json(productDetail);
+  return res.status(200).json(productDetail);
 };
 
 // 상품 삭제
@@ -87,5 +87,5 @@ export const deleteProductController = async (req: Request, res: Response) => {
 
   await productService.deleteProduct(userId, userType, productId);
 
-  res.status(204).json();
+  return res.status(204).json();
 };
