@@ -52,14 +52,25 @@ export const reviewRepository = {
     productId: string,
     data: CreateReviewType,
   ) => {
-    return await prisma.review.create({
-      data: {
-        userId,
-        productId,
-        orderItemId: data.orderItemId,
-        rating: data.rating,
-        content: data.content,
-      },
+    return await prisma.$transaction(async (tx) => {
+      // 1. 리뷰 생성
+      const newReview = await tx.review.create({
+        data: {
+          userId,
+          productId,
+          orderItemId: data.orderItemId,
+          rating: data.rating,
+          content: data.content,
+        },
+      });
+
+      // 2. 해당 주문 항목의 isReviewed를 true로 업데이트
+      await tx.orderItem.update({
+        where: { id: data.orderItemId },
+        data: { isReviewed: true },
+      });
+
+      return newReview;
     });
   },
 
@@ -116,8 +127,18 @@ export const reviewRepository = {
 
   //리뷰 삭제
   deleteReview: async (reviewId: string) => {
-    return await prisma.review.delete({
-      where: { id: reviewId },
+    return await prisma.$transaction(async (tx) => {
+      const deletedReview = await tx.review.delete({
+        where: { id: reviewId },
+      });
+
+      //해당 주문 항목의 isReviewed를 false로 되돌림.
+      await tx.orderItem.update({
+        where: { id: deletedReview.orderItemId },
+        data: { isReviewed: false },
+      });
+
+      return deletedReview;
     });
   },
 };
