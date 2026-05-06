@@ -116,35 +116,25 @@ export const updateProductSchema = z.object({
   discountRate: z.coerce.number().int().min(0).max(100).optional(),
   discountStartTime: z.string().datetime().nullable().optional(),
   discountEndTime: z.string().datetime().nullable().optional(),
-  stocks: z.preprocess(
-    (val) => {
-      if (!val || val === '') return undefined;
+  stocks: z.preprocess((val) => {
+    if (!val || val === '') return undefined;
 
-      if (Array.isArray(val) || typeof val !== 'string') return val;
+    if (Array.isArray(val) || typeof val !== 'string') return val;
 
-      let cleanVal = val
-        .trim()
-        .replace(/^["']|["']$/g, '')
-        .replace(/,+$/, '');
+    let cleanVal = val
+      .trim()
+      .replace(/^["']|["']$/g, '')
+      .replace(/,+$/, '');
 
-      if (cleanVal.startsWith('"') && cleanVal.endsWith('"')) {
-        cleanVal = cleanVal.slice(1, -1);
-      }
+    if (cleanVal.startsWith('"') && cleanVal.endsWith('"')) {
+      cleanVal = cleanVal.slice(1, -1);
+    }
 
-      if (cleanVal.startsWith('[')) {
-        return JSON.parse(cleanVal);
-      }
-      return cleanVal;
-    },
-    z
-      .array(
-        z.object({
-          size: z.string(),
-          quantity: z.number().int().min(0),
-        }),
-      )
-      .optional(),
-  ),
+    if (cleanVal.startsWith('[')) {
+      return JSON.parse(cleanVal);
+    }
+    return cleanVal;
+  }, z.array(stockItem).optional()),
 });
 
 export type GetProductsQuery = z.infer<typeof getProductsQuery>;

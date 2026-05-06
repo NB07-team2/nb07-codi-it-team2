@@ -148,10 +148,10 @@ export const updateProduct = async (
     const sizes = await prisma.size.findMany();
 
     stocksMap = data.stocks.map((stock) => {
-      const sizeRecord = sizes.find((s) => s.name === stock.size);
+      const sizeRecord = sizes.find((s) => s.id === stock.sizeId);
 
       if (!sizeRecord) {
-        throw new NotFoundError(`사이즈(${stock.size}) 없음`);
+        throw new NotFoundError(`사이즈(${stock.sizeId}) 없음`);
       }
 
       return {
@@ -196,9 +196,10 @@ export const deleteProduct = async (
   if (userType !== 'SELLER') {
     throw new ForbiddenError('판매자만 상품을 삭제할 수 있습니다.');
   }
-  const product = (await ProductRepository.findById(
-    productId,
-  )) as ProductWithRelations;
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    include: { store: true, orderItems: true },
+  });
 
   if (!product) {
     throw new NotFoundError('요청하신 상품을 찾을 수 없습니다.');
@@ -208,17 +209,11 @@ export const deleteProduct = async (
     throw new ForbiddenError('자신의 스토어 상품만 삭제할 수 있습니다.');
   }
 
-  const imageToDelete = product.image;
+  if (product.orderItems && product.orderItems.length > 0) {
+    throw new ConflictError('구매 내역이 존재하는 상품은 삭제할 수 없습니다.');
+  }
 
   await ProductRepository.delete(productId);
 
-  if (imageToDelete && imageToDelete !== DEFAULT_IMAGE) {
-    try {
-      await imageService.deleteFromS3(imageToDelete);
-      console.log(`상품 삭제에 따른 S3 이미지 삭제 완료: ${imageToDelete}`);
-    } catch (error) {
-      console.error('상품 삭제 중 S3 이미지 삭제 오류 발생:', error);
-    }
-  }
   return { message: '상품이 삭제되었습니다.' };
 };
