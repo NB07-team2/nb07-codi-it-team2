@@ -1,7 +1,12 @@
 import prisma from '../utils/prismaClient.util';
 import { ProductRepository } from '../repositories/product.repository';
 import * as imageService from './image.service';
-import { ConflictError, NotFoundError, ForbiddenError } from '../errors/errors';
+import {
+  ConflictError,
+  NotFoundError,
+  ForbiddenError,
+  NotDeletedError,
+} from '../errors/errors';
 import { ProductResponseDto } from '../models/product.model';
 import {
   CreateProductDTO,
@@ -210,10 +215,20 @@ export const deleteProduct = async (
   }
 
   if (product.orderItems && product.orderItems.length > 0) {
-    throw new ConflictError('구매 내역이 존재하는 상품은 삭제할 수 없습니다.');
+    throw new NotDeletedError();
   }
 
   await ProductRepository.delete(productId);
+
+  const imageToDelete = product.image;
+  if (imageToDelete && imageToDelete !== DEFAULT_IMAGE) {
+    try {
+      await imageService.deleteFromS3(imageToDelete);
+      console.log(`상품 삭제에 따른 S3 이미지 삭제 완료: ${imageToDelete}`);
+    } catch (error) {
+      console.error('상품 삭제 중 S3 이미지 삭제 오류 발생:', error);
+    }
+  }
 
   return { message: '상품이 삭제되었습니다.' };
 };

@@ -67,3 +67,9 @@ export class EmailLowerCaseError extends BadRequestError {
     Object.setPrototypeOf(this, EmailLowerCaseError.prototype);
   }
 }
+
+export class NotDeletedError extends BadRequestError {
+  constructor() {
+    super('구매 내역이 존재하는 상품은 삭제할 수 없습니다.');
+  }
+}
