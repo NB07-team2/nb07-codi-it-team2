@@ -123,23 +123,9 @@ export async function myInquiryList(params: InquiryMyPagingRepoParams, userId: s
     };      
 }
 
-export async function getInquiryDetail(inquiryId: string,userId:string,userType:UserType) { 
-
-    const whereCondition: Prisma.InquiryWhereInput = {
-        id: inquiryId,
-    };
-
-    if (userType === 'SELLER') {
-        whereCondition.product = {
-            store: {
-                userId: userId,
-            },
-        };
-    } else {
-        whereCondition.userId = userId;
-    }
+export async function getInquiryDetail(inquiryId: string) { 
     const inquiry = await prisma.inquiry.findFirst({
-        where: whereCondition,
+        where: { id: inquiryId },
         include: {
             reply: {
                 select: { id: true, content: true, createdAt: true, updatedAt: true,
