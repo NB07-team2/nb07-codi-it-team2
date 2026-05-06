@@ -42,7 +42,7 @@ export async function createOrder(
 
       // 할인 중이라면 할인가 적용 (할인율 10%면 0.1이므로 1 - 0.1을 곱함)
       if (isDiscountActive && product.discountRate) {
-        finalPrice = product.price * (1 - (product.discountRate/100));
+        finalPrice = product.price * (1 - product.discountRate);
       }
 
       return {
