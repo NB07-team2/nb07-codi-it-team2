@@ -38,8 +38,8 @@ export async function myInquiryList(req: Request, res: Response) {
 
 export async function getInquiryDetail(req: Request, res: Response) {
     const {id:inquiryId} = inquiryIdSchema.parse(req.params);
-    //const {id: userId, type: userType } = req.user!;
-    const inquiryDetail = await inquiryService.getInquiryDetail(inquiryId);
+    const {id: userId, type: userType } = req.user!;
+    const inquiryDetail = await inquiryService.getInquiryDetail(inquiryId, userId, userType);
     res.status(200).json(inquiryDetail);
 } 
 

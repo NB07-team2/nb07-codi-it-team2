@@ -42,7 +42,7 @@ export async function myInquiryList(params: { page: number; pageSize: number; st
     };  
 }
 
-export async function getInquiryDetail(inquiryId: string, userId?: string, userType?: UserType) {  
+export async function getInquiryDetail(inquiryId: string, userId: string, userType: UserType) {  
     const existingInquiry = await inquiryRepository.getInquiryDetail(inquiryId, userId, userType);
     if (!existingInquiry) {
         throw new NotFoundError('문의가 존재하지 않습니다.');
