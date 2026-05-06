@@ -5,7 +5,6 @@ import { InquiryCreateInput, InquiryUpdateInput, ReplyCreateInput, ReplyUpdateIn
 import { InquiryStatus, UserType } from '@prisma/client';
 import { InquiryProductPagingRepoParams } from '../types/inquiry.type';
 
-
 export async function createInquiry(data: InquiryCreateInput) {
     const dto = new CreateInquiryDto(data);
     const existingProduct = await inquiryRepository.getProductById(dto.productId); 
@@ -43,7 +42,7 @@ export async function myInquiryList(params: { page: number; pageSize: number; st
     };  
 }
 
-export async function getInquiryDetail(inquiryId: string, userId: string,userType: UserType) {  
+export async function getInquiryDetail(inquiryId: string, userId: string, userType: UserType) {  
     const existingInquiry = await inquiryRepository.getInquiryDetail(inquiryId, userId, userType);
     if (!existingInquiry) {
         throw new NotFoundError('문의가 존재하지 않습니다.');
