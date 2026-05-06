@@ -7,8 +7,6 @@ import {
   NotFoundError,
   ConflictError,
 } from '../../errors/errors';
-import { GetProductsQuery } from '../../structs/product.struct';
-import { ProductWithRelations } from '../../types/product.type';
 
 jest.mock('../../repositories/product.repository');
 jest.mock('../../services/image.service');
