@@ -262,7 +262,7 @@ describe('Product Service Unit Test', () => {
 
       await expect(
         productService.updateProduct(mockUserId, 'SELLER', mockProductId, {
-          stocks: [{ size: 'M', quantity: 5 }],
+          stocks: [{ sizeId: 1, quantity: 5 }],
         }),
       ).rejects.toThrow(NotFoundError);
     });
