@@ -198,7 +198,7 @@ describe('Product Service Unit Test', () => {
       ).rejects.toThrow(ForbiddenError);
     });
 
-    it('구매 내역이 존재하는 상품은 ConflictError를 던져야 한다', async () => {
+    it('구매 내역이 존재하는 상품은 NotDeletedError를 던져야 한다', async () => {
       (prisma.product.findUnique as jest.Mock).mockResolvedValue({
         id: mockProductId,
         store: { userId: mockUserId },
@@ -207,16 +207,17 @@ describe('Product Service Unit Test', () => {
 
       await expect(
         productService.deleteProduct(mockUserId, 'SELLER', mockProductId),
-      ).rejects.toThrow(ConflictError);
+      ).rejects.toThrow('구매 내역이 존재하는 상품은 삭제할 수 없습니다.');
     });
 
-    it('정상적으로 삭제되면 성공 메시지를 반환해야 한다 (S3 지우지 않음)', async () => {
+    it('정상적으로 삭제되면 S3 이미지를 지우고 성공 메시지를 반환해야 한다', async () => {
       const mockProduct = {
         id: mockProductId,
         image: 'https://s3.com/keep-me.png',
         store: { userId: mockUserId },
-        orderItems: [],
+        orderItems: [], // 주문 내역 없음
       };
+
       (prisma.product.findUnique as jest.Mock).mockResolvedValue(mockProduct);
       (ProductRepository.delete as jest.Mock).mockResolvedValue(true);
 
@@ -227,7 +228,9 @@ describe('Product Service Unit Test', () => {
       );
 
       expect(ProductRepository.delete).toHaveBeenCalledWith(mockProductId);
-      expect(imageService.deleteFromS3).not.toHaveBeenCalled();
+
+      expect(imageService.deleteFromS3).toHaveBeenCalledWith(mockProduct.image);
+
       expect(result.message).toBe('상품이 삭제되었습니다.');
     });
   });
