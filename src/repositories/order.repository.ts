@@ -126,6 +126,14 @@ export async function createOrder(
           product: { include: { store: true } },
         },
       });
+      // 상품의 판매량 증가 로직 추가
+      await tx.product.update({
+        where: { id: item.productId },
+        data: {
+          sales: { increment: item.quantity },
+        },
+      }); 
+
       // 품절 알림 로직 추가
       if (updatedStock.quantity === 0) {
         // [판매자 알림] 내 상품이 품절됨
