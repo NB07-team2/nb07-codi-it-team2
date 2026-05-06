@@ -1,7 +1,12 @@
 import prisma from '../utils/prismaClient.util';
 import { ProductRepository } from '../repositories/product.repository';
 import * as imageService from './image.service';
-import { ConflictError, NotFoundError, ForbiddenError } from '../errors/errors';
+import {
+  ConflictError,
+  NotFoundError,
+  ForbiddenError,
+  NotDeletedError,
+} from '../errors/errors';
 import { ProductResponseDto } from '../models/product.model';
 import {
   CreateProductDTO,
@@ -148,10 +153,10 @@ export const updateProduct = async (
     const sizes = await prisma.size.findMany();
 
     stocksMap = data.stocks.map((stock) => {
-      const sizeRecord = sizes.find((s) => s.name === stock.size);
+      const sizeRecord = sizes.find((s) => s.id === stock.sizeId);
 
       if (!sizeRecord) {
-        throw new NotFoundError(`사이즈(${stock.size}) 없음`);
+        throw new NotFoundError(`사이즈(${stock.sizeId}) 없음`);
       }
 
       return {
@@ -196,9 +201,10 @@ export const deleteProduct = async (
   if (userType !== 'SELLER') {
     throw new ForbiddenError('판매자만 상품을 삭제할 수 있습니다.');
   }
-  const product = (await ProductRepository.findById(
-    productId,
-  )) as ProductWithRelations;
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    include: { store: true, orderItems: true },
+  });
 
   if (!product) {
     throw new NotFoundError('요청하신 상품을 찾을 수 없습니다.');
@@ -208,10 +214,13 @@ export const deleteProduct = async (
     throw new ForbiddenError('자신의 스토어 상품만 삭제할 수 있습니다.');
   }
 
-  const imageToDelete = product.image;
+  if (product.orderItems && product.orderItems.length > 0) {
+    throw new NotDeletedError();
+  }
 
   await ProductRepository.delete(productId);
 
+  const imageToDelete = product.image;
   if (imageToDelete && imageToDelete !== DEFAULT_IMAGE) {
     try {
       await imageService.deleteFromS3(imageToDelete);
@@ -220,5 +229,6 @@ export const deleteProduct = async (
       console.error('상품 삭제 중 S3 이미지 삭제 오류 발생:', error);
     }
   }
+
   return { message: '상품이 삭제되었습니다.' };
 };

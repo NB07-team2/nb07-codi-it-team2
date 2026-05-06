@@ -245,6 +245,7 @@ export const ProductRepository = {
 
       // 장바구니 아이템 삭제
       await tx.cartItem.deleteMany({ where: { productId } });
+
       return await tx.product.delete({
         where: { id: productId },
       });

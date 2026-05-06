@@ -147,7 +147,7 @@ describe('Product Service Integration Test', () => {
       const updateData = {
         name: '수정된 니트',
         price: 40000,
-        stocks: [{ size: 'S', quantity: 100 }], // 수량 50 -> 100으로 변경
+        stocks: [{ sizeId: 1, quantity: 100 }], // 수량 50 -> 100으로 변경
       };
 
       const result = await productService.updateProduct(
